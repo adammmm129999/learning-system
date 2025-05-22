@@ -74,6 +74,12 @@
       const password = document.getElementById('password').value.trim();
       const message = document.getElementById('message');
 
+      if (!email || !password) {
+        message.style.color = 'red';
+        message.textContent = '請填寫完整資料。';
+        return;
+      }
+
       createUserWithEmailAndPassword(auth, email, password)
         .then((userCredential) => {
           const user = userCredential.user;
