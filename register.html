@@ -3,12 +3,14 @@
 <head>
   <meta charset="UTF-8">
   <title>註冊帳號</title>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;700&display=swap" rel="stylesheet">
   <style>
     body {
       font-family: 'Noto Sans TC', sans-serif;
       padding: 2rem;
       max-width: 400px;
       margin: auto;
+      background-color: #f9f9f9;
     }
     input, button {
       display: block;
@@ -16,6 +18,21 @@
       padding: 0.5rem;
       width: 100%;
       font-size: 1rem;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+    }
+    button {
+      background-color: #007bff;
+      color: white;
+      border: none;
+      cursor: pointer;
+    }
+    button:hover {
+      background-color: #0056b3;
+    }
+    #message {
+      font-weight: bold;
+      text-align: center;
     }
     h2 {
       text-align: center;
@@ -27,14 +44,34 @@
   <input type="email" id="email" placeholder="請輸入 Email">
   <input type="password" id="password" placeholder="請輸入密碼（至少 6 碼）">
   <button id="registerBtn">註冊</button>
+  <button onclick="location.href='index.html'">返回登入頁面</button>
   <p id="message"></p>
 
+  <!-- Firebase SDK -->
+  <script type="module">
+    // 匯入 Firebase SDK
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/11.8.1/firebase-app.js";
+    import { getAuth, createUserWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/11.8.1/firebase-auth.js";
 
+    // Firebase 設定
+    const firebaseConfig = {
+      apiKey: "AIzaSyC0VF7SkuXvOAJyuC-2tPl_KGris3f4gqE",
+      authDomain: "final-project-fb104.firebaseapp.com",
+      projectId: "final-project-fb104",
+      storageBucket: "final-project-fb104.appspot.com",
+      messagingSenderId: "150740541108",
+      appId: "1:150740541108:web:1a0dba9ebb4cbb157001e1",
+      measurementId: "G-XRR8QBXS35"
+    };
 
-    // 註冊事件
+    // 初始化 Firebase
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+
+    // 註冊按鈕事件
     document.getElementById('registerBtn').addEventListener('click', () => {
-      const email = document.getElementById('email').value;
-      const password = document.getElementById('password').value;
+      const email = document.getElementById('email').value.trim();
+      const password = document.getElementById('password').value.trim();
       const message = document.getElementById('message');
 
       createUserWithEmailAndPassword(auth, email, password)
@@ -42,12 +79,18 @@
           const user = userCredential.user;
           message.style.color = 'green';
           message.textContent = `註冊成功！歡迎 ${user.email}`;
-          console.log('成功註冊:', user);
         })
         .catch((error) => {
           message.style.color = 'red';
-          message.textContent = `註冊失敗：${error.message}`;
-          console.error('註冊錯誤:', error);
+          if (error.code === 'auth/email-already-in-use') {
+            message.textContent = '這個 Email 已經註冊過了，請使用其他 Email。';
+          } else if (error.code === 'auth/invalid-email') {
+            message.textContent = 'Email 格式錯誤，請重新輸入。';
+          } else if (error.code === 'auth/weak-password') {
+            message.textContent = '密碼太弱，請至少使用 6 個字元以上。';
+          } else {
+            message.textContent = `註冊失敗：${error.message}`;
+          }
         });
     });
   </script>
