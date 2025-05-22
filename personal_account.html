@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8" />
+  <title>個人帳戶資料修改</title>
+  <style>
+    body {
+      font-family: "Noto Sans TC", sans-serif;
+      background-color: #f9f9f9;
+      color: #333;
+      font-size: 20px;
+      line-height: 1.6;
+      margin: 0;
+      padding: 20px;
+      max-width: 600px;
+      margin-left: auto;
+      margin-right: auto;
+    }
+    h1 {
+      text-align: center;
+      color: #004080;
+      margin-bottom: 30px;
+    }
+    label {
+      display: block;
+      margin-top: 15px;
+      font-weight: 600;
+      color: #004080;
+    }
+    input[type="text"],
+    input[type="email"],
+    input[type="tel"],
+    input[type="file"] {
+      width: 100%;
+      padding: 10px;
+      border-radius: 8px;
+      border: 1px solid #999;
+      font-size: 18px;
+      box-sizing: border-box;
+      margin-top: 5px;
+    }
+    button {
+      margin-top: 25px;
+      width: 100%;
+      padding: 12px;
+      font-size: 22px;
+      background-color: #007bff;
+      border: none;
+      color: white;
+      border-radius: 10px;
+      cursor: pointer;
+    }
+    button:hover {
+      background-color: #0056b3;
+    }
+    .avatar-preview {
+      margin-top: 15px;
+      text-align: center;
+    }
+    .avatar-preview img {
+      width: 150px;
+      height: 150px;
+      object-fit: cover;
+      border-radius: 50%;
+      border: 2px solid #004080;
+    }
+  </style>
+</head>
+<body>
+  <h1>修改個人資料</h1>
+
+  <form id="accountForm" enctype="multipart/form-data" method="post" action="update_profile.php">
+    <label for="name">姓名</label>
+    <input type="text" id="name" name="name" placeholder="請輸入您的姓名" required />
+
+    <label for="email">電子郵件</label>
+    <input type="email" id="email" name="email" placeholder="請輸入電子郵件" required />
+
+    <label for="phone">電話</label>
+    <input type="tel" id="phone" name="phone" placeholder="請輸入電話" />
+
+    <label for="avatar">上傳頭像</label>
+    <input type="file" id="avatar" name="avatar" accept="image/*" />
+
+    <div class="avatar-preview" id="avatarPreview">
+      <!-- 預覽圖片會顯示在這 -->
+    </div>
+
+    <button type="submit">儲存修改</button>
+  </form>
+
+  <script>
+    const avatarInput = document.getElementById('avatar');
+    const avatarPreview = document.getElementById('avatarPreview');
+
+    avatarInput.addEventListener('change', function() {
+      const file = this.files[0];
+      if (!file) {
+        avatarPreview.innerHTML = '';
+        return;
+      }
+      if (!file.type.startsWith('image/')) {
+        alert('請選擇圖片檔案');
+        avatarInput.value = '';
+        avatarPreview.innerHTML = '';
+        return;
+      }
+      const reader = new FileReader();
+      reader.onload = function(e) {
+        avatarPreview.innerHTML = `<img src="${e.target.result}" alt="頭像預覽">`;
+      }
+      reader.readAsDataURL(file);
+    });
+  </script>
+</body>
+</html>

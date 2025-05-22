@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>登入 - 長者數位素養學習系統</title>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;700&display=swap" rel="stylesheet">
+  <style>
+    body {
+      font-family: 'Noto Sans TC', sans-serif;
+      background-color: #f2f2f2;
+      margin: 0;
+      padding: 0;
+    }
+
+    .container {
+      max-width: 400px;
+      margin: 80px auto;
+      background-color: #fff;
+      padding: 30px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+      border-radius: 10px;
+    }
+
+    h1 {
+      text-align: center;
+      margin-bottom: 30px;
+      color: #333;
+    }
+
+    label {
+      display: block;
+      margin-top: 15px;
+      color: #333;
+      font-weight: bold;
+    }
+
+    input[type="text"],
+    input[type="password"] {
+      width: 100%;
+      padding: 10px;
+      margin-top: 5px;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+      font-size: 16px;
+      background-color: #f9f9f9;
+    }
+
+    button {
+      width: 100%;
+      padding: 12px;
+      margin-top: 25px;
+      background-color: #007bff;
+      border: none;
+      border-radius: 5px;
+      color: white;
+      font-size: 16px;
+      cursor: pointer;
+    }
+
+    button:hover {
+      background-color: #0056b3;
+    }
+
+    .message {
+      margin-top: 10px;
+      text-align: center;
+      color: red;
+      font-weight: bold;
+    }
+
+     #chat-button {
+    position: fixed;
+    bottom: 30px;
+    right: 30px;
+    background-color: #4CAF50;
+    color: white;
+    border: none;
+    border-radius: 50%;
+    width: 60px;
+    height: 60px;
+    font-size: 28px;
+    cursor: pointer;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+    z-index: 9999;
+  }
+  #chat-button:hover {
+    background-color: #45a049;
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>銀髮E學院登入系統</h1>
+    <div class="message" id="message"></div>
+
+    <form action="do_login.php" method="POST" autocomplete="off">
+      <input type="text" name="fakeusernameremembered" style="display:none">
+      <input type="password" name="fakepasswordremembered" style="display:none">
+
+      <label for="username">帳號：</label>
+      <input type="text" id="username" name="username" required autocomplete="new-username">
+
+      <label for="password">密碼：</label>
+      <input type="password" id="password" name="password" required autocomplete="new-password">
+
+      <button type="submit">登入</button>
+      <button id="chat-button" title="點我問問題">💬</button>
+    </form>
+  </div>
+
+  <script>
+    // 清除 URL 中的 error 和 success 參數
+    if (window.location.search.includes('error') || window.location.search.includes('success')) {
+        window.history.replaceState(null, null, window.location.pathname);
+    }
+
+    const params = new URLSearchParams(window.location.search);
+    const msgEl = document.getElementById('message');
+    if (params.has('error')) {
+      msgEl.textContent = decodeURIComponent(params.get('error'));
+      msgEl.style.color = 'red';
+    } else if (params.has('success')) {
+      msgEl.textContent = decodeURIComponent(params.get('success'));
+      msgEl.style.color = 'green';
+    }
+ document.getElementById("chat-button").addEventListener("click", function () {
+    window.open(
+      "https://poe.com/AI0-phone-assistant",
+      "poeChat",
+      "width=420,height=640,resizable=yes"
+    );
+  });
+
+  </script>
+</body>
+</html>

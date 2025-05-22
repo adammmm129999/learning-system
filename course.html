@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>圖片說明頁</title>
+  <style>
+    body {
+      font-family: "Noto Sans TC", sans-serif;
+      background-color: #f9f9f9;
+      color: #333;
+      font-size: 20px;
+      line-height: 1.8;
+      margin: 0;
+      padding: 0;
+    }
+
+    .navbar {
+      background-color: #4a90e2;
+      padding: 20px 0;
+    }
+
+    .navbar .container {
+      display: flex;
+      justify-content: space-around;
+      flex-wrap: wrap;
+    }
+
+    .navbar a {
+      color: #fff;
+      text-decoration: none;
+      font-size: 22px;
+      padding: 10px 20px;
+      background-color: #357abd;
+      border-radius: 12px;
+      margin: 5px;
+    }
+
+    .navbar a:hover {
+      background-color: #285c9f;
+    }
+
+    .section {
+      display: flex;
+      flex-direction: row;
+      width: 100%;
+      border-bottom: 1px solid #ccc;
+      padding: 20px;
+      box-sizing: border-box;
+    }
+
+    .section img {
+      width: 50%;
+      height: auto;
+      object-fit: cover;
+      border-radius: 12px;
+    }
+
+    .section .text {
+      width: 50%;
+      padding: 20px;
+      box-sizing: border-box;
+    }
+
+    .section .text h2 {
+      margin-top: 0;
+      color: #1a237e;
+    }
+  </style>
+</head>
+<body>
+  <!-- 導覽列 -->
+  <nav class="navbar">
+    <div class="container">
+      <a href="home.html">🏠 首頁</a>
+      <a href="course.html">📘 課程介紹</a>
+      <a href="introduce.html">💻 設備介紹</a>
+      <a href="discussion.html">💬 討論區</a>
+      <a href="progress.html">📈 學習進度</a>
+      <a href="logout.php">🔓 登出</a>
+    </div>
+  </nav>
+
+  <!-- 圖片 + 說明區塊 -->
+  <div class="section">
+    <img src="your-image1.jpg" alt="圖片1">
+    <div class="text">
+      <h2>功能一：拍照</h2>
+      <p>教長者如何開啟相機拍照，保存生活美好瞬間。</p>
+    </div>
+  </div>
+
+  <div class="section">
+    <img src="your-image2.jpg" alt="圖片2">
+    <div class="text">
+      <h2>功能二：視訊通話</h2>
+      <p>使用 LINE、Messenger 等進行視訊聯繫親友。</p>
+    </div>
+  </div>
+
+  <div class="section">
+    <img src="your-image3.jpg" alt="圖片3">
+    <div class="text">
+      <h2>功能三：導航與地圖</h2>
+      <p>使用 Google 地圖幫助長者找到目的地。</p>
+    </div>
+  </div>
+
+  <div class="section">
+    <img src="your-image4.jpg" alt="圖片4">
+    <div class="text">
+      <h2>功能四：查天氣</h2>
+      <p>讓長者能隨時查詢當日天氣與氣象預報。</p>
+    </div>
+  </div>
+
+  <div class="section">
+    <img src="your-image5.jpg" alt="圖片5">
+    <div class="text">
+      <h2>功能五：語音助理</h2>
+      <p>利用語音助理操作手機，例如說「打電話給小明」。</p>
+    </div>
+  </div>
+</body>
+</html>

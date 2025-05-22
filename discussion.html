@@ -1,0 +1,296 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8" />
+  <title>討論區（長者友善版）</title>
+  <style>
+    body {
+      font-family: "Noto Sans TC", sans-serif;
+      background-color: #f9f9f9;
+      color: #333;
+      font-size: 20px;
+      line-height: 1.8;
+      margin: 0;
+      padding: 0;
+    }
+    h1 {
+      font-size: 28px;
+      color: #004080;
+      text-align: center;
+      margin: 30px 0;
+    }
+    .navbar {
+      background-color: #4a90e2;
+      padding: 20px 0;
+    }
+    .navbar .container {
+      display: flex;
+      justify-content: space-around;
+      flex-wrap: wrap;
+    }
+    .navbar a {
+      color: #fff;
+      text-decoration: none;
+      font-size: 22px;
+      padding: 10px 20px;
+      background-color: #357abd;
+      border-radius: 12px;
+      margin: 5px;
+    }
+    .navbar a:hover {
+      background-color: #285c9f;
+    }
+    .comment {
+      background-color: #fff;
+      border: 2px solid #ccc;
+      border-radius: 12px;
+      padding: 20px;
+      margin: 15px;
+    }
+    .reply {
+      margin-left: 40px;
+      border-left: 4px solid #aaccee;
+      padding-left: 15px;
+      margin-top: 10px;
+    }
+    .comment b, .reply b {
+      color: #006699;
+      font-size: 22px;
+    }
+    textarea, input[type="text"] {
+      font-size: 18px;
+      padding: 10px;
+      border-radius: 8px;
+      border: 1px solid #999;
+      width: 100%;
+      box-sizing: border-box;
+      margin-bottom: 10px;
+    }
+    textarea {
+      height: 100px;
+      resize: none;
+    }
+    button {
+      font-size: 20px;
+      background-color: #007bff;
+      color: white;
+      border: none;
+      padding: 12px 24px;
+      border-radius: 10px;
+      cursor: pointer;
+    }
+    button:hover {
+      background-color: #0056b3;
+    }
+    .delete-btn {
+      background-color: #dc3545;
+      color: white;
+      border: none;
+      padding: 6px 12px;
+      margin-top: 8px;
+      border-radius: 6px;
+      cursor: pointer;
+    }
+    .delete-btn:hover {
+      background-color: #a71d2a;
+    }
+    .instruction {
+      font-size: 18px;
+      color: #555;
+      text-align: center;
+    }
+    .button-container {
+      text-align: center;
+      margin-top: 10px;
+    }
+    .reply-box {
+      margin-top: 10px;
+    }
+  </style>
+</head>
+<body>
+  <!-- 導覽列 -->
+  <nav class="navbar">
+    <div class="container">
+      <a href="home.html">🏠 首頁</a>
+      <a href="course.html">📘 課程教學</a>
+      <a href="introduce.html">💻 設備介紹</a>
+      <a href="discussion.html">💬 討論區</a>
+      <a href="progress.html">📈 學習進度</a>
+      <a href="personal_account.html">個人資料📄</a>
+      <a href="logout.php">🔓 登出</a>
+     
+    </div>
+  </nav>
+
+  <h1>留言討論區</h1>
+  <p class="instruction">請輸入您的留言，或回覆他人的留言。</p>
+
+  <div id="commentSection">載入留言中...</div>
+
+  <h2>新增留言</h2>
+  <textarea id="newComment" placeholder="在此輸入您的留言內容..."></textarea><br>
+  <div class="button-container">
+    <button onclick="postComment()">送出留言</button>
+  </div>
+
+<script>
+let currentUserId = null;
+
+function escapeHtml(text) {
+  return text.replace(/&/g, "&amp;")
+             .replace(/</g, "&lt;")
+             .replace(/>/g, "&gt;")
+             .replace(/"/g, "&quot;")
+             .replace(/'/g, "&#039;");
+}
+
+function loadComments() {
+  fetch('load_comments.php')
+    .then(res => res.json())
+    .then(data => {
+      const section = document.getElementById('commentSection');
+      if (!data.success) {
+        section.innerHTML = '<p>載入留言失敗</p>';
+        return;
+      }
+
+      currentUserId = data.current_user_id;
+      section.innerHTML = '';
+      if (data.comments.length === 0) {
+        section.innerHTML = '<p>目前還沒有留言，歡迎搶先留言！</p>';
+        return;
+      }
+
+      data.comments.forEach(c => {
+        const div = document.createElement('div');
+        div.className = 'comment';
+
+        div.innerHTML = `
+          <p><b>${escapeHtml(c.username)}</b> 說：</p>
+          <p>${escapeHtml(c.content)}</p>
+          <small>${c.created_at}</small>
+        `;
+
+        if (c.user_id === currentUserId) {
+          const delBtn = document.createElement('button');
+          delBtn.className = 'delete-btn';
+          delBtn.textContent = '刪除留言';
+          delBtn.onclick = () => deleteComment(c.id);
+          div.appendChild(delBtn);
+        }
+
+        if (c.replies) {
+          c.replies.forEach(r => {
+            const replyDiv = document.createElement('div');
+            replyDiv.className = 'reply';
+            replyDiv.innerHTML = `
+              <p><b>${escapeHtml(r.username)}</b> 回覆：</p>
+              <p>${escapeHtml(r.content)}</p>
+              <small>${r.created_at}</small>
+            `;
+
+            if (r.user_id === currentUserId) {
+              const delReplyBtn = document.createElement('button');
+              delReplyBtn.className = 'delete-btn';
+              delReplyBtn.textContent = '刪除回覆';
+              delReplyBtn.onclick = () => deleteReply(r.id);
+              replyDiv.appendChild(delReplyBtn);
+            }
+
+            div.appendChild(replyDiv);
+          });
+        }
+
+        const replyBox = document.createElement('div');
+        replyBox.className = 'reply-box';
+        replyBox.innerHTML = `
+          <textarea id="replyInput_${c.id}" placeholder="回覆 ${escapeHtml(c.username)} 的留言..." rows="2"></textarea><br>
+          <button onclick="postReply(${c.id})">送出回覆</button>
+        `;
+        div.appendChild(replyBox);
+
+        section.appendChild(div);
+      });
+    })
+    .catch(err => {
+      console.error(err);
+      document.getElementById('commentSection').innerHTML = '<p>載入留言發生錯誤</p>';
+    });
+}
+
+function postComment() {
+  const text = document.getElementById('newComment').value.trim();
+  if (!text) return alert('留言內容不可為空');
+  fetch('post_comment.php', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ comment: text })
+  })
+  .then(res => res.json())
+  .then(data => {
+    if (data.success) {
+      document.getElementById('newComment').value = '';
+      loadComments();
+    } else {
+      alert('留言失敗：' + data.message);
+    }
+  });
+}
+
+function postReply(commentId) {
+  const input = document.getElementById(`replyInput_${commentId}`);
+  const text = input.value.trim();
+  if (!text) return alert('回覆內容不可為空');
+  fetch('post_reply.php', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ comment_id: commentId, reply: text })
+  })
+  .then(res => res.json())
+  .then(data => {
+    if (data.success) {
+      input.value = '';
+      loadComments();
+    } else {
+      alert('回覆失敗：' + data.message);
+    }
+  });
+}
+
+function deleteComment(commentId) {
+  if (!confirm('確定要刪除這則留言嗎？')) return;
+  fetch('delete_comment.php', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ comment_id: commentId })
+  })
+  .then(res => res.json())
+  .then(data => {
+    if (data.success) loadComments();
+    else alert('刪除失敗：' + data.message);
+  });
+}
+
+function deleteReply(replyId) {
+  if (!confirm('確定要刪除這則回覆嗎？')) return;
+  fetch('delete_reply.php', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ reply_id: replyId })
+  })
+  .then(res => res.json())
+  .then(data => {
+    if (data.success) loadComments();
+    else alert('刪除失敗：' + data.message);
+  });
+}
+
+// 初始化
+loadComments();
+
+// 每15秒自動刷新留言區
+setInterval(loadComments, 15000);
+</script>
+</body>
+</html>

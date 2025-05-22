@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>首頁 - 長者數位素養學習系統</title>
+  <style>
+    /* === 全域設定 === */
+    body {
+      font-family: "Noto Sans TC", sans-serif;
+      background-color: #f9f9f9;
+      color: #333;
+      font-size: 20px;
+      line-height: 1.8;
+      margin: 0;
+      padding: 0;
+    }
+
+    /* === 導覽列 === */
+    .navbar {
+      background-color: #4a90e2;
+      padding: 20px 0;
+    }
+
+    .navbar .container {
+      display: flex;
+      justify-content: space-around;
+      flex-wrap: wrap;
+    }
+
+    .navbar a {
+      color: #fff;
+      text-decoration: none;
+      font-size: 22px;
+      padding: 10px 20px;
+      background-color: #357abd;
+      border-radius: 12px;
+      margin: 5px;
+    }
+
+    .navbar a:hover {
+      background-color: #285c9f;
+    }
+
+    /* === 標題區 === */
+    .main-header {
+      text-align: center;
+      padding: 40px 20px;
+      background-color: #e8f0fe;
+      color: #1a237e;
+    }
+
+    .main-header h1 {
+      font-size: 32px;
+      margin: 0;
+    }
+
+    /* === 登出按鈕 === */
+    .logout {
+      text-align: center;
+      margin-top: 30px;
+    }
+
+    .logout a {
+      font-size: 20px;
+      padding: 12px 30px;
+      background-color: #f44336;
+      color: #fff;
+      text-decoration: none;
+      border-radius: 10px;
+    }
+
+    .logout a:hover {
+      background-color: #d32f2f;
+    }
+
+    /* === AI 助理按鈕 === */
+    #chat-button {
+      position: fixed;
+      bottom: 30px;
+      right: 30px;
+      background-color: #4CAF50;
+      color: white;
+      border: none;
+      border-radius: 50%;
+      width: 60px;
+      height: 60px;
+      font-size: 28px;
+      cursor: pointer;
+      box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+      z-index: 9999;
+    }
+
+    #chat-button:hover {
+      background-color: #45a049;
+    }
+
+    /* === icon 區塊 === */
+   .icon-grid {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    padding: 40px 20px;
+    background-color: #ffffff;
+    box-sizing: border-box;
+  }
+
+  .icon-item {
+    width: calc(33.333% - 20px); /* 三欄，扣掉間距 */
+    margin-bottom: 30px;
+    text-align: center;
+    font-size: 16px;
+    color: #333;
+  }
+
+  .icon-item img {
+    width: 60px;
+    height: 60px;
+    object-fit: contain;
+    margin-bottom: 10px;
+  }
+
+  @media (max-width: 768px) {
+    .icon-item {
+      width: calc(50% - 20px);
+    }
+  }
+
+  @media (max-width: 480px) {
+    .icon-item {
+      width: 100%;
+    }
+  }
+  </style>
+</head>
+<body>
+  <!-- 導覽列 -->
+  <nav class="navbar">
+    <div class="container">
+      <a href="home.html">🏠 首頁</a>
+      <a href="course.html">📘 課程教學</a>
+      <a href="introduce.html">💻 設備介紹</a>
+      <a href="discussion.html">💬 討論區</a>
+      <a href="progress.html">📈 學習進度</a>
+      <a href="personal_account.html">個人資料📄</a>
+      <a href="logout.php">🔓 登出</a>
+       
+    </div>
+  </nav>
+
+  <!-- 標題區 -->
+  <header class="main-header">
+    <h1>歡迎來到 <br>銀髮E學院</h1>
+  </header>
+
+  <!-- Icon 區塊 -->
+  <section class="icon-grid">
+    <div class="icon-item">
+      <img src="line.png" alt="手機教學">
+      <p>手機教學</p>
+    </div>
+    <div class="icon-item">
+      <img src="googlemap.png" alt="通訊軟體">
+      <p>通訊軟體</p>
+    </div>
+    <div class="icon-item">
+      <img src="icons/internet.png" alt="上網技巧">
+      <p>上網技巧</p>
+    </div>
+    <div class="icon-item">
+      <img src="icons/security.png" alt="資安常識">
+      <p>資安常識</p>
+    </div>
+    <div class="icon-item">
+      <img src="icons/health.png" alt="健康App">
+      <p>健康App</p>
+    </div>
+    <div class="icon-item">
+      <img src="icons/camera.png" alt="拍照分享">
+      <p>拍照分享</p>
+    </div>
+  </section>
+
+  <!-- AI 助理按鈕 -->
+  <button id="chat-button" title="點我問問題">💬</button>
+  <script>
+    document.getElementById("chat-button").addEventListener("click", function () {
+      window.open(
+        "https://poe.com/AI0-phone-assistant",
+        "poeChat",
+        "width=420,height=640,resizable=yes"
+      );
+    });
+  </script>
+</body>
+</html>
