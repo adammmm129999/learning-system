@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+為何沒有辦法登出<!DOCTYPE html>
 <html lang="zh-Hant">
 <head>
   <meta charset="UTF-8" />
@@ -170,37 +170,40 @@
   <button id="chat-button" title="點我問問題">💬</button>
 
   <!-- Firebase 與功能腳本 -->
+ <script type="module">
+  import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/11.8.1/firebase-auth.js";
 
+  // 不重複初始化，直接取得 auth 實例
+  const auth = getAuth();
 
-    // 確認使用者登入狀態，未登入則跳回登入頁
-    onAuthStateChanged(auth, (user) => {
-      if (!user) {
-        window.location.href = 'index.html';  // 登入頁
-      }
+  // 監聽登入狀態
+  onAuthStateChanged(auth, (user) => {
+    if (!user) {
+      window.location.href = 'index.html';
+    }
+  });
+
+  document.addEventListener('DOMContentLoaded', () => {
+    document.getElementById('logoutBtn').addEventListener('click', () => {
+      signOut(auth)
+        .then(() => {
+          window.location.href = 'index.html';
+        })
+        .catch((error) => {
+          console.error('登出失敗:', error);
+          alert('登出失敗，請稍後再試');
+        });
     });
 
-    // 登出按鈕事件
-    document.addEventListener('DOMContentLoaded', () => {
-      document.getElementById('logoutBtn').addEventListener('click', () => {
-        signOut(auth)
-          .then(() => {
-            window.location.href = 'index.html'; // 登出成功跳回登入頁
-          })
-          .catch((error) => {
-            console.error('登出失敗:', error);
-            alert('登出失敗，請稍後再試');
-          });
-      });
-
-      // AI 助理按鈕
-      document.getElementById('chat-button').addEventListener('click', () => {
-        window.open(
-          "https://poe.com/AI0-phone-assistant",
-          "poeChat",
-          "width=420,height=640,resizable=yes"
-        );
-      });
+    document.getElementById('chat-button').addEventListener('click', () => {
+      window.open(
+        "https://poe.com/AI0-phone-assistant",
+        "poeChat",
+        "width=420,height=640,resizable=yes"
+      );
     });
-  </script>
+  });
+</script>
+
 </body>
 </html>
