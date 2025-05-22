@@ -4,6 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>首頁 - 長者數位素養學習系統</title>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;700&display=swap" rel="stylesheet" />
   <style>
     /* === 全域設定 === */
     body {
@@ -28,7 +29,7 @@
       flex-wrap: wrap;
     }
 
-    .navbar a {
+    .navbar a, .navbar button {
       color: #fff;
       text-decoration: none;
       font-size: 22px;
@@ -36,9 +37,12 @@
       background-color: #357abd;
       border-radius: 12px;
       margin: 5px;
+      border: none;
+      cursor: pointer;
+      font-family: "Noto Sans TC", sans-serif;
     }
 
-    .navbar a:hover {
+    .navbar a:hover, .navbar button:hover {
       background-color: #285c9f;
     }
 
@@ -55,23 +59,41 @@
       margin: 0;
     }
 
-    /* === 登出按鈕 === */
-    .logout {
+    /* === icon 區塊 === */
+    .icon-grid {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      padding: 40px 20px;
+      background-color: #ffffff;
+      box-sizing: border-box;
+    }
+
+    .icon-item {
+      width: calc(33.333% - 20px);
+      margin-bottom: 30px;
       text-align: center;
-      margin-top: 30px;
+      font-size: 16px;
+      color: #333;
     }
 
-    .logout a {
-      font-size: 20px;
-      padding: 12px 30px;
-      background-color: #f44336;
-      color: #fff;
-      text-decoration: none;
-      border-radius: 10px;
+    .icon-item img {
+      width: 60px;
+      height: 60px;
+      object-fit: contain;
+      margin-bottom: 10px;
     }
 
-    .logout a:hover {
-      background-color: #d32f2f;
+    @media (max-width: 768px) {
+      .icon-item {
+        width: calc(50% - 20px);
+      }
+    }
+
+    @media (max-width: 480px) {
+      .icon-item {
+        width: 100%;
+      }
     }
 
     /* === AI 助理按鈕 === */
@@ -94,46 +116,10 @@
     #chat-button:hover {
       background-color: #45a049;
     }
-
-    /* === icon 區塊 === */
-   .icon-grid {
-    display: flex;
-    flex-wrap: wrap;
-    justify-content: space-between;
-    padding: 40px 20px;
-    background-color: #ffffff;
-    box-sizing: border-box;
-  }
-
-  .icon-item {
-    width: calc(33.333% - 20px); /* 三欄，扣掉間距 */
-    margin-bottom: 30px;
-    text-align: center;
-    font-size: 16px;
-    color: #333;
-  }
-
-  .icon-item img {
-    width: 60px;
-    height: 60px;
-    object-fit: contain;
-    margin-bottom: 10px;
-  }
-
-  @media (max-width: 768px) {
-    .icon-item {
-      width: calc(50% - 20px);
-    }
-  }
-
-  @media (max-width: 480px) {
-    .icon-item {
-      width: 100%;
-    }
-  }
   </style>
 </head>
 <body>
+
   <!-- 導覽列 -->
   <nav class="navbar">
     <div class="container">
@@ -143,8 +129,7 @@
       <a href="discussion.html">💬 討論區</a>
       <a href="progress.html">📈 學習進度</a>
       <a href="personal_account.html">個人資料📄</a>
-      <a href="logout.php">🔓 登出</a>
-       
+      <button id="logoutBtn">🔓 登出</button>
     </div>
   </nav>
 
@@ -156,40 +141,82 @@
   <!-- Icon 區塊 -->
   <section class="icon-grid">
     <div class="icon-item">
-      <img src="line.png" alt="手機教學">
+      <img src="line.png" alt="手機教學" />
       <p>手機教學</p>
     </div>
     <div class="icon-item">
-      <img src="googlemap.png" alt="通訊軟體">
+      <img src="googlemap.png" alt="通訊軟體" />
       <p>通訊軟體</p>
     </div>
     <div class="icon-item">
-      <img src="icons/internet.png" alt="上網技巧">
+      <img src="icons/internet.png" alt="上網技巧" />
       <p>上網技巧</p>
     </div>
     <div class="icon-item">
-      <img src="icons/security.png" alt="資安常識">
+      <img src="icons/security.png" alt="資安常識" />
       <p>資安常識</p>
     </div>
     <div class="icon-item">
-      <img src="icons/health.png" alt="健康App">
+      <img src="icons/health.png" alt="健康App" />
       <p>健康App</p>
     </div>
     <div class="icon-item">
-      <img src="icons/camera.png" alt="拍照分享">
+      <img src="icons/camera.png" alt="拍照分享" />
       <p>拍照分享</p>
     </div>
   </section>
 
   <!-- AI 助理按鈕 -->
   <button id="chat-button" title="點我問問題">💬</button>
-  <script>
-    document.getElementById("chat-button").addEventListener("click", function () {
-      window.open(
-        "https://poe.com/AI0-phone-assistant",
-        "poeChat",
-        "width=420,height=640,resizable=yes"
-      );
+
+  <!-- Firebase 與功能腳本 -->
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/11.8.1/firebase-app.js";
+    import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/11.8.1/firebase-auth.js";
+
+    // Firebase 設定（請使用你自己的 config）
+    const firebaseConfig = {
+      apiKey: "AIzaSyC0VF7SkuXvOAJyuC-2tPl_KGris3f4gqE",
+      authDomain: "final-project-fb104.firebaseapp.com",
+      projectId: "final-project-fb104",
+      storageBucket: "final-project-fb104.appspot.com",
+      messagingSenderId: "150740541108",
+      appId: "1:150740541108:web:1a0dba9ebb4cbb157001e1",
+      measurementId: "G-XRR8QBXS35"
+    };
+
+    // 初始化 Firebase
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+
+    // 確認使用者登入狀態，未登入則跳回登入頁
+    onAuthStateChanged(auth, (user) => {
+      if (!user) {
+        window.location.href = 'index.html';  // 登入頁
+      }
+    });
+
+    // 登出按鈕事件
+    document.addEventListener('DOMContentLoaded', () => {
+      document.getElementById('logoutBtn').addEventListener('click', () => {
+        signOut(auth)
+          .then(() => {
+            window.location.href = 'index.html'; // 登出成功跳回登入頁
+          })
+          .catch((error) => {
+            console.error('登出失敗:', error);
+            alert('登出失敗，請稍後再試');
+          });
+      });
+
+      // AI 助理按鈕
+      document.getElementById('chat-button').addEventListener('click', () => {
+        window.open(
+          "https://poe.com/AI0-phone-assistant",
+          "poeChat",
+          "width=420,height=640,resizable=yes"
+        );
+      });
     });
   </script>
 </body>
