@@ -132,58 +132,39 @@
 
   <!-- Firebase SDK -->
   <script type="module">
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/11.8.1/firebase-app.js";
-    import { getAuth, signInWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/11.8.1/firebase-auth.js";
+  import { auth, signInWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/11.8.1/firebase-auth.js";
+  import { auth as authFromInit } from './firebase-init.js';  // 從共用檔案拿 auth 物件
 
-    // Firebase 設定
-    const firebaseConfig = {
-      apiKey: "AIzaSyC0VF7SkuXvOAJyuC-2tPl_KGris3f4gqE",
-      authDomain: "final-project-fb104.firebaseapp.com",
-      projectId: "final-project-fb104",
-      storageBucket: "final-project-fb104.appspot.com",
-      messagingSenderId: "150740541108",
-      appId: "1:150740541108:web:1a0dba9ebb4cbb157001e1",
-      measurementId: "G-XRR8QBXS35"
-    };
+  document.getElementById('loginBtn').addEventListener('click', () => {
+    const email = document.getElementById('email').value.trim();
+    const password = document.getElementById('password').value.trim();
+    const message = document.getElementById('message');
 
-    const app = initializeApp(firebaseConfig);
-    const auth = getAuth(app);
+    if (!email || !password) {
+      message.style.color = 'red';
+      message.textContent = '請填寫完整資料。';
+      return;
+    }
 
-    // 登入事件
-    document.getElementById('loginBtn').addEventListener('click', () => {
-      const email = document.getElementById('email').value.trim();
-      const password = document.getElementById('password').value.trim();
-      const message = document.getElementById('message');
-
-      if (!email || !password) {
+    signInWithEmailAndPassword(authFromInit, email, password)
+      .then(userCredential => {
+        message.style.color = 'green';
+        message.textContent = `登入成功，歡迎 ${userCredential.user.email}`;
+        setTimeout(() => window.location.href = 'home.html', 1000);
+      })
+      .catch(error => {
         message.style.color = 'red';
-        message.textContent = '請填寫完整資料。';
-        return;
-      }
-
-      signInWithEmailAndPassword(auth, email, password)
-        .then((userCredential) => {
-          const user = userCredential.user;
-          message.style.color = 'green';
-          message.textContent = `登入成功，歡迎 ${user.email}`;
-          // 導向 home.html
-          setTimeout(() => {
-            window.location.href = 'home.html';
-          }, 1000);
-        })
-        .catch((error) => {
-          message.style.color = 'red';
-          if (error.code === 'auth/user-not-found') {
-            message.textContent = '找不到使用者，請確認 Email 是否正確。';
-          } else if (error.code === 'auth/wrong-password') {
-            message.textContent = '密碼錯誤，請重新輸入。';
-          } else if (error.code === 'auth/invalid-email') {
-            message.textContent = 'Email 格式錯誤。';
-          } else {
-            message.textContent = `登入失敗：${error.message}`;
-          }
-        });
-    });
-  </script>
+        if (error.code === 'auth/user-not-found') {
+          message.textContent = '找不到使用者，請確認 Email 是否正確。';
+        } else if (error.code === 'auth/wrong-password') {
+          message.textContent = '密碼錯誤，請重新輸入。';
+        } else if (error.code === 'auth/invalid-email') {
+          message.textContent = 'Email 格式錯誤。';
+        } else {
+          message.textContent = `登入失敗：${error.message}`;
+        }
+      });
+  });
+</script>
 </body>
 </html>
