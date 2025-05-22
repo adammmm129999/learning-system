@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8">
+  <title>註冊帳號</title>
+  <style>
+    body {
+      font-family: 'Noto Sans TC', sans-serif;
+      padding: 2rem;
+      max-width: 400px;
+      margin: auto;
+    }
+    input, button {
+      display: block;
+      margin: 1rem 0;
+      padding: 0.5rem;
+      width: 100%;
+      font-size: 1rem;
+    }
+    h2 {
+      text-align: center;
+    }
+  </style>
+</head>
+<body>
+  <h2>註冊帳號</h2>
+  <input type="email" id="email" placeholder="請輸入 Email">
+  <input type="password" id="password" placeholder="請輸入密碼（至少 6 碼）">
+  <button id="registerBtn">註冊</button>
+  <p id="message"></p>
+
+  <!-- Firebase 模組寫法 -->
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/11.8.1/firebase-app.js";
+    import { getAuth, createUserWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/11.8.1/firebase-auth.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyC0VF7SkuXvOAJyuC-2tPl_KGris3f4gqE",
+      authDomain: "final-project-fb104.firebaseapp.com",
+      projectId: "final-project-fb104",
+      storageBucket: "final-project-fb104.firebasestorage.app",
+      messagingSenderId: "150740541108",
+      appId: "1:150740541108:web:1a0dba9ebb4cbb157001e1",
+      measurementId: "G-XRR8QBXS35"
+    };
+
+    // 初始化 Firebase
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+
+    // 註冊事件
+    document.getElementById('registerBtn').addEventListener('click', () => {
+      const email = document.getElementById('email').value;
+      const password = document.getElementById('password').value;
+      const message = document.getElementById('message');
+
+      createUserWithEmailAndPassword(auth, email, password)
+        .then((userCredential) => {
+          const user = userCredential.user;
+          message.style.color = 'green';
+          message.textContent = `註冊成功！歡迎 ${user.email}`;
+          console.log('成功註冊:', user);
+        })
+        .catch((error) => {
+          message.style.color = 'red';
+          message.textContent = `註冊失敗：${error.message}`;
+          console.error('註冊錯誤:', error);
+        });
+    });
+  </script>
+</body>
+</html>
