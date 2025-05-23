@@ -128,41 +128,60 @@
   </div>
 
   <!-- Firebase 模組腳本 -->
-<script type="module">
-import { auth } from './firebase-init.js';  // 從你的 firebase-init.js 拿 auth
 import { signInWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/11.8.1/firebase-auth.js";
+import { auth } from './firebase-init.js';  // 從共用檔案拿 auth 物件
 
-  document.getElementById('loginBtn').addEventListener('click', () => {
-    const email = document.getElementById('email').value.trim();
-    const password = document.getElementById('password').value.trim();
-    const message = document.getElementById('message');
+const emailInput = document.getElementById('email');
+const passwordInput = document.getElementById('password');
+const loginBtn = document.getElementById('loginBtn');
+const message = document.getElementById('message');
 
-    if (!email || !password) {
+function login() {
+  const email = emailInput.value.trim();
+  const password = passwordInput.value.trim();
+
+  if (!email || !password) {
+    message.style.color = 'red';
+    message.textContent = '請填寫完整資料。';
+    return;
+  }
+
+  signInWithEmailAndPassword(auth, email, password)
+    .then(userCredential => {
+      message.style.color = 'green';
+      message.textContent = `登入成功，歡迎 ${userCredential.user.email}`;
+      setTimeout(() => window.location.href = 'home.html', 1000);
+    })
+    .catch(error => {
       message.style.color = 'red';
-      message.textContent = '請填寫完整資料。';
-      return;
-    }
+      if (error.code === 'auth/user-not-found') {
+        message.textContent = '找不到使用者，請確認 Email 是否正確。';
+      } else if (error.code === 'auth/wrong-password') {
+        message.textContent = '密碼錯誤，請重新輸入。';
+      } else if (error.code === 'auth/invalid-email') {
+        message.textContent = 'Email 格式錯誤。';
+      } else {
+        message.textContent = `登入失敗：${error.message}`;
+      }
+    });
+}
 
-    signInWithEmailAndPassword(auth, email, password)
-      .then(userCredential => {
-        message.style.color = 'green';
-        message.textContent = `登入成功，歡迎 ${userCredential.user.email}`;
-        setTimeout(() => window.location.href = 'home.html', 1000);
-      })
-      .catch(error => {
-        message.style.color = 'red';
-        if (error.code === 'auth/user-not-found') {
-          message.textContent = '找不到使用者，請確認 Email 是否正確。';
-        } else if (error.code === 'auth/wrong-password') {
-          message.textContent = '密碼錯誤，請重新輸入。';
-        } else if (error.code === 'auth/invalid-email') {
-          message.textContent = 'Email 格式錯誤。';
-        } else {
-          message.textContent = `登入失敗：${error.message}`;
-        }
-      });
-  });
-</script>
+// 按鈕點擊登入
+loginBtn.addEventListener('click', login);
+
+// 監聽輸入框按鍵事件，如果按下 Enter，觸發登入
+emailInput.addEventListener('keydown', (event) => {
+  if (event.key === 'Enter') {
+    login();
+  }
+});
+
+passwordInput.addEventListener('keydown', (event) => {
+  if (event.key === 'Enter') {
+    login();
+  }
+});
+
 
 </body>
 </html>
