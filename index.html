@@ -5,8 +5,8 @@
   <title>登入 - 銀髮E學院</title>
   <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;700&display=swap" rel="stylesheet" />
   <style>
+    /* 你的 CSS 原樣放這 */
     * { box-sizing: border-box; }
-
     body {
       font-family: 'Noto Sans TC', sans-serif;
       background: linear-gradient(135deg, #6a11cb 0%, #2575fc 100%);
@@ -18,7 +18,6 @@
       padding: 1rem;
       color: #333;
     }
-
     .container {
       background: #fff;
       padding: 2.5rem 2rem 3rem 2rem;
@@ -29,14 +28,12 @@
       text-align: center;
       animation: fadeIn 0.6s ease forwards;
     }
-
     h2 {
       margin-bottom: 1.8rem;
       font-weight: 700;
       color: #4a4a4a;
       font-size: 1.8rem;
     }
-
     input {
       width: 100%;
       padding: 0.85rem 1rem;
@@ -48,13 +45,11 @@
       outline-offset: 2px;
       outline-color: transparent;
     }
-
     input:focus {
       border-color: #2575fc;
       outline-color: #2575fc;
       background: #f0f6ff;
     }
-
     button {
       width: 100%;
       padding: 0.9rem 0;
@@ -69,12 +64,10 @@
       box-shadow: 0 6px 14px rgba(37, 117, 252, 0.4);
       margin-bottom: 1rem;
     }
-
     button:hover {
       background-color: #1a54d6;
       box-shadow: 0 8px 18px rgba(26, 84, 214, 0.5);
     }
-
     #message {
       font-weight: 600;
       min-height: 1.4rem;
@@ -82,7 +75,6 @@
       color: red;
       user-select: none;
     }
-
     .link-button {
       background: transparent;
       color: #2575fc;
@@ -94,11 +86,9 @@
       text-decoration: underline;
       transition: color 0.3s ease;
     }
-
     .link-button:hover {
       color: #1a54d6;
     }
-
     @keyframes fadeIn {
       from {
         opacity: 0;
@@ -109,7 +99,6 @@
         transform: translateY(0);
       }
     }
-
     @media (max-width: 400px) {
       .container {
         padding: 2rem 1.5rem 2.5rem 1.5rem;
@@ -127,61 +116,58 @@
     <button class="link-button" onclick="location.href='register.html'" aria-label="前往註冊頁面">還沒有帳號？點此註冊</button>
   </div>
 
-  <!-- Firebase 模組腳本 -->
-import { signInWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/11.8.1/firebase-auth.js";
-import { auth } from './firebase-init.js';  // 從共用檔案拿 auth 物件
+  <script type="module">
+    import { signInWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/11.8.1/firebase-auth.js";
+    import { auth } from './firebase-init.js';
 
-const emailInput = document.getElementById('email');
-const passwordInput = document.getElementById('password');
-const loginBtn = document.getElementById('loginBtn');
-const message = document.getElementById('message');
+    const emailInput = document.getElementById('email');
+    const passwordInput = document.getElementById('password');
+    const loginBtn = document.getElementById('loginBtn');
+    const message = document.getElementById('message');
 
-function login() {
-  const email = emailInput.value.trim();
-  const password = passwordInput.value.trim();
+    function login() {
+      const email = emailInput.value.trim();
+      const password = passwordInput.value.trim();
 
-  if (!email || !password) {
-    message.style.color = 'red';
-    message.textContent = '請填寫完整資料。';
-    return;
-  }
+      if (!email || !password) {
+        message.style.color = 'red';
+        message.textContent = '請填寫完整資料。';
+        return;
+      }
 
-  signInWithEmailAndPassword(auth, email, password)
-    .then(userCredential => {
-      message.style.color = 'green';
-      message.textContent = `登入成功，歡迎 ${userCredential.user.email}`;
-      setTimeout(() => window.location.href = 'home.html', 1000);
-    })
-    .catch(error => {
-      message.style.color = 'red';
-      if (error.code === 'auth/user-not-found') {
-        message.textContent = '找不到使用者，請確認 Email 是否正確。';
-      } else if (error.code === 'auth/wrong-password') {
-        message.textContent = '密碼錯誤，請重新輸入。';
-      } else if (error.code === 'auth/invalid-email') {
-        message.textContent = 'Email 格式錯誤。';
-      } else {
-        message.textContent = `登入失敗：${error.message}`;
+      signInWithEmailAndPassword(auth, email, password)
+        .then(userCredential => {
+          message.style.color = 'green';
+          message.textContent = `登入成功，歡迎 ${userCredential.user.email}`;
+          setTimeout(() => window.location.href = 'home.html', 1000);
+        })
+        .catch(error => {
+          message.style.color = 'red';
+          if (error.code === 'auth/user-not-found') {
+            message.textContent = '找不到使用者，請確認 Email 是否正確。';
+          } else if (error.code === 'auth/wrong-password') {
+            message.textContent = '密碼錯誤，請重新輸入。';
+          } else if (error.code === 'auth/invalid-email') {
+            message.textContent = 'Email 格式錯誤。';
+          } else {
+            message.textContent = `登入失敗：${error.message}`;
+          }
+        });
+    }
+
+    loginBtn.addEventListener('click', login);
+
+    emailInput.addEventListener('keydown', (event) => {
+      if (event.key === 'Enter') {
+        login();
       }
     });
-}
 
-// 按鈕點擊登入
-loginBtn.addEventListener('click', login);
-
-// 監聽輸入框按鍵事件，如果按下 Enter，觸發登入
-emailInput.addEventListener('keydown', (event) => {
-  if (event.key === 'Enter') {
-    login();
-  }
-});
-
-passwordInput.addEventListener('keydown', (event) => {
-  if (event.key === 'Enter') {
-    login();
-  }
-});
-
-
+    passwordInput.addEventListener('keydown', (event) => {
+      if (event.key === 'Enter') {
+        login();
+      }
+    });
+  </script>
 </body>
 </html>
