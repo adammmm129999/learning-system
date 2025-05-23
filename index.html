@@ -129,8 +129,8 @@
 
   <!-- Firebase 模組腳本 -->
 <script type="module">
-  import { signInWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/11.8.1/firebase-auth.js";
-  import { auth } from './firebase-init.js';  // 正確地從你自己的初始化模組拿 auth
+import { auth } from './firebase-init.js';  // 從你的 firebase-init.js 拿 auth
+import { signInWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/11.8.1/firebase-auth.js";
 
   document.getElementById('loginBtn').addEventListener('click', () => {
     const email = document.getElementById('email').value.trim();
