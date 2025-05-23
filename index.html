@@ -5,10 +5,7 @@
   <title>登入 - 銀髮E學院</title>
   <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;700&display=swap" rel="stylesheet" />
   <style>
-    /* Reset 與基礎 */
-    * {
-      box-sizing: border-box;
-    }
+    * { box-sizing: border-box; }
 
     body {
       font-family: 'Noto Sans TC', sans-serif;
@@ -130,29 +127,32 @@
     <button class="link-button" onclick="location.href='register.html'" aria-label="前往註冊頁面">還沒有帳號？點此註冊</button>
   </div>
 
-  <!-- Firebase SDK -->
+  <!-- Firebase 模組腳本 -->
   <script type="module">
-  import { auth, signInWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/11.8.1/firebase-auth.js";
-  import { auth as authFromInit } from './firebase-init.js';  // 從共用檔案拿 auth 物件
+    import { signInWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/11.8.1/firebase-auth.js";
+    import { auth } from "./firebase-init.js";
 
-  document.getElementById('loginBtn').addEventListener('click', () => {
-    const email = document.getElementById('email').value.trim();
-    const password = document.getElementById('password').value.trim();
+    const emailInput = document.getElementById('email');
+    const passwordInput = document.getElementById('password');
     const message = document.getElementById('message');
+    const loginBtn = document.getElementById('loginBtn');
 
-    if (!email || !password) {
-      message.style.color = 'red';
-      message.textContent = '請填寫完整資料。';
-      return;
-    }
+    loginBtn.addEventListener('click', async () => {
+      const email = emailInput.value.trim();
+      const password = passwordInput.value.trim();
 
-    signInWithEmailAndPassword(authFromInit, email, password)
-      .then(userCredential => {
-        message.style.color = 'green';
+      if (!email || !password) {
+        message.textContent = '請填寫完整資料。';
+        message.style.color = 'red';
+        return;
+      }
+
+      try {
+        const userCredential = await signInWithEmailAndPassword(auth, email, password);
         message.textContent = `登入成功，歡迎 ${userCredential.user.email}`;
+        message.style.color = 'green';
         setTimeout(() => window.location.href = 'home.html', 1000);
-      })
-      .catch(error => {
+      } catch (error) {
         message.style.color = 'red';
         if (error.code === 'auth/user-not-found') {
           message.textContent = '找不到使用者，請確認 Email 是否正確。';
@@ -163,8 +163,8 @@
         } else {
           message.textContent = `登入失敗：${error.message}`;
         }
-      });
-  });
-</script>
+      }
+    });
+  </script>
 </body>
 </html>
