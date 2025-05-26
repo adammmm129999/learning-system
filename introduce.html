@@ -106,9 +106,48 @@
       flex-wrap: wrap;
       gap: 0.5rem;
     }
+    /* === 導覽列 === */
+    .navbar {
+      background-color: #4a90e2;
+      padding: 20px 0;
+    }
+
+    .navbar .container {
+      display: flex;
+      justify-content: space-around;
+      flex-wrap: wrap;
+    }
+
+    .navbar a {
+      color: #fff;
+      text-decoration: none;
+      font-size: 22px;
+      padding: 10px 20px;
+      background-color: #357abd;
+      border-radius: 12px;
+      margin: 5px;
+    }
+
+    .navbar a:hover {
+      background-color: #285c9f;
+    }
+
   </style>
 </head>
 <body>
+  <!-- 導覽列 -->
+  <nav class="navbar">
+    <div class="container">
+      <a href="home.html">🏠 首頁</a>
+      <a href="course.html">📘 課程教學</a>
+      <a href="introduce.html">💻 設備介紹</a>
+      <a href="discussion.html">💬 討論區</a>
+      <a href="progress.html">📈 學習進度</a>
+      <a href="personal_account.html">個人資料📄</a>
+      <a href="logout.php">🔓 登出</a>
+       
+    </div>
+  </nav>
   <div class="left-panel">
     <!-- 左邊可放說明、圖片等 -->
     <p>這裡是簡介區域，可放圖片或教學文字</p>
