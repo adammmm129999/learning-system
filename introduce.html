@@ -1,74 +1,289 @@
 <!DOCTYPE html>
 <html lang="zh-Hant">
 <head>
-  <meta charset="UTF-8">
+  <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>電腦設備的介紹</title>
+  <title>語音助理 + 實驗操作</title>
   <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;700&display=swap" rel="stylesheet">
-  
-</head>
   <style>
-  body {
-      font-family: "Noto Sans TC", sans-serif;
-      background-color: #f9f9f9;
-      color: #333;
-      font-size: 20px;
-      line-height: 1.8;
+    body {
       margin: 0;
       padding: 0;
-    }
-
-    .navbar {
-      background-color: #4a90e2;
-      padding: 20px 0;
-    }
-
-    .navbar .container {
+      font-family: "Noto Sans TC", sans-serif;
+      background: #f0f4ff;
+      height: 100vh;
       display: flex;
-      justify-content: space-around;
+    }
+
+    .left, .right {
+      flex: 1;
+      padding: 1rem;
+      box-sizing: border-box;
+      overflow: auto;
+    }
+
+    .phone-frame {
+      width: 100%;
+      max-width: 400px;
+      height: 700px;
+      margin: 0 auto;
+      background: #ffffff;
+      border: 16px solid #000;
+      border-radius: 40px;
+      padding: 1.5rem;
+      box-shadow: 0 0 20px rgba(0,0,0,0.2);
+      display: flex;
+      flex-direction: column;
+      box-sizing: border-box;
+    }
+
+    h1 {
+      font-size: 1.4rem;
+      text-align: center;
+      margin-bottom: 1rem;
+    }
+
+    .section {
+      margin-top: 1rem;
+      flex: 1;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .box {
+      margin-top: 0.5rem;
+      padding: 1rem;
+      border: 1px solid #ccc;
+      border-radius: 8px;
+      background: #fefefe;
+      font-size: 1rem;
+      white-space: pre-wrap;
+      overflow-y: auto;
+      flex-shrink: 0;
+    }
+
+    #result { max-height: 100px; }
+    #answer { max-height: 250px; flex: 1; }
+
+    .controls {
+      margin-top: 1rem;
+      display: flex;
+      gap: 1rem;
+    }
+
+    button {
+      padding: 0.6rem 1.2rem;
+      font-size: 1rem;
+      border: none;
+      border-radius: 8px;
+      background-color: #2575fc;
+      color: white;
+      cursor: pointer;
+      flex: 1;
+    }
+
+    button:disabled {
+      background-color: #999;
+      cursor: not-allowed;
+    }
+
+    .audio-controls {
+      margin-top: 0.5rem;
+      display: flex;
       flex-wrap: wrap;
+      gap: 0.5rem;
     }
 
-    .navbar a {
-      color: #fff;
-      text-decoration: none;
-      font-size: 22px;
-      padding: 10px 20px;
-      background-color: #357abd;
-      border-radius: 12px;
-      margin: 5px;
+    iframe {
+      width: 100%;
+      height: 100%;
+      border: none;
     }
-
-    .navbar a:hover {
-      background-color: #285c9f;
-    }
-</style>
+  </style>
+</head>
 <body>
-
-  <nav class="navbar">
-    
-      <div class="container">
-        <a href="home.html">首頁</a>
-        <a href="course.html">課程介紹</a>
-        <a href="introduce.html">電腦設備的介紹</a>
-        <a href="discussion.html">討論區</a>
-        <a href="progress.html">學習進度</a>
+  <!-- 左邊：語音 AI 助理 -->
+  <div class="left">
+    <div class="phone-frame" role="main" aria-label="語音辨識及 AI 回答區">
+      <h1>語音AI手機助理</h1>
+      <div class="section" aria-live="polite" aria-atomic="true">
+        <h3>辨識文字：</h3>
+        <div id="result" class="box">語音辨識結果會顯示在這裡...</div>
       </div>
-    
-  </nav>
+      <div class="section" aria-live="polite" aria-atomic="true" style="flex:2;">
+        <h3>AI 回答：</h3>
+        <div id="answer" class="box">AI 回答會顯示在這裡...</div>
+        <div class="audio-controls">
+          <button id="speakBtn" style="display:none;">▶ 播放</button>
+          <button id="pauseBtn" style="display:none;">⏸ 暫停</button>
+          <button id="resumeBtn" style="display:none;">⏯ 繼續</button>
+        </div>
+      </div>
+    </div>
+    <div class="controls" aria-label="語音辨識控制區">
+      <button id="startBtn">開始辨識</button>
+      <button id="stopBtn" disabled>停止辨識</button>
+    </div>
+  </div>
 
-<header>
-  <h1>練習操作</h1>
-</header>
+  <!-- 右邊：實驗 iframe -->
+  <div class="right">
+    <iframe src="https://dive.nutn.edu.tw/Experiment/kaleTestExperiment5.jsp?eid=33291&record=false"></iframe>
+  </div>
 
+  <!-- 原始 JavaScript -->
+  <script>
+    const sk = "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";
 
-  <iframe src="https://dive.nutn.edu.tw/Experiment/kaleTestExperiment5.jsp?eid=33300&record=false" width="50%" height="850px" frameborder="0" name="dive"></iframe>
-  
+    window.SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+    if (!window.SpeechRecognition) alert("請使用支援 Web Speech API 的瀏覽器，例如 Chrome。");
 
+    const recognition = new window.SpeechRecognition();
+    recognition.continuous = true;
+    recognition.interimResults = true;
+    recognition.lang = 'zh-TW';
 
+    const startBtn = document.getElementById('startBtn');
+    const stopBtn = document.getElementById('stopBtn');
+    const resultDiv = document.getElementById('result');
+    const answerDiv = document.getElementById('answer');
+    const speakBtn = document.getElementById('speakBtn');
+    const pauseBtn = document.getElementById('pauseBtn');
+    const resumeBtn = document.getElementById('resumeBtn');
 
-<script src="https://dive.nutn.edu.tw/Experiment/js/dive.linker.min.js"></script>
-<script src="demo.js"></script>
+    let finalTranscript = '';
+    let lastAIAnswer = '';
+    let silenceTimer = null;
+    let utterance = null;
 
+    recognition.onresult = (event) => {
+      clearTimeout(silenceTimer);
+      silenceTimer = setTimeout(() => recognition.stop(), 7000);
+      let interimTranscript = '';
+      for (let i = event.resultIndex; i < event.results.length; i++) {
+        const transcript = event.results[i][0].transcript;
+        if (event.results[i].isFinal) {
+          finalTranscript += transcript + '\n';
+        } else {
+          interimTranscript += transcript;
+        }
+      }
+      resultDiv.textContent = finalTranscript + interimTranscript;
+    };
+
+    recognition.onerror = (event) => {
+      console.error('語音辨識錯誤:', event.error);
+      if (event.error === 'not-allowed') alert('請允許麥克風權限');
+    };
+
+    recognition.onstart = () => {
+      clearTimeout(silenceTimer);
+      startBtn.disabled = true;
+      stopBtn.disabled = false;
+      answerDiv.textContent = '等待語音輸入...';
+      speakBtn.style.display = 'none';
+      pauseBtn.style.display = 'none';
+      resumeBtn.style.display = 'none';
+    };
+
+    recognition.onend = () => {
+      clearTimeout(silenceTimer);
+      startBtn.disabled = false;
+      stopBtn.disabled = true;
+
+      if(finalTranscript.trim()) {
+        askOpenRouterAI(finalTranscript.trim());
+      } else {
+        answerDiv.textContent = '沒有辨識到任何語音';
+      }
+    };
+
+    startBtn.addEventListener('click', () => {
+      finalTranscript = '';
+      resultDiv.textContent = '請開始說話...';
+      answerDiv.textContent = '等待語音輸入...';
+      speakBtn.style.display = 'none';
+      pauseBtn.style.display = 'none';
+      resumeBtn.style.display = 'none';
+      recognition.start();
+    });
+
+    stopBtn.addEventListener('click', () => recognition.stop());
+
+    speakBtn.addEventListener('click', () => {
+      if (!lastAIAnswer) return;
+      if (speechSynthesis.speaking) speechSynthesis.cancel();
+      utterance = new SpeechSynthesisUtterance(lastAIAnswer);
+      utterance.lang = 'zh-TW';
+      speechSynthesis.speak(utterance);
+      pauseBtn.style.display = 'inline-block';
+      resumeBtn.style.display = 'inline-block';
+    });
+
+    pauseBtn.addEventListener('click', () => {
+      if (speechSynthesis.speaking && !speechSynthesis.paused) speechSynthesis.pause();
+    });
+
+    resumeBtn.addEventListener('click', () => {
+      if (speechSynthesis.paused) speechSynthesis.resume();
+    });
+
+    async function askOpenRouterAI(userText) {
+      answerDiv.textContent = 'AI 正在思考中...';
+      speakBtn.style.display = 'none';
+      pauseBtn.style.display = 'none';
+      resumeBtn.style.display = 'none';
+
+      const intentPrompts = [
+        { keywords: ["怎麼走", "導航", "路", "診所", "醫院"], prompt: "你是一位親切的語音導航員..." },
+        { keywords: ["天氣", "下雨", "氣溫"], prompt: "你是語音助理，會幫忙查詢天氣..." },
+        { keywords: ["打電話", "撥電話", "打給"], prompt: "你是語音助理，會教長輩如何使用通訊錄..." },
+        { keywords: ["拍照", "照相", "相機"], prompt: "你是手機導覽員，會教長輩開啟相機拍照..." },
+        { keywords: ["聲音", "音量", "太大聲", "聽不到"], prompt: "你是客服人員，會教調整手機音量..." },
+        { keywords: ["沒電", "電池", "電量", "充電"], prompt: "你是語音助手，提醒檢查電量並充電..." },
+        { keywords: ["簡訊", "傳訊息", "傳給"], prompt: "你是貼心助理，教長輩傳 LINE 或簡訊..." },
+        { keywords: ["幾點", "時間", "幾號", "星期幾"], prompt: "你是時間助理，告訴現在時間..." },
+        { keywords: ["鬧鐘", "叫我起床", "提醒我"], prompt: "你是語音助理，協助設定鬧鐘..." }
+      ];
+
+      let matchedPrompt = "你是一位親切又有耐心的手機教學導師...";
+      for (const item of intentPrompts) {
+        if (item.keywords.some(k => userText.includes(k))) {
+          matchedPrompt = item.prompt;
+          break;
+        }
+      }
+
+      try {
+        const response = await fetch("https://openrouter.ai/api/v1/chat/completions", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            "Authorization": `Bearer ${sk}`
+          },
+          body: JSON.stringify({
+            model: "meta-llama/llama-3.3-70b-instruct:free",
+            messages: [
+              { role: "system", content: matchedPrompt },
+              { role: "user", content: userText }
+            ]
+          })
+        });
+
+        const data = await response.json();
+        if (data.choices?.length > 0) {
+          lastAIAnswer = data.choices[0].message.content;
+          answerDiv.textContent = lastAIAnswer;
+          speakBtn.style.display = 'inline-block';
+        } else {
+          answerDiv.textContent = "AI 沒有回應，請稍後再試。";
+        }
+      } catch (error) {
+        console.error("呼叫 API 錯誤:", error);
+        answerDiv.textContent = "呼叫 AI 發生錯誤，請稍後再試。";
+      }
+    }
+  </script>
 </body>
 </html>
