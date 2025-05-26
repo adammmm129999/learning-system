@@ -147,7 +147,7 @@
             "Authorization": `Bearer ${sk}`
           },
           body: JSON.stringify({
-            model: "mistralai/mixtral-8x7b-instruct", // 或其他你確定能用的模型
+            model: "meta-llama/llama-3.3-70b-instruct:free", // 或其他你確定能用的模型
             messages: [
               { role: "system", content: "你是一個友善的語音助理，回答與交通安全和高齡駕駛有關的問題。" },
               { role: "user", content: transcript }
