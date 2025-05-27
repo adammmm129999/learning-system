@@ -184,7 +184,7 @@
   </div>
 
   <script>
-    const sk = "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";
+    const sk = "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";
 
     window.SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
     if (!window.SpeechRecognition) {
@@ -327,7 +327,7 @@
             "Authorization": `Bearer ${sk}`
           },
           body: JSON.stringify({
-            model: "meta-llama/llama-3.3-70b-instruct:free",
+            model: "google/gemini-2.0-flash-exp:free",
             messages: [
               { role: "system", content: matchedPrompt },
               { role: "user", content: userText }
