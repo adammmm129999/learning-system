@@ -107,7 +107,7 @@
   <script type="module">
     import { auth, onAuthStateChanged } from './firebase-init.js';
     import {
-      getFirestore, collection, addDoc, deleteDoc, doc, query, orderBy, onSnapshot, serverTimestamp
+      getFirestore, collection, addDoc, deleteDoc, doc, query, orderBy, onSnapshot, serverTimestamp, getDocs
     } from "https://www.gstatic.com/firebasejs/11.8.1/firebase-firestore.js";
 
     const db = getFirestore();
@@ -157,11 +157,12 @@
         delBtn.onclick = async () => {
           if (confirm("確定要刪除這則留言嗎？連同所有回覆將一併刪除。")) {
             try {
-              // 刪除子集合回覆（Firestore不支援一次刪除，需自行循環刪除）
+              // 先刪除子集合回覆
               const repliesSnapshot = await getDocs(collection(db, "comments", docId, "replies"));
               for (const replyDoc of repliesSnapshot.docs) {
                 await deleteDoc(doc(db, "comments", docId, "replies", replyDoc.id));
               }
+              // 再刪除留言文件
               await deleteDoc(doc(db, "comments", docId));
             } catch (error) {
               alert("刪除失敗：" + error.message);
