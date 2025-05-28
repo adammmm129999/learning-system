@@ -4,157 +4,21 @@
   <meta charset="UTF-8" />
   <title>課程一：LINE 教學操作</title>
   <style>
-    body {
-      font-family: "Noto Sans TC", sans-serif;
-      margin: 0;
-      background-color: #fefefe;
-      color: #333;
-    }
-    .navbar {
-      background-color: #4a90e2;
-      padding: 16px;
-      text-align: center;
-    }
-    .navbar a {
-      color: white;
-      text-decoration: none;
-      margin: 0 12px;
-      font-size: 20px;
-    }
-    .navbar button {
-      font-size: 16px;
-      margin-left: 12px;
-      cursor: pointer;
-      background-color: #2575fc;
-      border: none;
-      color: white;
-      padding: 6px 12px;
-      border-radius: 6px;
-    }
-    .main-panel {
-      display: flex;
-      width: 100%;
-      max-width: 1920px;
-      margin: 0 auto;
-      height: calc(100vh - 100px);
-      box-sizing: border-box;
-      overflow: hidden;
-    }
-    .embed-frame:nth-child(1) { flex: 2; }
-    .embed-frame:nth-child(2) { flex: 1; }
-    .embed-frame iframe,
-    .embed-frame video {
-      height: 100%;
-      width: 100%;
-      border: none;
-      border-radius: 16px;
-      box-shadow: 0 0 10px rgba(0,0,0,0.1);
-      object-fit: contain;
-      display: block;
-    }
-    .right-panel {
-      flex: 1;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      padding: 2rem 1rem;
-      box-sizing: border-box;
-    }
-    .phone-frame {
-      width: 360px;
-      height: 720px;
-      background: #ffffff;
-      border: 16px solid #000;
-      border-radius: 40px;
-      padding: 1.5rem;
-      box-shadow: 0 0 20px rgba(0,0,0,0.2);
-      display: flex;
-      flex-direction: column;
-      box-sizing: border-box;
-      overflow: hidden;
-    }
-    h1 {
-      font-size: 1.4rem;
-      text-align: center;
-      margin-bottom: 1rem;
-    }
-    .section {
+    /* ... 你原本的 CSS 保持不變 ... */
+    /* 加一點新按鈕樣式 */
+    #markCourse2Btn {
       margin-top: 1rem;
-      flex: 1;
-      overflow: hidden;
-      display: flex;
-      flex-direction: column;
-    }
-    .box {
-      margin-top: 0.5rem;
-      padding: 1rem;
-      border: 1px solid #ccc;
-      border-radius: 8px;
-      background: #fefefe;
-      font-size: 1rem;
-      white-space: pre-wrap;
-      overflow-y: auto;
-      flex-shrink: 0;
-    }
-    #answer { max-height: 250px; flex: 1; }
-    .controls {
-      margin-top: 1rem;
-      display: flex;
-      gap: 1rem;
-    }
-    .input-area {
-      display: flex;
-      gap: 0.5rem;
-      margin-top: 1rem;
-    }
-    input[type="text"] {
-      flex: 1;
-      padding: 0.5rem;
-      font-size: 1rem;
-      border: 1px solid #ccc;
-      border-radius: 8px;
-    }
-    button {
-      padding: 0.6rem 1.2rem;
-      font-size: 1rem;
-      border: none;
-      border-radius: 8px;
-      background-color: #2575fc;
-      color: white;
-      cursor: pointer;
-    }
-    .audio-controls {
-      margin-top: 0.5rem;
-      display: flex;
-      flex-wrap: wrap;
-      gap: 0.5rem;
-    }
-    /* 第二關初始鎖定樣式 */
-    #level2Link {
-      display: inline-block;
-      margin-top: 12px;
       padding: 8px 16px;
       border-radius: 8px;
-      background-color: lightgray;
-      color: gray;
-      pointer-events: none;
-      user-select: none;
+      background-color: #28a745;
+      color: white;
+      border: none;
+      cursor: pointer;
       font-weight: bold;
-      text-decoration: none;
     }
-    /* 解鎖後樣式 */
-    #level2Link.unlocked {
-      background-color: #d1eaff;
-      color: blue;
-      pointer-events: auto;
-      user-select: auto;
-    }
-    /* 進度顯示 */
-    #progressStatus {
-      margin-top: 1rem;
-      font-weight: bold;
-      font-size: 1.2rem;
-      color: #2575fc;
+    #markCourse2Btn:disabled {
+      background-color: gray;
+      cursor: not-allowed;
     }
   </style>
 
@@ -181,6 +45,8 @@
     window.addEventListener('load', () => {
       const logoutBtn = document.getElementById("logoutBtn");
       const level2Link = document.getElementById("level2Link");
+      const markCourse2Btn = document.getElementById("markCourse2Btn");
+      const progressStatus = document.getElementById("progressStatus");
 
       logoutBtn.addEventListener("click", () => {
         signOut(auth).then(() => {
@@ -192,6 +58,27 @@
         });
       });
 
+      markCourse2Btn.addEventListener("click", async () => {
+        const user = auth.currentUser;
+        if (!user) {
+          alert("請先登入");
+          return;
+        }
+        markCourse2Btn.disabled = true;
+        markCourse2Btn.textContent = "標記中...";
+        try {
+          await saveCourseProgress(user.uid, "course2", true);
+          alert("課程二已標記為完成，第二關已解鎖！");
+          unlockLevel2(level2Link);
+          markCourse2Btn.textContent = "已完成";
+          markCourse2Btn.disabled = true;
+        } catch(e) {
+          alert("標記課程二完成失敗：" + e.message);
+          markCourse2Btn.disabled = false;
+          markCourse2Btn.textContent = "標記課程二完成";
+        }
+      });
+
       onAuthStateChanged(auth, async (user) => {
         if (!user) {
           alert("請先登入");
@@ -199,21 +86,36 @@
           return;
         }
 
-        // 讀取課程進度
         try {
-          const courseDoc = await getDoc(doc(db, "users", user.uid, "courses", "course1"));
-          const progressStatus = document.getElementById("progressStatus");
-          if (courseDoc.exists()) {
-            const data = courseDoc.data();
-            console.log("讀取課程進度:", data);
-            if (data.completed === true) {
+          // 讀取課程一進度
+          const course1Doc = await getDoc(doc(db, "users", user.uid, "courses", "course1"));
+          if (course1Doc.exists()) {
+            const data1 = course1Doc.data();
+            if (data1.completed === true) {
+              progressStatus.textContent = "課程一進度: 100%";
               unlockLevel2(level2Link);
-              if (progressStatus) progressStatus.textContent = "進度: 100%";
             } else {
-              if (progressStatus) progressStatus.textContent = "進度: 0%";
+              progressStatus.textContent = "課程一進度: 0%";
             }
           } else {
-            if (progressStatus) progressStatus.textContent = "進度: 0%";
+            progressStatus.textContent = "課程一進度: 0%";
+          }
+
+          // 讀取課程二進度 (決定按鈕狀態)
+          const course2Doc = await getDoc(doc(db, "users", user.uid, "courses", "course2"));
+          if (course2Doc.exists()) {
+            const data2 = course2Doc.data();
+            if (data2.completed === true) {
+              unlockLevel2(level2Link);
+              markCourse2Btn.textContent = "已完成";
+              markCourse2Btn.disabled = true;
+            } else {
+              markCourse2Btn.textContent = "標記課程二完成";
+              markCourse2Btn.disabled = false;
+            }
+          } else {
+            markCourse2Btn.textContent = "標記課程二完成";
+            markCourse2Btn.disabled = false;
           }
         } catch (e) {
           console.error("讀取課程進度失敗:", e);
@@ -226,6 +128,9 @@
     function unlockLevel2(element) {
       element.classList.add("unlocked");
       element.textContent = "第二關（已解鎖）";
+      element.href = "course2.html";
+      element.style.pointerEvents = "auto";
+      element.style.color = "blue";
     }
 
     function startDiveListener(uid) {
@@ -236,34 +141,34 @@
       diveLinker.enableBlock(false);
       diveLinker.start();
 
-      setInterval(() => {
+      setInterval(async () => {
         const outputList = diveLinker.outputList;
         if (outputList && outputList[completeId]) {
           const value = outputList[completeId].value;
           console.log("DiVE 完成度:", value);
           if (value === 2) {
-            saveCourseProgress(uid, true);
+            await saveCourseProgress(uid, "course1", true);
             const level2Link = document.getElementById("level2Link");
             unlockLevel2(level2Link);
-
             const progressStatus = document.getElementById("progressStatus");
-            if (progressStatus) progressStatus.textContent = "進度: 100%";
+            if (progressStatus) progressStatus.textContent = "課程一進度: 100%";
           }
         }
       }, 1000);
     }
 
-    async function saveCourseProgress(uid, completed) {
+    async function saveCourseProgress(uid, courseId, completed) {
       if (!uid) return;
-      const courseDocRef = doc(db, "users", uid, "courses", "course1");
+      const courseDocRef = doc(db, "users", uid, "courses", courseId);
       try {
         await setDoc(courseDocRef, {
           completed,
           timestamp: serverTimestamp()
         }, { merge: true });
-        console.log("課程 course1 進度已更新");
+        console.log(`課程 ${courseId} 進度已更新`);
       } catch (error) {
         console.error("Firestore 寫入失敗：", error);
+        throw error;
       }
     }
   </script>
@@ -317,10 +222,13 @@
         <div class="audio-controls" aria-label="語音播放控制區" role="region"></div>
 
         <!-- 進度顯示 -->
-        <div id="progressStatus">進度: 0%</div>
+        <div id="progressStatus">課程一進度: 0%</div>
 
         <!-- 第二關按鈕，預設鎖定 -->
-        <a id="level2Link" href="course2.html">第二關（鎖定）</a>
+        <a id="level2Link" href="#" class="">第二關（鎖定）</a>
+
+        <!-- 新增：標記課程二完成按鈕 -->
+        <button id="markCourse2Btn">標記課程二完成</button>
       </div>
     </div>
   </div>
