@@ -125,6 +125,35 @@
         flex: 1 1 100%;
       }
     }
+    .background-section {
+  background-image: url('背景.png'); /* 你的背景圖片路徑 */
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  min-height: 100vh;  /* 視窗高度 */
+  padding: 40px 20px;
+  box-sizing: border-box;
+  color: white; /* 讓標題顏色可改，或者可另外指定 */
+  /* 可選：加一層半透明遮罩更清晰 */
+  position: relative;
+  z-index: 0;
+}
+
+.background-section::before {
+  content: "";
+  position: absolute;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background-color: rgba(0, 0, 0, 0.3);
+  z-index: -1;
+}
+
+.background-section h1 {
+  color: white; /* 文字白色 */
+  font-size: 36px;
+  text-align: center;
+  margin-bottom: 40px;
+}
+
   </style>
 </head>
 <body>
@@ -134,45 +163,48 @@
       <a href="home.html">🏠 首頁</a>
       <a href="course.html">📘 課程教學</a>
       <a href="discussion.html">💬 討論區</a>    
-      <a href="personal_account.html">個人資料📄</a>
-     
+      <a href="personal_account.html">個人資料📄</a>     
     </div>
   </nav>
 
-  <h1>📱 手機教學課程</h1>
+  <!-- 加入背景區塊包裹 h1 與 main -->
+  <section class="background-section">
+    <h1>📱 手機教學課程</h1>
 
-  <div class="main">
-    <div class="left">
-      <div class="course-card" data-course="1">
-        <img src="camera-icon.png" alt="拍照" />
-        <h2>課程一：LINE教學</h2>
-        <p>教你如何用LINE的視訊分享畫面。</p>
-        <a class="btn" id="btn-course1" href="#">讀取中...</a>
-      </div>
-      <div class="course-card" data-course="2">
-        <img src="video-call-icon.png" alt="視訊通話" />
-        <h2>課程二：視訊通話</h2>
-        <p>用 LINE 與家人視訊聯繫。</p>
-        <a class="btn locked" id="btn-course2" href="#">尚未解鎖</a>
-      </div>
-    </div>
-
-    <div class="right">
-      <div class="progress-area">
-        <h2>📈 你的學習進度</h2>
-        <div class="progress-bar">
-          <div class="progress-bar-fill" id="progress-fill">0%</div>
+    <div class="main">
+      <!-- 原本內容保持不動 -->
+      <div class="left">
+        <div class="course-card" data-course="1">
+          <img src="camera-icon.png" alt="拍照" />
+          <h2>課程一：LINE教學</h2>
+          <p>教你如何用LINE的視訊分享畫面。</p>
+          <a class="btn" id="btn-course1" href="#">讀取中...</a>
         </div>
-        <p id="progress-text">你已完成 0 / 2 的課程，加油！</p>
-
-        <div class="badges">
-          <h3>🎖️ 成就徽章</h3>
-          <img src="徽章1.PNG" alt="徽章1" id="badge-1" />
-          <img src="徽章3.PNG" alt="徽章2" id="badge-2" />
+        <div class="course-card" data-course="2">
+          <img src="video-call-icon.png" alt="視訊通話" />
+          <h2>課程二：視訊通話</h2>
+          <p>用 LINE 與家人視訊聯繫。</p>
+          <a class="btn locked" id="btn-course2" href="#">尚未解鎖</a>
         </div>
       </div>
+
+      <div class="right">
+        <div class="progress-area">
+          <h2>📈 你的學習進度</h2>
+          <div class="progress-bar">
+            <div class="progress-bar-fill" id="progress-fill">0%</div>
+          </div>
+          <p id="progress-text">你已完成 0 / 2 的課程，加油！</p>
+
+          <div class="badges">
+            <h3>🎖️ 成就徽章</h3>
+            <img src="徽章1.PNG" alt="徽章1" id="badge-1" />
+            <img src="徽章3.PNG" alt="徽章2" id="badge-2" />
+          </div>
+        </div>
+      </div>
     </div>
-  </div>
+  </section>
 
   <script type="module">
     import { auth, db } from './firebase-init.js';
