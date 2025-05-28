@@ -127,10 +127,16 @@
       font-weight: bold;
     }
 
-    .badges img {
-      margin: 10px;
-      width: 80px;
-    }
+   .badges img {
+  margin: 10px;
+  width: 80px;
+  filter: grayscale(100%); /* 預設灰色 */
+  transition: filter 0.5s ease;
+}
+
+.badges img.unlocked {
+  filter: none; /* 完成後變彩色 */
+}
 
     @media (max-width: 900px) {
       .left,
@@ -152,6 +158,7 @@
     </div>
   </nav>
 
+
   <h1>📱 手機教學課程</h1>
 
   <div class="main">
@@ -167,14 +174,9 @@
         <img src="video-call-icon.png" alt="視訊通話">
         <h2>課程二：視訊通話</h2>
         <p>用 LINE 與家人視訊聯繫。</p>
-        <a class="btn locked" href="#" data-course="2">尚未解鎖</a>
+        <a class="btn locked" href="wifi.html">尚未解鎖</a>
       </div>
-      <div class="course-card" data-course="3">
-        <img src="map-icon.png" alt="地圖導航">
-        <h2>課程三：導航與地圖</h2>
-        <p>教你使用 Google 地圖找路。</p>
-        <a class="btn locked" href="#" data-course="3">尚未解鎖</a>
-      </div>
+      
     </div>
 
     <!-- 右側：學習進度與徽章 -->
@@ -184,13 +186,13 @@
         <div class="progress-bar">
           <div class="progress-bar-fill" id="progress-fill">0%</div>
         </div>
-        <p id="progress-text">你已完成 0 / 3 的課程，加油！</p>
+        <p id="progress-text">你已完成 0 / 2 的課程，加油！</p>
 
         <div class="badges">
           <h3>🎖️ 成就徽章</h3>
-          <img src="badge1-gray.png" alt="徽章1" id="badge-1" />
-          <img src="badge2-gray.png" alt="徽章2" id="badge-2" />
-          <img src="badge3-gray.png" alt="徽章3" id="badge-3" />
+          <img src="徽章1.PNG" alt="徽章1" id="badge-1" />
+          <img src="徽章3.PNG" alt="徽章2" id="badge-2" />
+          
         </div>
       </div>
     </div>
@@ -201,7 +203,7 @@
     const courseProgress = JSON.parse(localStorage.getItem('courseProgress')) || {
       1: false,
       2: false,
-      3: false
+     
     };
 
     // ✨ 根據 line.html 記錄的完成度，更新 courseProgress
@@ -209,39 +211,41 @@
       courseProgress[1] = true;
     }
 
-    function updateUI() {
-      let completed = 0;
-      for (let i = 1; i <= 3; i++) {
-        if (courseProgress[i]) {
-          completed++;
-          document.getElementById(`badge-${i}`).src = `badge${i}-color.png`;
-        }
-      }
-
-      const percent = Math.round((completed / 3) * 100);
-      document.getElementById("progress-fill").style.width = percent + "%";
-      document.getElementById("progress-fill").textContent = percent + "%";
-      document.getElementById("progress-text").textContent = `你已完成 ${completed} / 3 的課程，加油！`;
-
-      for (let i = 1; i <= 3; i++) {
-        const btn = document.querySelector(`a[data-course="${i}"]`);
-        if (i === 1 || courseProgress[i - 1]) {
-          btn.classList.remove("locked");
-          btn.href = getCourseUrl(i);
-          btn.textContent = "開始學習";
-        } else {
-          btn.classList.add("locked");
-          btn.href = "#";
-          btn.textContent = "尚未解鎖";
-        }
-      }
+   function updateUI() {
+  let completed = 0;
+  for (let i = 1; i <= 2; i++) {
+    if (courseProgress[i]) {
+      completed++;
+      const badge = document.getElementById(`badge-${i}`);
+      badge.classList.add("unlocked");
     }
+  }
+
+  const percent = Math.round((completed / 2) * 100);
+  document.getElementById("progress-fill").style.width = percent + "%";
+  document.getElementById("progress-fill").textContent = percent + "%";
+  document.getElementById("progress-text").textContent = `你已完成 ${completed} / 2 的課程，加油！`;
+
+  for (let i = 1; i <= 2; i++) {
+    const btn = document.querySelector(`a[data-course="${i}"]`);
+    if (i === 1 || courseProgress[i - 1]) {
+      btn.classList.remove("locked");
+      btn.href = getCourseUrl(i);
+      btn.textContent = "開始學習";
+    } else {
+      btn.classList.add("locked");
+      btn.href = "#";
+      btn.textContent = "尚未解鎖";
+    }
+  }
+}
+
 
     function getCourseUrl(courseNum) {
       switch (courseNum) {
         case 1: return "line.html";
-        case 2: return "video-call.html";
-        case 3: return "map.html";
+        case 2: return "wifi.html";
+       
       }
     }
 
@@ -254,29 +258,5 @@
     updateUI();
     window.completeCourse = completeCourse;
   </script>
-   <script type="module">
-  import { auth, onAuthStateChanged, signOut } from './firebase-init.js';
-
-  // 監聽登入狀態，沒登入導回登入頁
-  onAuthStateChanged(auth, user => {
-    if (!user) {
-      window.location.href = 'index.html'; // 或 login.html
-    }
-  });
-
-  // 登出按鈕事件
-  document.addEventListener('DOMContentLoaded', () => {
-    document.getElementById('logoutBtn').addEventListener('click', () => {
-      signOut(auth)
-        .then(() => {
-          window.location.href = 'index.html';  // 登出後回登入頁
-        })
-        .catch(error => {
-          console.error('登出失敗:', error);
-          alert('登出失敗，請稍後再試');
-        });
-    });
-  });
-</script>
 </body>
 </html>
