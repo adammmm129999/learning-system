@@ -4,8 +4,144 @@
   <meta charset="UTF-8" />
   <title>課程二：WiFi 教學操作</title>
   <style>
-    /* 版面樣式保持與第一關相同 */
-    /* 請貼上你原本的 CSS */
+      body {
+      font-family: "Noto Sans TC", sans-serif;
+      margin: 0;
+      background-color: #fefefe;
+      color: #333;
+    }
+    .navbar {
+      background-color: #4a90e2;
+      padding: 16px;
+      text-align: center;
+    }
+    .navbar a {
+      color: white;
+      text-decoration: none;
+      margin: 0 12px;
+      font-size: 20px;
+    }
+    .navbar button {
+      font-size: 16px;
+      margin-left: 12px;
+      cursor: pointer;
+      background-color: #2575fc;
+      border: none;
+      color: white;
+      padding: 6px 12px;
+      border-radius: 6px;
+    }
+    .main-panel {
+      display: flex;
+      width: 100%;
+      max-width: 1920px;
+      margin: 0 auto;
+      height: calc(100vh - 100px);
+      box-sizing: border-box;
+      overflow: hidden;
+    }
+    .embed-frame:nth-child(1) { flex: 2; }
+    .embed-frame:nth-child(2) { flex: 1; }
+    .embed-frame iframe,
+    .embed-frame video {
+      height: 100%;
+      width: 100%;
+      border: none;
+      border-radius: 16px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.1);
+      object-fit: contain;
+      display: block;
+    }
+    .right-panel {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 2rem 1rem;
+      box-sizing: border-box;
+    }
+    .phone-frame {
+      width: 360px;
+      height: 720px;
+      background: #ffffff;
+      border: 16px solid #000;
+      border-radius: 40px;
+      padding: 1.5rem;
+      box-shadow: 0 0 20px rgba(0,0,0,0.2);
+      display: flex;
+      flex-direction: column;
+      box-sizing: border-box;
+      overflow: hidden;
+    }
+    h1 {
+      font-size: 1.4rem;
+      text-align: center;
+      margin-bottom: 1rem;
+    }
+    .section {
+      margin-top: 1rem;
+      flex: 1;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+    }
+    .box {
+      margin-top: 0.5rem;
+      padding: 1rem;
+      border: 1px solid #ccc;
+      border-radius: 8px;
+      background: #fefefe;
+      font-size: 1rem;
+      white-space: pre-wrap;
+      overflow-y: auto;
+      flex-shrink: 0;
+    }
+    #answer { max-height: 250px; flex: 1; }
+    .controls {
+      margin-top: 1rem;
+      display: flex;
+      gap: 1rem;
+    }
+    .input-area {
+      display: flex;
+      gap: 0.5rem;
+      margin-top: 1rem;
+    }
+    input[type="text"] {
+      flex: 1;
+      padding: 0.5rem;
+      font-size: 1rem;
+      border: 1px solid #ccc;
+      border-radius: 8px;
+    }
+    button {
+      padding: 0.6rem 1.2rem;
+      font-size: 1rem;
+      border: none;
+      border-radius: 8px;
+      background-color: #2575fc;
+      color: white;
+      cursor: pointer;
+    }
+    .audio-controls {
+      margin-top: 0.5rem;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+    }
+    /* 第二關初始鎖定樣式 */
+    #level2Link {
+      display: inline-block;
+      margin-top: 12px;
+      padding: 8px 16px;
+      border-radius: 8px;
+      background-color: lightgray;
+      color: gray;
+      pointer-events: none;
+      user-select: none;
+      font-weight: bold;
+      text-decoration: none;
+    }
   </style>
 
   <!-- Firebase SDK (modular) -->
