@@ -11,13 +11,11 @@
       background-color: #fefefe;
       color: #333;
     }
-
     .navbar {
       background-color: #4a90e2;
       padding: 16px;
       text-align: center;
     }
-
     .navbar a, .navbar button {
       color: white;
       text-decoration: none;
@@ -27,36 +25,30 @@
       border: none;
       cursor: pointer;
     }
-
     h1 {
       text-align: center;
       padding: 30px 10px 10px;
       font-size: 32px;
       color: #1a237e;
     }
-
     .main {
       display: flex;
       flex-wrap: wrap;
       padding: 20px;
       box-sizing: border-box;
     }
-
     .left, .right {
       box-sizing: border-box;
       padding: 20px;
     }
-
     .left {
       flex: 1 1 50%;
     }
-
     .right {
       flex: 1 1 50%;
       background-color: #f0f4ff;
       border-radius: 12px;
     }
-
     .course-card {
       background-color: #f9f9f9;
       border: 1px solid #ddd;
@@ -65,24 +57,20 @@
       padding: 20px;
       text-align: center;
     }
-
     .course-card img {
       width: 120px;
       height: 120px;
       object-fit: contain;
       margin-bottom: 10px;
     }
-
     .course-card h2 {
       font-size: 24px;
       color: #1a237e;
       margin: 10px 0;
     }
-
     .course-card p {
       font-size: 18px;
     }
-
     .btn {
       display: inline-block;
       padding: 10px 20px;
@@ -94,22 +82,18 @@
       margin-top: 10px;
       text-decoration: none;
     }
-
     .btn:hover {
       background-color: #357abd;
     }
-
     .btn.locked {
       background-color: #ccc;
       pointer-events: none;
       cursor: not-allowed;
     }
-
     .progress-area h2 {
       font-size: 24px;
       margin-bottom: 20px;
     }
-
     .progress-bar {
       width: 100%;
       background-color: #ddd;
@@ -118,7 +102,6 @@
       height: 30px;
       margin-bottom: 10px;
     }
-
     .progress-bar-fill {
       height: 100%;
       width: 0%;
@@ -128,18 +111,15 @@
       line-height: 30px;
       font-weight: bold;
     }
-
     .badges img {
       margin: 10px;
       width: 80px;
       filter: grayscale(100%);
       transition: filter 0.5s ease;
     }
-
     .badges img.unlocked {
       filter: none;
     }
-
     @media (max-width: 900px) {
       .left, .right {
         flex: 1 1 100%;
@@ -162,16 +142,16 @@
   <div class="main">
     <div class="left">
       <div class="course-card" data-course="1">
-        <img src="camera-icon.png" alt="拍照">
+        <img src="camera-icon.png" alt="拍照" />
         <h2>課程一：LINE教學</h2>
         <p>教你如何用LINE的視訊分享畫面。</p>
-        <a class="btn" href="line.html" data-course="1">開始學習</a>
+        <a class="btn" href="#" data-course="1">開始學習</a>
       </div>
       <div class="course-card" data-course="2">
-        <img src="video-call-icon.png" alt="視訊通話">
+        <img src="video-call-icon.png" alt="視訊通話" />
         <h2>課程二：視訊通話</h2>
         <p>用 LINE 與家人視訊聯繫。</p>
-        <a class="btn locked" href="wifi.html">尚未解鎖</a>
+        <a class="btn locked" href="#" data-course="2">尚未解鎖</a>
       </div>
     </div>
 
@@ -192,36 +172,24 @@
     </div>
   </div>
 
-  <!-- Firebase SDK -->
-  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js"></script>
-  <script src="firebase-config.js"></script>
+  <script type="module">
+    import { auth, onAuthStateChanged, signOut, db } from './firebase-init.js';
+    import { doc, getDoc } from "https://www.gstatic.com/firebasejs/11.8.1/firebase-firestore.js";
 
-  <script>
-    const auth = firebase.auth();
+    const progressFill = document.getElementById("progress-fill");
+    const progressText = document.getElementById("progress-text");
+    const logoutBtn = document.getElementById("logoutBtn");
+    const courseButtons = document.querySelectorAll(".course-card a.btn");
 
-    // 檢查登入狀態
-    auth.onAuthStateChanged((user) => {
-      if (!user) {
-        window.location.href = "login.html";
+    // 初始化課程進度
+    const courseProgress = { 1: false, 2: false };
+
+    function getCourseUrl(courseNum) {
+      switch (courseNum) {
+        case 1: return "line.html";
+        case 2: return "wifi.html";
+        default: return "#";
       }
-    });
-
-    // 登出控制
-    document.getElementById("logoutBtn").addEventListener("click", () => {
-      auth.signOut().then(() => {
-        localStorage.clear();
-        window.location.href = "login.html";
-      }).catch((error) => {
-        alert("登出失敗：" + error.message);
-      });
-    });
-
-    // 課程進度邏輯
-    const courseProgress = JSON.parse(localStorage.getItem('courseProgress')) || { 1: false, 2: false };
-
-    if (localStorage.getItem("course1Completed") === "true") {
-      courseProgress[1] = true;
     }
 
     function updateUI() {
@@ -230,43 +198,80 @@
         if (courseProgress[i]) {
           completed++;
           document.getElementById(`badge-${i}`).classList.add("unlocked");
+        } else {
+          document.getElementById(`badge-${i}`).classList.remove("unlocked");
         }
       }
 
       const percent = Math.round((completed / 2) * 100);
-      document.getElementById("progress-fill").style.width = percent + "%";
-      document.getElementById("progress-fill").textContent = percent + "%";
-      document.getElementById("progress-text").textContent = `你已完成 ${completed} / 2 的課程，加油！`;
+      progressFill.style.width = percent + "%";
+      progressFill.textContent = percent + "%";
+      progressText.textContent = `你已完成 ${completed} / 2 的課程，加油！`;
 
-      for (let i = 1; i <= 2; i++) {
-        const btn = document.querySelector(`a[data-course="${i}"]`);
-        if (i === 1 || courseProgress[i - 1]) {
+      courseButtons.forEach(btn => {
+        const courseNum = Number(btn.getAttribute("data-course"));
+        if (courseNum === 1 || courseProgress[courseNum - 1]) {
           btn.classList.remove("locked");
-          btn.href = getCourseUrl(i);
+          btn.href = getCourseUrl(courseNum);
           btn.textContent = "開始學習";
         } else {
           btn.classList.add("locked");
           btn.href = "#";
           btn.textContent = "尚未解鎖";
         }
+      });
+    }
+
+    // Firebase 登出
+    logoutBtn.addEventListener("click", () => {
+      signOut(auth).then(() => {
+        window.location.href = "login.html";
+      }).catch(error => {
+        alert("登出失敗：" + error.message);
+      });
+    });
+
+    // 讀取課程進度 (Firestore)
+    async function loadProgress(uid) {
+      try {
+        const docRef = doc(db, "userProgress", uid);
+        const docSnap = await getDoc(docRef);
+        if (docSnap.exists()) {
+          const data = docSnap.data();
+          // 假設資料格式 { course1: true, course2: false }
+          courseProgress[1] = data.course1 || false;
+          courseProgress[2] = data.course2 || false;
+        } else {
+          // Firestore 無資料，預設不完成任何課程
+          courseProgress[1] = false;
+          courseProgress[2] = false;
+        }
+        updateUI();
+      } catch (error) {
+        console.error("讀取進度失敗", error);
       }
     }
 
-    function getCourseUrl(courseNum) {
-      switch (courseNum) {
-        case 1: return "line.html";
-        case 2: return "wifi.html";
+    // 監聽登入狀態
+    onAuthStateChanged(auth, user => {
+      if (user) {
+        loadProgress(user.uid);
+      } else {
+        // 未登入導回登入頁
+        window.location.href = "login.html";
       }
-    }
+    });
 
-    function completeCourse(courseNum) {
-      courseProgress[courseNum] = true;
-      localStorage.setItem('courseProgress', JSON.stringify(courseProgress));
-      updateUI();
-    }
-
-    updateUI();
-    window.completeCourse = completeCourse;
+    // 按鈕事件：點擊已解鎖課程跳轉
+    courseButtons.forEach(btn => {
+      btn.addEventListener("click", e => {
+        if (btn.classList.contains("locked")) {
+          e.preventDefault();
+          alert("請先完成上一課程才能解鎖喔！");
+        }
+      });
+    });
   </script>
+
 </body>
 </html>
