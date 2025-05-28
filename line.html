@@ -4,14 +4,13 @@
   <meta charset="UTF-8" />
   <title>課程一：LINE 教學操作</title>
   <style>
-    /*（這裡省略原本 CSS，與你提供的一致）*/
+    /* 這裡省略 CSS 與你原本一致 */
     body {
       font-family: "Noto Sans TC", sans-serif;
       margin: 0;
       background-color: #fefefe;
       color: #333;
     }
-    /* 其他 CSS 同上... */
     .navbar {
       background-color: #4a90e2;
       padding: 16px;
@@ -123,13 +122,14 @@
     }
   </style>
 
-  <!-- Firebase SDK -->
-  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-auth-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore-compat.js"></script>
+  <!-- Firebase SDK (modular) -->
+  <script type="module">
+    // Firebase v9+ Modular SDK
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-app.js";
+    import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-auth.js";
+    import { getFirestore, doc, setDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore.js";
 
-  <script>
-    // Firebase 配置，請替換成你的專案資訊
+    // Firebase config，換成你的
     const firebaseConfig = {
       apiKey: "AIzaSyC0VF7SkuXvOAJyuC-2tPl_KGris3f4gqE",
       authDomain: "final-project-fb104.firebaseapp.com",
@@ -140,11 +140,85 @@
       measurementId: "G-XRR8QBXS35"
     };
 
-    // 初始化 Firebase
-    firebase.initializeApp(firebaseConfig);
-    const auth = firebase.auth();
-    const db = firebase.firestore();
+    // 初始化
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const db = getFirestore(app);
+
+    // DOM 參考
+    let logoutBtn;
+
+    // DiVE 連接與完成度監聽
+    window.addEventListener('load', () => {
+      logoutBtn = document.getElementById("logoutBtn");
+
+      // 登出按鈕事件
+      logoutBtn.addEventListener("click", () => {
+        signOut(auth).then(() => {
+          alert("已登出");
+          window.location.href = "index.html"; // 登入頁面
+        }).catch(error => {
+          alert("登出錯誤：" + error.message);
+        });
+      });
+
+      // 監聽登入狀態
+      onAuthStateChanged(auth, user => {
+        if (!user) {
+          alert("請先登入");
+          window.location.href = "login.html";
+          return;
+        }
+
+        startDiveListener(user.uid);
+      });
+    });
+
+    function startDiveListener(uid) {
+      // 這個是你 DiVE 物件的初始化
+      const diveLinker = new DiveLinker("dive");
+
+      // 啟動 DiVE，關閉浮水印
+      diveLinker.enableBlock(false);
+      diveLinker.start();
+
+      const completeId = "af797b267579490f82a94127cc5edbb5";
+
+      setInterval(() => {
+        const outputList = diveLinker.outputList;
+        if (outputList && outputList[completeId]) {
+          const value = outputList[completeId].value;
+          console.log("DiVE 完成度:", value);
+
+          if (value == 1) {
+            // 寫入 Firestore
+            saveCourseProgress(uid, true);
+          }
+        }
+      }, 1000);
+    }
+
+    async function saveCourseProgress(uid, completed) {
+      if (!uid) return;
+
+      const courseDocRef = doc(db, "users", uid, "courses", "course1");
+
+      try {
+        await setDoc(courseDocRef, {
+          completed: completed,
+          timestamp: serverTimestamp()
+        }, { merge: true });
+
+        console.log("課程 course1 進度已更新");
+      } catch (error) {
+        console.error("Firestore 寫入失敗：", error);
+      }
+    }
   </script>
+
+  <!-- DiVE link script -->
+  <script src="https://dive.nutn.edu.tw/Experiment/js/dive.linker.min.js"></script>
+
 </head>
 <body>
   <!-- 導覽列 -->
@@ -179,96 +253,19 @@
           <div id="result" class="box">請輸入您的問題...</div>
         </div>
 
-        <div class="section" style="flex:2;">
+        <div class="section">
           <h3>AI 回答：</h3>
-          <div id="answer" class="box">AI 回答會顯示在這裡...</div>
-          <div class="audio-controls">
-            <button id="speakBtn" style="display:none;">▶ 播放</button>
-            <button id="pauseBtn" style="display:none;">⏸ 暫停</button>
-            <button id="resumeBtn" style="display:none;">⏯ 繼續</button>
-          </div>
+          <div id="answer" class="box"></div>
         </div>
 
         <div class="input-area">
-          <input type="text" id="textInput" placeholder="請輸入您的問題..." />
-          <button id="submitBtn">送出</button>
+          <input type="text" id="inputText" placeholder="請輸入問題" />
+          <button id="askBtn">提問</button>
         </div>
+
+        <div class="audio-controls" aria-label="語音播放控制區" role="region"></div>
       </div>
     </div>
   </div>
-
-  <!-- JS 腳本：DiVE 與語音 AI -->
-  <script src="https://dive.nutn.edu.tw/Experiment/js/dive.linker.min.js"></script>
-  <script>
-    const diveLinker = new DiveLinker("dive");
-
-    window.onload = function () {
-      // 關掉浮水印 + 啟動專案
-      diveLinker.enableBlock(false);
-      diveLinker.start();
-
-      // 取得完成度的屬性 ID
-      const completeId = "af797b267579490f82a94127cc5edbb5";
-
-      // 每秒檢查 DiVE 傳來的值
-      setInterval(() => {
-        const outputList = diveLinker.outputList;
-
-        if (outputList && outputList[completeId]) {
-          const value = outputList[completeId].value;
-          console.log("完成度:", value);
-
-          // 寫入 localStorage，供 course.html 判斷
-          if (value == 1) {
-            localStorage.setItem("course1Completed", "true");
-
-            // 寫入 Firestore
-            saveCourseProgress("course1", true);
-          }
-        }
-      }, 1000);
-    };
-
-    // 寫入 Firestore 課程進度
-    function saveCourseProgress(courseId, completed) {
-      const user = auth.currentUser;
-      if (!user) {
-        console.warn("未登入，無法儲存進度");
-        return;
-      }
-
-      const userDocRef = db.collection("users").doc(user.uid);
-
-      userDocRef.set({
-        courses: {
-          [courseId]: {
-            completed: completed,
-            timestamp: firebase.firestore.FieldValue.serverTimestamp()
-          }
-        }
-      }, { merge: true })
-      .then(() => {
-        console.log(`課程 ${courseId} 進度已更新至 Firestore`);
-      })
-      .catch(err => {
-        console.error("儲存進度失敗：", err);
-      });
-    }
-  </script>
-
-  <!-- Firebase Auth 狀態監聽 + 登出功能 -->
-  <script>
-  
-
-    document.getElementById("logoutBtn").addEventListener("click", () => {
-      auth.signOut().then(() => {
-        alert("已登出");
-        window.location.href = "index.html"; // 改成你的登入頁面
-      }).catch(error => {
-        alert("登出錯誤：" + error.message);
-      });
-    });
-  </script>
-
 </body>
 </html>
