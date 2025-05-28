@@ -5,13 +5,14 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>手機教學課程</title>
   <style>
+    /* 這裡省略你的 CSS 保持不變 */
     body {
       font-family: "Noto Sans TC", sans-serif;
       margin: 0;
       background-color: #fefefe;
       color: #333;
     }
-    .navbar {
+     .navbar {
       background-color: #4a90e2;
       padding: 16px;
       text-align: center;
@@ -143,13 +144,13 @@
   <div class="main">
     <div class="left">
       <div class="course-card" data-course="1">
-        <img src="camera-icon.png" alt="拍照">
+        <img src="camera-icon.png" alt="拍照" />
         <h2>課程一：LINE教學</h2>
         <p>教你如何用LINE的視訊分享畫面。</p>
         <a class="btn" id="btn-course1" href="#">讀取中...</a>
       </div>
       <div class="course-card" data-course="2">
-        <img src="video-call-icon.png" alt="視訊通話">
+        <img src="video-call-icon.png" alt="視訊通話" />
         <h2>課程二：視訊通話</h2>
         <p>用 LINE 與家人視訊聯繫。</p>
         <a class="btn locked" id="btn-course2" href="#">尚未解鎖</a>
@@ -176,7 +177,7 @@
   <script type="module">
     import { auth, db } from './firebase-init.js';
     import { onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/11.8.1/firebase-auth.js";
-    import { doc, getDoc } from "https://www.gstatic.com/firebasejs/11.8.1/firebase-firestore.js";
+    import { collection, doc, getDoc } from "https://www.gstatic.com/firebasejs/11.8.1/firebase-firestore.js";
 
     const btn1 = document.getElementById('btn-course1');
     const btn2 = document.getElementById('btn-course2');
@@ -190,48 +191,40 @@
         window.location.href = 'login.html';
         return;
       }
-      rules_version = '2';
-service cloud.firestore {
-  match /databases/{database}/documents {
-    match /userProgress/{userId} {
-      allow read, write: if request.auth != null && request.auth.uid == userId;
-    }
-    match /courses/{courseId} {
-      allow read: if true;
-    }
-  }
-}
 
+      // 取得子集合路徑
+      const coursesCol = collection(db, "users", user.uid, "courses");
 
-      const userRef = doc(db, "userProgress", user.uid);
-      const docSnap = await getDoc(userRef);
-      const progress = docSnap.exists() ? docSnap.data() : {};
+      const course1Doc = doc(coursesCol, "course1");
+      const course2Doc = doc(coursesCol, "course2");
 
-      console.log("讀取進度資料:", progress);
+      const [course1Snap, course2Snap] = await Promise.all([
+        getDoc(course1Doc),
+        getDoc(course2Doc)
+      ]);
 
-      const completed1 = !!progress.course1Completed;
-      const completed2 = !!progress.course2Completed;
+      // 判斷是否完成
+      const completed1 = course1Snap.exists() && course1Snap.data().completed === true;
+      const completed2 = course2Snap.exists() && course2Snap.data().completed === true;
 
-      let completedCount = 0;
-
+      // 更新課程一按鈕
       if (completed1) {
         btn1.classList.remove("locked");
         btn1.href = "line.html";
         btn1.textContent = "開始學習";
         badge1.classList.add("unlocked");
-        completedCount++;
       } else {
         btn1.href = "line.html";
         btn1.textContent = "開始學習";
       }
 
+      // 課程二解鎖條件：完成課程一
       if (completed1) {
         btn2.classList.remove("locked");
         btn2.href = "wifi.html";
         btn2.textContent = "開始學習";
         if (completed2) {
           badge2.classList.add("unlocked");
-          completedCount++;
         }
       } else {
         btn2.classList.add("locked");
@@ -239,12 +232,15 @@ service cloud.firestore {
         btn2.textContent = "尚未解鎖";
       }
 
+      // 計算進度百分比
+      const completedCount = (completed1 ? 1 : 0) + (completed2 ? 1 : 0);
       const percent = Math.round((completedCount / 2) * 100);
       fill.style.width = percent + "%";
       fill.textContent = percent + "%";
       progressText.textContent = `你已完成 ${completedCount} / 2 的課程，加油！`;
     });
 
+    // 登出功能
     document.getElementById('logoutBtn').addEventListener('click', () => {
       signOut(auth).then(() => {
         window.location.href = 'login.html';
