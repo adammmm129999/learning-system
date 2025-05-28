@@ -27,6 +27,7 @@
       border-radius: 12px;
       padding: 20px;
       margin: 15px;
+      position: relative;
     }
     .reply {
       margin-left: 40px;
@@ -57,6 +58,7 @@
       padding: 12px 24px;
       border-radius: 10px;
       cursor: pointer;
+      transition: background-color 0.3s ease;
     }
     button:hover {
       background-color: #0056b3;
@@ -66,6 +68,10 @@
       padding: 6px 12px;
       margin-top: 8px;
       border-radius: 6px;
+      position: absolute;
+      right: 15px;
+      top: 15px;
+      font-size: 14px;
     }
     .instruction {
       font-size: 18px;
@@ -118,7 +124,7 @@
       div.innerHTML = `
         <p><b>${escapeHtml(docData.username)}</b> 說：</p>
         <p>${escapeHtml(docData.content)}</p>
-        <small>${new Date(docData.timestamp?.toDate?.()).toLocaleString()}</small>
+        <small>${docData.timestamp?.toDate ? new Date(docData.timestamp.toDate()).toLocaleString() : ''}</small>
       `;
 
       if (docData.userId === currentUser.uid) {
@@ -127,7 +133,11 @@
         delBtn.textContent = "刪除留言";
         delBtn.onclick = async () => {
           if (confirm("確定要刪除這則留言嗎？")) {
-            await deleteDoc(doc(db, "comments", docId));
+            try {
+              await deleteDoc(doc(db, "comments", docId));
+            } catch (error) {
+              alert("刪除失敗：" + error.message);
+            }
           }
         };
         div.appendChild(delBtn);
@@ -143,25 +153,36 @@
         commentSection.innerHTML = "";
         if (snapshot.empty) {
           commentSection.innerHTML = "<p>目前還沒有留言，歡迎搶先留言！</p>";
+          return;
         }
         snapshot.forEach(doc => {
           renderComment(doc.data(), doc.id);
         });
+      }, error => {
+        commentSection.innerHTML = "<p>留言載入失敗，請稍後再試。</p>";
+        console.error("Firestore 監聽錯誤:", error);
       });
     }
 
     async function postComment() {
       const content = newComment.value.trim();
-      if (!content) return alert("請輸入留言內容");
-
-      await addDoc(collection(db, "comments"), {
-        content,
-        userId: currentUser.uid,
-        username: currentUser.email,
-        timestamp: new Date()
-      });
-
-      newComment.value = "";
+      if (!content) {
+        alert("請輸入留言內容");
+        return;
+      }
+      postBtn.disabled = true;
+      try {
+        await addDoc(collection(db, "comments"), {
+          content,
+          userId: currentUser.uid,
+          username: currentUser.email,
+          timestamp: new Date()
+        });
+        newComment.value = "";
+      } catch (error) {
+        alert("留言失敗：" + error.message);
+      }
+      postBtn.disabled = false;
     }
 
     // 監聽登入狀態
