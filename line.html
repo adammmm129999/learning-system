@@ -4,26 +4,25 @@
   <meta charset="UTF-8" />
   <title>課程一：LINE 教學操作</title>
   <style>
+    /*（這裡省略原本 CSS，與你提供的一致）*/
     body {
       font-family: "Noto Sans TC", sans-serif;
       margin: 0;
       background-color: #fefefe;
       color: #333;
     }
-
+    /* 其他 CSS 同上... */
     .navbar {
       background-color: #4a90e2;
       padding: 16px;
       text-align: center;
     }
-
     .navbar a {
       color: white;
       text-decoration: none;
       margin: 0 12px;
       font-size: 20px;
     }
-
     .main-panel {
       display: flex;
       width: 100%;
@@ -33,18 +32,8 @@
       box-sizing: border-box;
       overflow: hidden;
     }
-
-    /* 🧩 DiVE 區塊變寬 */
-    .embed-frame:nth-child(1) {
-      flex: 2;
-    }
-
-    /* 📱 直立影片正常 */
-    .embed-frame:nth-child(2) {
-      flex: 1;
-    }
-
-    /* ✅ iframe 和影片都完整填入空間 */
+    .embed-frame:nth-child(1) { flex: 2; }
+    .embed-frame:nth-child(2) { flex: 1; }
     .embed-frame iframe,
     .embed-frame video {
       height: 100%;
@@ -55,7 +44,6 @@
       object-fit: contain;
       display: block;
     }
-
     .right-panel {
       flex: 1;
       display: flex;
@@ -64,7 +52,6 @@
       padding: 2rem 1rem;
       box-sizing: border-box;
     }
-
     .phone-frame {
       width: 360px;
       height: 720px;
@@ -78,13 +65,11 @@
       box-sizing: border-box;
       overflow: hidden;
     }
-
     h1 {
       font-size: 1.4rem;
       text-align: center;
       margin-bottom: 1rem;
     }
-
     .section {
       margin-top: 1rem;
       flex: 1;
@@ -92,7 +77,6 @@
       display: flex;
       flex-direction: column;
     }
-
     .box {
       margin-top: 0.5rem;
       padding: 1rem;
@@ -104,21 +88,17 @@
       overflow-y: auto;
       flex-shrink: 0;
     }
-
     #answer { max-height: 250px; flex: 1; }
-
     .controls {
       margin-top: 1rem;
       display: flex;
       gap: 1rem;
     }
-
     .input-area {
       display: flex;
       gap: 0.5rem;
       margin-top: 1rem;
     }
-
     input[type="text"] {
       flex: 1;
       padding: 0.5rem;
@@ -126,7 +106,6 @@
       border: 1px solid #ccc;
       border-radius: 8px;
     }
-
     button {
       padding: 0.6rem 1.2rem;
       font-size: 1rem;
@@ -136,7 +115,6 @@
       color: white;
       cursor: pointer;
     }
-
     .audio-controls {
       margin-top: 0.5rem;
       display: flex;
@@ -144,6 +122,29 @@
       gap: 0.5rem;
     }
   </style>
+
+  <!-- Firebase SDK -->
+  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore-compat.js"></script>
+
+  <script>
+    // Firebase 配置，請替換成你的專案資訊
+    const firebaseConfig = {
+      apiKey: "AIzaSyC0VF7SkuXvOAJyuC-2tPl_KGris3f4gqE",
+      authDomain: "final-project-fb104.firebaseapp.com",
+      projectId: "final-project-fb104",
+      storageBucket: "final-project-fb104.appspot.com",
+      messagingSenderId: "150740541108",
+      appId: "1:150740541108:web:1a0dba9ebb4cbb157001e1",
+      measurementId: "G-XRR8QBXS35"
+    };
+
+    // 初始化 Firebase
+    firebase.initializeApp(firebaseConfig);
+    const auth = firebase.auth();
+    const db = firebase.firestore();
+  </script>
 </head>
 <body>
   <!-- 導覽列 -->
@@ -220,137 +221,62 @@
           // 寫入 localStorage，供 course.html 判斷
           if (value == 1) {
             localStorage.setItem("course1Completed", "true");
+
+            // 寫入 Firestore
+            saveCourseProgress("course1", true);
           }
         }
       }, 1000);
     };
-  </script>
 
-  <script>
-    const sk = "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";
-    const resultDiv = document.getElementById('result');
-    const answerDiv = document.getElementById('answer');
-    const speakBtn = document.getElementById('speakBtn');
-    const pauseBtn = document.getElementById('pauseBtn');
-    const resumeBtn = document.getElementById('resumeBtn');
-    const submitBtn = document.getElementById('submitBtn');
-    const textInput = document.getElementById('textInput');
-
-    let lastAIAnswer = '';
-    let utterance = null;
-
-    speakBtn.addEventListener('click', () => {
-      if (!lastAIAnswer) return;
-      if (speechSynthesis.speaking) speechSynthesis.cancel();
-
-      utterance = new SpeechSynthesisUtterance(lastAIAnswer);
-      utterance.lang = 'zh-TW';
-      speechSynthesis.speak(utterance);
-
-      pauseBtn.style.display = 'inline-block';
-      resumeBtn.style.display = 'inline-block';
-    });
-
-    pauseBtn.addEventListener('click', () => {
-      if (speechSynthesis.speaking && !speechSynthesis.paused) {
-        speechSynthesis.pause();
+    // 寫入 Firestore 課程進度
+    function saveCourseProgress(courseId, completed) {
+      const user = auth.currentUser;
+      if (!user) {
+        console.warn("未登入，無法儲存進度");
+        return;
       }
-    });
 
-    resumeBtn.addEventListener('click', () => {
-      if (speechSynthesis.paused) {
-        speechSynthesis.resume();
-      }
-    });
+      const userDocRef = db.collection("users").doc(user.uid);
 
-    submitBtn.addEventListener('click', () => {
-      const userText = textInput.value.trim();
-      if (userText !== '') {
-        resultDiv.textContent = userText;
-        askOpenRouterAI(userText);
-        textInput.value = '';
-      }
-    });
-
-    const intentPrompts = [
-      {
-        keywords: ["怎麼走", "導航", "路", "診所", "醫院"],
-        prompt: "你是一位親切的語音導航員，會耐心引導長輩如何用 Google 地圖找路。請從打開手機上的 Google 地圖開始，說明如何在搜尋欄輸入目的地（例如診所或醫院），接著解釋如何選擇交通方式（走路、大眾運輸或騎車），並提醒他們看箭頭指示跟著走。"
-      },
-      {
-        keywords: ["天氣", "氣象", "溫度", "氣候"],
-        prompt: "你是一位氣象專家，會清楚說明今天和未來三天的天氣狀況，包含溫度、降雨機率、風速和紫外線指數，讓長輩能做好出門準備。"
-      }
-    ];
-
-    function askOpenRouterAI(text) {
-      let prompt = `你是一位資深助理，請用繁體中文回答：\n${text}`;
-      for (const intent of intentPrompts) {
-        if (intent.keywords.some(kw => text.includes(kw))) {
-          prompt = intent.prompt + "\n" + prompt;
-          break;
+      userDocRef.set({
+        courses: {
+          [courseId]: {
+            completed: completed,
+            timestamp: firebase.firestore.FieldValue.serverTimestamp()
+          }
         }
-      }
-
-      fetch("https://openrouter.ai/api/v1/chat/completions", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${sk}`
-        },
-        body: JSON.stringify({
-          model: "openrouter-v1",
-          messages: [
-            { role: "system", content: "你是一位繁體中文的助理" },
-            { role: "user", content: prompt }
-          ],
-          temperature: 0.5
-        })
+      }, { merge: true })
+      .then(() => {
+        console.log(`課程 ${courseId} 進度已更新至 Firestore`);
       })
-      .then(res => res.json())
-      .then(data => {
-        if (data.choices && data.choices[0]) {
-          const answer = data.choices[0].message.content;
-          answerDiv.textContent = answer;
-          lastAIAnswer = answer;
-          speakBtn.style.display = 'inline-block';
-          pauseBtn.style.display = 'none';
-          resumeBtn.style.display = 'none';
-        } else {
-          answerDiv.textContent = "無法取得 AI 回答，請稍後再試。";
-        }
-      })
-      .catch(e => {
-        console.error(e);
-        answerDiv.textContent = "發生錯誤，請檢查網路或稍後再試。";
+      .catch(err => {
+        console.error("儲存進度失敗：", err);
       });
     }
   </script>
 
+  <!-- Firebase Auth 狀態監聽 + 登出功能 -->
   <script>
-    // Firebase App (the core Firebase SDK) is always required and must be listed first
-    // (請自行加入 Firebase SDK scripts)
-    // 這裡示範基本登入狀態偵測和登出功能
+    auth.onAuthStateChanged(user => {
+      if (!user) {
+        // 使用者未登入，跳回登入頁
+        alert("請先登入！");
+        window.location.href = "login.html";
+      } else {
+        console.log("已登入用戶:", user.email);
+      }
+    });
 
-    document.addEventListener('DOMContentLoaded', () => {
-      const logoutBtn = document.getElementById('logoutBtn');
-
-      firebase.auth().onAuthStateChanged(user => {
-        if (!user) {
-          // 使用者未登入，跳轉登入頁面
-          window.location.href = "login.html";
-        }
-      });
-
-      logoutBtn.addEventListener('click', () => {
-        firebase.auth().signOut().then(() => {
-          alert("已登出");
-          window.location.href = "login.html";
-        }).catch(err => {
-          alert("登出失敗：" + err.message);
-        });
+    document.getElementById("logoutBtn").addEventListener("click", () => {
+      auth.signOut().then(() => {
+        alert("已登出");
+        window.location.href = "login.html";
+      }).catch(error => {
+        alert("登出錯誤：" + error.message);
       });
     });
   </script>
+
 </body>
 </html>
