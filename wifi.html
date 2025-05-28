@@ -142,6 +142,20 @@
       font-weight: bold;
       text-decoration: none;
     }
+    /* 解鎖後樣式 */
+    #level2Link.unlocked {
+      background-color: #d1eaff;
+      color: blue;
+      pointer-events: auto;
+      user-select: auto;
+    }
+    /* 進度顯示 */
+    #progressStatus {
+      margin-top: 1rem;
+      font-weight: bold;
+      font-size: 1.2rem;
+      color: #2575fc;
+    }
   </style>
 
   <!-- Firebase SDK (modular) -->
@@ -188,12 +202,18 @@
         // 讀取課程進度
         try {
           const courseDoc = await getDoc(doc(db, "users", user.uid, "courses", "course1"));
+          const progressStatus = document.getElementById("progressStatus");
           if (courseDoc.exists()) {
             const data = courseDoc.data();
             console.log("讀取課程進度:", data);
             if (data.completed === true) {
               unlockLevel2(level2Link);
+              if (progressStatus) progressStatus.textContent = "進度: 100%";
+            } else {
+              if (progressStatus) progressStatus.textContent = "進度: 0%";
             }
+          } else {
+            if (progressStatus) progressStatus.textContent = "進度: 0%";
           }
         } catch (e) {
           console.error("讀取課程進度失敗:", e);
@@ -204,19 +224,17 @@
     });
 
     function unlockLevel2(element) {
-      element.style.pointerEvents = "auto";
-      element.style.color = "blue";
-      element.style.userSelect = "auto";
-      element.style.backgroundColor = "#d1eaff";
+      element.classList.add("unlocked");
       element.textContent = "第二關（已解鎖）";
     }
 
     function startDiveListener(uid) {
+      // DiVE 連結 ID，這個要根據你的實際 ID 修改
+      const completeId = '04b344e5adda446583d7e087a1d18026';
+
       const diveLinker = new DiveLinker("dive");
       diveLinker.enableBlock(false);
       diveLinker.start();
-
-      const completeId = '04b344e5adda446583d7e087a1d18026';
 
       setInterval(() => {
         const outputList = diveLinker.outputList;
@@ -227,6 +245,9 @@
             saveCourseProgress(uid, true);
             const level2Link = document.getElementById("level2Link");
             unlockLevel2(level2Link);
+
+            const progressStatus = document.getElementById("progressStatus");
+            if (progressStatus) progressStatus.textContent = "進度: 100%";
           }
         }
       }, 1000);
@@ -294,6 +315,9 @@
         </div>
 
         <div class="audio-controls" aria-label="語音播放控制區" role="region"></div>
+
+        <!-- 進度顯示 -->
+        <div id="progressStatus">進度: 0%</div>
 
         <!-- 第二關按鈕，預設鎖定 -->
         <a id="level2Link" href="course2.html">第二關（鎖定）</a>
