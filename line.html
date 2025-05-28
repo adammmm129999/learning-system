@@ -4,7 +4,7 @@
   <meta charset="UTF-8" />
   <title>課程一：LINE 教學操作</title>
   <style>
-   body {
+    body {
       font-family: "Noto Sans TC", sans-serif;
       margin: 0;
       background-color: #fefefe;
@@ -24,27 +24,39 @@
       font-size: 20px;
     }
 
-    .main-panel {
-      display: flex;
-      flex-direction: row;
-      width: 110%;
-      height: calc(100vh - 100px);
-      box-sizing: border-box;
-    }
+.main-panel {
+  display: flex;
+  width: 100%;
+  max-width: 1920px;
+  margin: 0 auto;
+  height: calc(100vh - 100px);
+  box-sizing: border-box;
+  overflow: hidden;
+}
 
-    .embed-frame {
-      flex: 1;
-      padding: 1rem;
-      box-sizing: border-box;
-    }
+/* 🧩 DiVE 區塊變寬 */
+.embed-frame:nth-child(1) {
+  flex: 2;
+}
 
-    .embed-frame iframe {
-      width: 90%;
-      height: 100%;
-      border: none;
-      border-radius: 16px;
-      box-shadow: 0 0 10px rgba(0,0,0,0.1);
-    }
+/* 📱 直立影片正常 */
+.embed-frame:nth-child(2) {
+  flex: 1;
+}
+
+/* ✅ iframe 和影片都完整填入空間 */
+.embed-frame iframe,
+.embed-frame video {
+  height: 100%;
+  width: 100%;
+  border: none;
+  border-radius: 16px;
+  box-shadow: 0 0 10px rgba(0,0,0,0.1);
+  object-fit: contain;
+  display: block;
+}
+
+
 
     .right-panel {
       flex: 1;
@@ -126,13 +138,15 @@
 </head>
 <body>
   <!-- 導覽列 -->
-   <nav class="navbar">
+  <nav class="navbar">
     <div class="container">
       <a href="home.html">🏠 首頁</a>
       <a href="course.html">📘 課程教學</a>
-      <a href="discussion.html">💬 討論區</a>    
+     
+      <a href="discussion.html">💬 討論區</a>
+     
       <a href="personal_account.html">個人資料📄</a>
-      <button id="logoutBtn">🔓 登出</button>
+      <a href="logout.php">🔓 登出</a>
     </div>
   </nav>
 
@@ -144,7 +158,7 @@
 
     <!-- YouTube 影片 -->
     <div class="embed-frame">
-      <iframe src="https://www.youtube.com/embed/dQw4w9WgXcQ" title="影片播放" allowfullscreen></iframe>
+      <video src="a2be52a1e2a74770995bb4f58429b597.mp4 "allowfullscreen></video>
     </div>
 
     <!-- 語音 AI 區 -->
