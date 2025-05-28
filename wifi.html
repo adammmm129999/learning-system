@@ -3,29 +3,12 @@
 <head>
   <meta charset="UTF-8" />
   <title>課程二：WiFi 教學操作</title>
-
   <style>
-    #markCourse2Btn {
-      margin-top: 1rem;
-      padding: 8px 16px;
-      border-radius: 8px;
-      background-color: #28a745;
-      color: white;
-      border: none;
-      cursor: pointer;
-      font-weight: bold;
-    }
-    #markCourse2Btn:disabled {
-      background-color: gray;
-      cursor: not-allowed;
-    }
-    #unlockStatus {
-      margin-top: 1rem;
-      font-weight: bold;
-      color: blue;
-    }
+    /* 版面樣式保持與第一關相同 */
+    /* 請貼上你原本的 CSS */
   </style>
 
+  <!-- Firebase SDK (modular) -->
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-app.js";
     import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-auth.js";
@@ -47,38 +30,16 @@
 
     window.addEventListener('load', () => {
       const logoutBtn = document.getElementById("logoutBtn");
-      const markCourse2Btn = document.getElementById("markCourse2Btn");
-      const unlockStatus = document.getElementById("unlockStatus");
+      const level2Link = document.getElementById("level2Link");
 
       logoutBtn.addEventListener("click", () => {
         signOut(auth).then(() => {
           localStorage.clear();
           alert("已登出");
-          window.location.href = "index.html"; // 登入頁面
+          window.location.href = "index.html";
         }).catch(error => {
           alert("登出錯誤：" + error.message);
         });
-      });
-
-      markCourse2Btn.addEventListener("click", async () => {
-        const user = auth.currentUser;
-        if (!user) {
-          alert("請先登入");
-          return;
-        }
-        markCourse2Btn.disabled = true;
-        markCourse2Btn.textContent = "標記中...";
-        try {
-          await saveCourseProgress(user.uid, "course2", true);
-          alert("課程二已標記為完成，第二關已解鎖！");
-          showUnlocked();
-          markCourse2Btn.textContent = "已完成";
-          markCourse2Btn.disabled = true;
-        } catch(e) {
-          alert("標記課程二完成失敗：" + e.message);
-          markCourse2Btn.disabled = false;
-          markCourse2Btn.textContent = "標記課程二完成";
-        }
       });
 
       onAuthStateChanged(auth, async (user) => {
@@ -88,54 +49,74 @@
           return;
         }
 
+        // 讀取第二關課程進度
         try {
-          const course2Doc = await getDoc(doc(db, "users", user.uid, "courses", "course2"));
-          if (course2Doc.exists()) {
-            const data2 = course2Doc.data();
-            if (data2.completed === true) {
-              showUnlocked();
-              markCourse2Btn.textContent = "已完成";
-              markCourse2Btn.disabled = true;
-            } else {
-              markCourse2Btn.textContent = "標記課程二完成";
-              markCourse2Btn.disabled = false;
-              unlockStatus.textContent = "第二關尚未解鎖";
+          const courseDoc = await getDoc(doc(db, "users", user.uid, "courses", "course2"));
+          if (courseDoc.exists()) {
+            const data = courseDoc.data();
+            console.log("讀取第二關課程進度:", data);
+            if (data.completed === true) {
+              unlockLevel2(level2Link);
             }
-          } else {
-            markCourse2Btn.textContent = "標記課程二完成";
-            markCourse2Btn.disabled = false;
-            unlockStatus.textContent = "第二關尚未解鎖";
           }
         } catch (e) {
-          console.error("讀取課程二進度失敗:", e);
+          console.error("讀取第二關課程進度失敗:", e);
         }
-      });
 
+        startDiveListener(user.uid);
+      });
     });
 
-    function showUnlocked() {
-      const unlockStatus = document.getElementById("unlockStatus");
-      unlockStatus.textContent = "第二關（已解鎖）";
-      unlockStatus.style.color = "green";
+    // 第二關完成 ID，要換成你第二關實際的 ID
+   const secondLevelCompleteId = "04b344e5adda446583d7e087a1d18026";
+
+
+    function unlockLevel2(element) {
+      element.style.pointerEvents = "auto";
+      element.style.color = "blue";
+      element.style.userSelect = "auto";
+      element.style.backgroundColor = "#d1eaff";
+      element.textContent = "第二關（已解鎖）";
     }
 
-    async function saveCourseProgress(uid, courseId, completed) {
+    function startDiveListener(uid) {
+      const diveLinker = new DiveLinker("dive");
+      diveLinker.enableBlock(false);
+      diveLinker.start();
+
+      setInterval(() => {
+        const outputList = diveLinker.outputList;
+        if (outputList && outputList[secondLevelCompleteId]) {
+          const value = outputList[secondLevelCompleteId].value;
+          console.log("DiVE 第二關完成度:", value);
+          if (value === 1) {
+            saveCourseProgress(uid, true);
+            const level2Link = document.getElementById("level2Link");
+            unlockLevel2(level2Link);
+          }
+        }
+      }, 1000);
+    }
+
+    async function saveCourseProgress(uid, completed) {
       if (!uid) return;
-      const courseDocRef = doc(db, "users", uid, "courses", courseId);
+      const courseDocRef = doc(db, "users", uid, "courses", "course2");  // 注意這裡改成 course2
       try {
         await setDoc(courseDocRef, {
           completed,
           timestamp: serverTimestamp()
         }, { merge: true });
-        console.log(`課程 ${courseId} 進度已更新`);
+        console.log("課程 course2 進度已更新");
       } catch (error) {
         console.error("Firestore 寫入失敗：", error);
-        throw error;
       }
     }
   </script>
+
+  <script src="https://dive.nutn.edu.tw/Experiment/js/dive.linker.min.js"></script>
 </head>
 <body>
+  <!-- 導覽列 -->
   <nav class="navbar">
     <div class="container">
       <a href="home.html">🏠 首頁</a>
@@ -147,13 +128,43 @@
   </nav>
 
   <div class="main-panel">
-    <!-- 這裡放wifi相關內容 -->
+    <!-- 第二關 DiVE iframe，URL 改成第二關實驗連結 -->
+    <div class="embed-frame">
+     <iframe name="dive" src="https://dive.nutn.edu.tw/Experiment/kaleTestExperiment5.jsp?eid=33302&record=false"></iframe>
 
-    <!-- 解鎖狀態顯示 -->
-    <div id="unlockStatus">第二關尚未解鎖</div>
+    </div>
 
-    <!-- 標記完成按鈕 -->
-    <button id="markCourse2Btn">標記課程二完成</button>
+    <!-- 第二關對應的 YouTube / 影片 -->
+    <div class="embed-frame">
+      <video src="wifi_video.mp4" controls allowfullscreen></video>
+    </div>
+
+    <!-- 語音 AI 區 -->
+    <div class="right-panel">
+      <div class="phone-frame" role="main">
+        <h1>文字AI手機助理</h1>
+
+        <div class="section">
+          <h3>你說了：</h3>
+          <div id="result" class="box">請輸入您的問題...</div>
+        </div>
+
+        <div class="section">
+          <h3>AI 回答：</h3>
+          <div id="answer" class="box"></div>
+        </div>
+
+        <div class="input-area">
+          <input type="text" id="inputText" placeholder="請輸入問題" />
+          <button id="askBtn">提問</button>
+        </div>
+
+        <div class="audio-controls" aria-label="語音播放控制區" role="region"></div>
+
+        <!-- 第二關按鈕，預設鎖定 -->
+        <a id="level2Link" href="course3.html" style="pointer-events:none; color:gray; background-color:lightgray;">第三關（鎖定）</a>
+      </div>
+    </div>
   </div>
 </body>
 </html>
