@@ -3,123 +3,252 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>圖片說明頁</title>
+  <title>手機教學課程</title>
   <style>
     body {
       font-family: "Noto Sans TC", sans-serif;
-      background-color: #f9f9f9;
-      color: #333;
-      font-size: 20px;
-      line-height: 1.8;
       margin: 0;
-      padding: 0;
+      background-color: #fefefe;
+      color: #333;
     }
 
     .navbar {
       background-color: #4a90e2;
-      padding: 20px 0;
-    }
-
-    .navbar .container {
-      display: flex;
-      justify-content: space-around;
-      flex-wrap: wrap;
+      padding: 16px;
+      text-align: center;
     }
 
     .navbar a {
-      color: #fff;
+      color: white;
       text-decoration: none;
-      font-size: 22px;
-      padding: 10px 20px;
-      background-color: #357abd;
-      border-radius: 12px;
-      margin: 5px;
+      margin: 0 12px;
+      font-size: 20px;
     }
 
-    .navbar a:hover {
-      background-color: #285c9f;
-    }
-
-    .section {
-      display: flex;
-      flex-direction: row;
-      width: 100%;
-      border-bottom: 1px solid #ccc;
-      padding: 20px;
-      box-sizing: border-box;
-    }
-
-    .section img {
-      width: 50%;
-      height: auto;
-      object-fit: cover;
-      border-radius: 12px;
-    }
-
-    .section .text {
-      width: 50%;
-      padding: 20px;
-      box-sizing: border-box;
-    }
-
-    .section .text h2 {
-      margin-top: 0;
+    h1 {
+      text-align: center;
+      padding: 30px 10px 10px;
+      font-size: 32px;
       color: #1a237e;
+    }
+
+    .main {
+      display: flex;
+      flex-wrap: wrap;
+      padding: 20px;
+      box-sizing: border-box;
+    }
+
+    .left,
+    .right {
+      box-sizing: border-box;
+      padding: 20px;
+    }
+
+    .left {
+      flex: 1 1 50%;
+    }
+
+    .right {
+      flex: 1 1 50%;
+      background-color: #f0f4ff;
+      border-radius: 12px;
+    }
+
+    .course-card {
+      background-color: #f9f9f9;
+      border: 1px solid #ddd;
+      border-radius: 12px;
+      margin-bottom: 20px;
+      padding: 20px;
+      text-align: center;
+    }
+
+    .course-card img {
+      width: 120px;
+      height: 120px;
+      object-fit: contain;
+      margin-bottom: 10px;
+    }
+
+    .course-card h2 {
+      font-size: 24px;
+      color: #1a237e;
+      margin: 10px 0;
+    }
+
+    .course-card p {
+      font-size: 18px;
+    }
+
+    .btn {
+      display: inline-block;
+      padding: 10px 20px;
+      background-color: #4a90e2;
+      color: white;
+      border: none;
+      border-radius: 8px;
+      font-size: 18px;
+      margin-top: 10px;
+      text-decoration: none;
+    }
+
+    .btn:hover {
+      background-color: #357abd;
+    }
+
+    .btn.locked {
+      background-color: #ccc;
+      pointer-events: none;
+      cursor: not-allowed;
+    }
+
+    .progress-area h2 {
+      font-size: 24px;
+      margin-bottom: 20px;
+    }
+
+    .progress-bar {
+      width: 100%;
+      background-color: #ddd;
+      border-radius: 20px;
+      overflow: hidden;
+      height: 30px;
+      margin-bottom: 10px;
+    }
+
+    .progress-bar-fill {
+      height: 100%;
+      width: 0%;
+      background-color: #4a90e2;
+      text-align: center;
+      color: white;
+      line-height: 30px;
+      font-weight: bold;
+    }
+
+    .badges img {
+      margin: 10px;
+      width: 80px;
+    }
+
+    @media (max-width: 900px) {
+      .left,
+      .right {
+        flex: 1 1 100%;
+      }
     }
   </style>
 </head>
 <body>
-  <!-- 導覽列 -->
+
   <nav class="navbar">
-    <div class="container">
-      <a href="home.html">🏠 首頁</a>
-      <a href="course.html">📘 課程介紹</a>
-      <a href="introduce.html">💻 設備介紹</a>
-      <a href="discussion.html">💬 討論區</a>
-      <a href="progress.html">📈 學習進度</a>
-      <a href="logout.php">🔓 登出</a>
-    </div>
+    <a href="home.html">🏠 首頁</a>
+    <a href="progress.html">📈 我的進度</a>
+    <a href="logout.php">🔓 登出</a>
   </nav>
 
-  <!-- 圖片 + 說明區塊 -->
-  <div class="section">
-    <img src="your-image1.jpg" alt="圖片1">
-    <div class="text">
-      <h2>功能一：拍照</h2>
-      <p>教長者如何開啟相機拍照，保存生活美好瞬間。</p>
+  <h1>📱 手機教學課程</h1>
+
+  <div class="main">
+    <!-- 左側：課程卡片 -->
+    <div class="left">
+      <div class="course-card" data-course="1">
+        <img src="camera-icon.png" alt="拍照">
+        <h2>課程一：LINE教學</h2>
+        <p>教你如何用LINE的視訊分享畫面。</p>
+        <a class="btn" href="line.html" data-course="1">開始學習</a>
+      </div>
+      <div class="course-card" data-course="2">
+        <img src="video-call-icon.png" alt="視訊通話">
+        <h2>課程二：視訊通話</h2>
+        <p>用 LINE 與家人視訊聯繫。</p>
+        <a class="btn locked" href="#" data-course="2">尚未解鎖</a>
+      </div>
+      <div class="course-card" data-course="3">
+        <img src="map-icon.png" alt="地圖導航">
+        <h2>課程三：導航與地圖</h2>
+        <p>教你使用 Google 地圖找路。</p>
+        <a class="btn locked" href="#" data-course="3">尚未解鎖</a>
+      </div>
+    </div>
+
+    <!-- 右側：學習進度與徽章 -->
+    <div class="right">
+      <div class="progress-area">
+        <h2>📈 你的學習進度</h2>
+        <div class="progress-bar">
+          <div class="progress-bar-fill" id="progress-fill">0%</div>
+        </div>
+        <p id="progress-text">你已完成 0 / 3 的課程，加油！</p>
+
+        <div class="badges">
+          <h3>🎖️ 成就徽章</h3>
+          <img src="badge1-gray.png" alt="徽章1" id="badge-1" />
+          <img src="badge2-gray.png" alt="徽章2" id="badge-2" />
+          <img src="badge3-gray.png" alt="徽章3" id="badge-3" />
+        </div>
+      </div>
     </div>
   </div>
 
-  <div class="section">
-    <img src="your-image2.jpg" alt="圖片2">
-    <div class="text">
-      <h2>功能二：視訊通話</h2>
-      <p>使用 LINE、Messenger 等進行視訊聯繫親友。</p>
-    </div>
-  </div>
+  <!-- JS 控制課程進度與徽章 -->
+  <script>
+    const courseProgress = JSON.parse(localStorage.getItem('courseProgress')) || {
+      1: false,
+      2: false,
+      3: false
+    };
 
-  <div class="section">
-    <img src="your-image3.jpg" alt="圖片3">
-    <div class="text">
-      <h2>功能三：導航與地圖</h2>
-      <p>使用 Google 地圖幫助長者找到目的地。</p>
-    </div>
-  </div>
+    // ✨ 根據 line.html 記錄的完成度，更新 courseProgress
+    if (localStorage.getItem("course1Completed") === "true") {
+      courseProgress[1] = true;
+    }
 
-  <div class="section">
-    <img src="your-image4.jpg" alt="圖片4">
-    <div class="text">
-      <h2>功能四：查天氣</h2>
-      <p>讓長者能隨時查詢當日天氣與氣象預報。</p>
-    </div>
-  </div>
+    function updateUI() {
+      let completed = 0;
+      for (let i = 1; i <= 3; i++) {
+        if (courseProgress[i]) {
+          completed++;
+          document.getElementById(`badge-${i}`).src = `badge${i}-color.png`;
+        }
+      }
 
-  <div class="section">
-    <img src="your-image5.jpg" alt="圖片5">
-    <div class="text">
-      <h2>功能五：語音助理</h2>
-      <p>利用語音助理操作手機，例如說「打電話給小明」。</p>
-    </div>
-  </div>
+      const percent = Math.round((completed / 3) * 100);
+      document.getElementById("progress-fill").style.width = percent + "%";
+      document.getElementById("progress-fill").textContent = percent + "%";
+      document.getElementById("progress-text").textContent = `你已完成 ${completed} / 3 的課程，加油！`;
+
+      for (let i = 1; i <= 3; i++) {
+        const btn = document.querySelector(`a[data-course="${i}"]`);
+        if (i === 1 || courseProgress[i - 1]) {
+          btn.classList.remove("locked");
+          btn.href = getCourseUrl(i);
+          btn.textContent = "開始學習";
+        } else {
+          btn.classList.add("locked");
+          btn.href = "#";
+          btn.textContent = "尚未解鎖";
+        }
+      }
+    }
+
+    function getCourseUrl(courseNum) {
+      switch (courseNum) {
+        case 1: return "line.html";
+        case 2: return "video-call.html";
+        case 3: return "map.html";
+      }
+    }
+
+    function completeCourse(courseNum) {
+      courseProgress[courseNum] = true;
+      localStorage.setItem('courseProgress', JSON.stringify(courseProgress));
+      updateUI();
+    }
+
+    updateUI();
+    window.completeCourse = completeCourse;
+  </script>
 </body>
 </html>
