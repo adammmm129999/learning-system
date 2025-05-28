@@ -1,285 +1,185 @@
 <!DOCTYPE html>
-<html lang="zh-Hant">
+<html lang="zh-TW">
 <head>
   <meta charset="UTF-8" />
-  <title>討論區（長者友善版）</title>
+  <title>討論區</title>
   <style>
-       body {
-      font-family: "Noto Sans TC", sans-serif;
-      margin: 0;
-      background-color: #fefefe;
-      color: #333;
-    }
-    .navbar {
-      background-color: #4a90e2;
-      padding: 16px;
-      text-align: center;
-    }
-    .navbar a {
-      color: white;
-      text-decoration: none;
-      margin: 0 12px;
-      font-size: 20px;
-    }
-    .navbar button {
-      font-size: 16px;
-      margin-left: 12px;
-      cursor: pointer;
-      background-color: #2575fc;
-      border: none;
-      color: white;
-      padding: 6px 12px;
-      border-radius: 6px;
-    }
-    }
-    .comment {
-      background-color: #fff;
-      border: 2px solid #ccc;
-      border-radius: 12px;
-      padding: 20px;
-      margin: 15px;
-    }
-    .reply {
-      margin-left: 40px;
-      border-left: 4px solid #aaccee;
-      padding-left: 15px;
-      margin-top: 10px;
-    }
-    .comment b, .reply b {
-      color: #006699;
-      font-size: 22px;
-    }
-    textarea, input[type="text"] {
-      font-size: 18px;
-      padding: 10px;
-      border-radius: 8px;
-      border: 1px solid #999;
-      width: 100%;
-      box-sizing: border-box;
-      margin-bottom: 10px;
-    }
-    textarea {
-      height: 100px;
-      resize: none;
-    }
-    button {
-      font-size: 20px;
-      background-color: #007bff;
-      color: white;
-      border: none;
-      padding: 12px 24px;
-      border-radius: 10px;
-      cursor: pointer;
-    }
-    button:hover {
-      background-color: #0056b3;
-    }
-    .delete-btn {
-      background-color: #dc3545;
-      color: white;
-      border: none;
-      padding: 6px 12px;
-      margin-top: 8px;
-      border-radius: 6px;
-      cursor: pointer;
-    }
-    .delete-btn:hover {
-      background-color: #a71d2a;
-    }
-    .instruction {
-      font-size: 18px;
-      color: #555;
-      text-align: center;
-    }
-    .button-container {
-      text-align: center;
-      margin-top: 10px;
-    }
-    .reply-box {
-      margin-top: 10px;
-    }
+    body { font-family: Arial, sans-serif; padding: 20px; background-color: #f2f2f2; }
+    .comment, .reply { background: white; padding: 10px; border-radius: 8px; margin-bottom: 10px; }
+    .reply { margin-left: 30px; background-color: #eef; }
+    textarea { width: 100%; padding: 5px; margin-top: 5px; }
+    button { margin-top: 5px; }
+    .delete-btn { color: red; margin-left: 10px; }
   </style>
 </head>
 <body>
-  <!-- 導覽列 -->
-   <nav class="navbar">
-    <div class="container">
-      <a href="home.html">🏠 首頁</a>
-      <a href="course.html">📘 課程教學</a>
-      <a href="discussion.html">💬 討論區</a>    
-      <a href="personal_account.html">個人資料📄</a>
-     
-    </div>
-  </nav>
-
   <h1>留言討論區</h1>
-  <p class="instruction">請輸入您的留言，或回覆他人的留言。</p>
-
-  <div id="commentSection">載入留言中...</div>
-
-  <h2>新增留言</h2>
-  <textarea id="newComment" placeholder="在此輸入您的留言內容..."></textarea><br>
-  <div class="button-container">
+  <button onclick="logout()">登出</button>
+  <hr>
+  
+  <div>
+    <h3>我要留言：</h3>
+    <textarea id="newComment" placeholder="輸入留言內容..."></textarea>
     <button onclick="postComment()">送出留言</button>
   </div>
+  <hr>
+  
+  <div id="commentSection"></div>
 
-<script>
-let currentUserId = null;
+  <!-- Firebase SDK 模組 -->
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.11.0/firebase-app.js";
+    import {
+      getAuth,
+      onAuthStateChanged,
+      signOut
+    } from "https://www.gstatic.com/firebasejs/10.11.0/firebase-auth.js";
+    import {
+      getFirestore,
+      collection,
+      doc,
+      addDoc,
+      deleteDoc,
+      getDocs,
+      query,
+      orderBy,
+      serverTimestamp
+    } from "https://www.gstatic.com/firebasejs/10.11.0/firebase-firestore.js";
 
-function escapeHtml(text) {
-  return text.replace(/&/g, "&amp;")
-             .replace(/</g, "&lt;")
-             .replace(/>/g, "&gt;")
-             .replace(/"/g, "&quot;")
-             .replace(/'/g, "&#039;");
-}
+    // ✅ 請在此輸入你自己的 Firebase 設定
+    const firebaseConfig = {
+      apiKey: "YOUR_API_KEY",
+      authDomain: "YOUR_PROJECT_ID.firebaseapp.com",
+      projectId: "YOUR_PROJECT_ID",
+      storageBucket: "YOUR_PROJECT_ID.appspot.com",
+      messagingSenderId: "YOUR_SENDER_ID",
+      appId: "YOUR_APP_ID"
+    };
 
-function loadComments() {
-  fetch('load_comments.php')
-    .then(res => res.json())
-    .then(data => {
-      const section = document.getElementById('commentSection');
-      if (!data.success) {
-        section.innerHTML = '<p>載入留言失敗</p>';
-        return;
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const db = getFirestore(app);
+
+    let currentUser = null;
+
+    onAuthStateChanged(auth, user => {
+      if (!user) {
+        alert("請先登入");
+        window.location.href = "index.html";
+      } else {
+        currentUser = user;
+        loadComments();
       }
+    });
 
-      currentUserId = data.current_user_id;
-      section.innerHTML = '';
-      if (data.comments.length === 0) {
-        section.innerHTML = '<p>目前還沒有留言，歡迎搶先留言！</p>';
-        return;
-      }
+    async function postComment() {
+      const content = document.getElementById("newComment").value.trim();
+      if (!content) return alert("請輸入留言內容");
+      await addDoc(collection(db, "comments"), {
+        content: content,
+        userId: currentUser.uid,
+        username: currentUser.email,
+        createdAt: serverTimestamp()
+      });
+      document.getElementById("newComment").value = "";
+      loadComments();
+    }
 
-      data.comments.forEach(c => {
-        const div = document.createElement('div');
-        div.className = 'comment';
+    async function loadComments() {
+      const section = document.getElementById("commentSection");
+      section.innerHTML = "";
+      const q = query(collection(db, "comments"), orderBy("createdAt", "desc"));
+      const snapshot = await getDocs(q);
 
+      for (const docSnap of snapshot.docs) {
+        const c = docSnap.data();
+        const commentId = docSnap.id;
+
+        const div = document.createElement("div");
+        div.className = "comment";
         div.innerHTML = `
-          <p><b>${escapeHtml(c.username)}</b> 說：</p>
-          <p>${escapeHtml(c.content)}</p>
-          <small>${c.created_at}</small>
+          <p><strong>${c.username}</strong> 說：</p>
+          <p>${c.content}</p>
+          <small>${c.createdAt?.toDate().toLocaleString() || ''}</small>
         `;
 
-        if (c.user_id === currentUserId) {
-          const delBtn = document.createElement('button');
-          delBtn.className = 'delete-btn';
-          delBtn.textContent = '刪除留言';
-          delBtn.onclick = () => deleteComment(c.id);
+        if (c.userId === currentUser.uid) {
+          const delBtn = document.createElement("button");
+          delBtn.className = "delete-btn";
+          delBtn.textContent = "刪除留言";
+          delBtn.onclick = () => deleteComment(commentId);
           div.appendChild(delBtn);
         }
 
-        if (c.replies) {
-          c.replies.forEach(r => {
-            const replyDiv = document.createElement('div');
-            replyDiv.className = 'reply';
-            replyDiv.innerHTML = `
-              <p><b>${escapeHtml(r.username)}</b> 回覆：</p>
-              <p>${escapeHtml(r.content)}</p>
-              <small>${r.created_at}</small>
-            `;
+        // 載入回覆
+        const repliesRef = collection(db, "comments", commentId, "replies");
+        const repliesSnap = await getDocs(query(repliesRef, orderBy("createdAt", "asc")));
 
-            if (r.user_id === currentUserId) {
-              const delReplyBtn = document.createElement('button');
-              delReplyBtn.className = 'delete-btn';
-              delReplyBtn.textContent = '刪除回覆';
-              delReplyBtn.onclick = () => deleteReply(r.id);
-              replyDiv.appendChild(delReplyBtn);
-            }
+        repliesSnap.forEach(replyDoc => {
+          const r = replyDoc.data();
+          const replyDiv = document.createElement("div");
+          replyDiv.className = "reply";
+          replyDiv.innerHTML = `
+            <p><strong>${r.username}</strong> 回覆：</p>
+            <p>${r.content}</p>
+            <small>${r.createdAt?.toDate().toLocaleString() || ''}</small>
+          `;
+          if (r.userId === currentUser.uid) {
+            const delReplyBtn = document.createElement("button");
+            delReplyBtn.className = "delete-btn";
+            delReplyBtn.textContent = "刪除回覆";
+            delReplyBtn.onclick = () => deleteReply(commentId, replyDoc.id);
+            replyDiv.appendChild(delReplyBtn);
+          }
+          div.appendChild(replyDiv);
+        });
 
-            div.appendChild(replyDiv);
-          });
-        }
-
-        const replyBox = document.createElement('div');
-        replyBox.className = 'reply-box';
+        // 回覆輸入區
+        const replyBox = document.createElement("div");
+        replyBox.className = "reply-box";
         replyBox.innerHTML = `
-          <textarea id="replyInput_${c.id}" placeholder="回覆 ${escapeHtml(c.username)} 的留言..." rows="2"></textarea><br>
-          <button onclick="postReply(${c.id})">送出回覆</button>
+          <textarea id="replyInput_${commentId}" placeholder="回覆這則留言..."></textarea>
+          <button onclick="postReply('${commentId}')">送出回覆</button>
         `;
         div.appendChild(replyBox);
-
         section.appendChild(div);
+      }
+    }
+
+    async function postReply(commentId) {
+      const input = document.getElementById(`replyInput_${commentId}`);
+      const content = input.value.trim();
+      if (!content) return alert("請輸入回覆內容");
+      const replyRef = collection(db, "comments", commentId, "replies");
+      await addDoc(replyRef, {
+        content: content,
+        userId: currentUser.uid,
+        username: currentUser.email,
+        createdAt: serverTimestamp()
       });
-    })
-    .catch(err => {
-      console.error(err);
-      document.getElementById('commentSection').innerHTML = '<p>載入留言發生錯誤</p>';
-    });
-}
-
-function postComment() {
-  const text = document.getElementById('newComment').value.trim();
-  if (!text) return alert('留言內容不可為空');
-  fetch('post_comment.php', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ comment: text })
-  })
-  .then(res => res.json())
-  .then(data => {
-    if (data.success) {
-      document.getElementById('newComment').value = '';
+      input.value = "";
       loadComments();
-    } else {
-      alert('留言失敗：' + data.message);
     }
-  });
-}
 
-function postReply(commentId) {
-  const input = document.getElementById(`replyInput_${commentId}`);
-  const text = input.value.trim();
-  if (!text) return alert('回覆內容不可為空');
-  fetch('post_reply.php', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ comment_id: commentId, reply: text })
-  })
-  .then(res => res.json())
-  .then(data => {
-    if (data.success) {
-      input.value = '';
-      loadComments();
-    } else {
-      alert('回覆失敗：' + data.message);
+    async function deleteComment(commentId) {
+      if (confirm("確定刪除這則留言？")) {
+        await deleteDoc(doc(db, "comments", commentId));
+        loadComments();
+      }
     }
-  });
-}
 
-function deleteComment(commentId) {
-  if (!confirm('確定要刪除這則留言嗎？')) return;
-  fetch('delete_comment.php', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ comment_id: commentId })
-  })
-  .then(res => res.json())
-  .then(data => {
-    if (data.success) loadComments();
-    else alert('刪除失敗：' + data.message);
-  });
-}
+    async function deleteReply(commentId, replyId) {
+      if (confirm("確定刪除這則回覆？")) {
+        await deleteDoc(doc(db, "comments", commentId, "replies", replyId));
+        loadComments();
+      }
+    }
 
-function deleteReply(replyId) {
-  if (!confirm('確定要刪除這則回覆嗎？')) return;
-  fetch('delete_reply.php', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ reply_id: replyId })
-  })
-  .then(res => res.json())
-  .then(data => {
-    if (data.success) loadComments();
-    else alert('刪除失敗：' + data.message);
-  });
-}
-
-// 初始化
-loadComments();
-
-// 每15秒自動刷新留言區
-setInterval(loadComments, 15000);
-</script>
+    async function logout() {
+      await signOut(auth);
+      alert("已登出");
+      window.location.href = "index.html";
+    }
+  </script>
 </body>
 </html>
