@@ -1,0 +1,373 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8" />
+  <title>課程一：LINE 教學操作</title>
+  <style>
+    body {
+      font-family: "Noto Sans TC", sans-serif;
+      margin: 0;
+      background-color: #fefefe;
+      color: #333;
+    }
+
+    .navbar {
+      background-color: #4a90e2;
+      padding: 16px;
+      text-align: center;
+    }
+
+    .navbar a {
+      color: white;
+      text-decoration: none;
+      margin: 0 12px;
+      font-size: 20px;
+    }
+
+.main-panel {
+  display: flex;
+  width: 100%;
+  max-width: 1920px;
+  margin: 0 auto;
+  height: calc(100vh - 100px);
+  box-sizing: border-box;
+  overflow: hidden;
+}
+
+/* 🧩 DiVE 區塊變寬 */
+.embed-frame:nth-child(1) {
+  flex: 2;
+}
+
+/* 📱 直立影片正常 */
+.embed-frame:nth-child(2) {
+  flex: 1;
+}
+
+/* ✅ iframe 和影片都完整填入空間 */
+.embed-frame iframe,
+.embed-frame video {
+  height: 100%;
+  width: 100%;
+  border: none;
+  border-radius: 16px;
+  box-shadow: 0 0 10px rgba(0,0,0,0.1);
+  object-fit: contain;
+  display: block;
+}
+
+
+
+    .right-panel {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 2rem 1rem;
+      box-sizing: border-box;
+    }
+
+     .phone-frame {
+      width: 360px;
+      height: 720px;
+      background: #ffffff;
+      border: 16px solid #000;
+      border-radius: 40px;
+      padding: 1.5rem;
+      box-shadow: 0 0 20px rgba(0,0,0,0.2);
+      display: flex;
+      flex-direction: column;
+      box-sizing: border-box;
+      overflow: hidden;
+    }
+
+    h1 {
+      font-size: 1.4rem;
+      text-align: center;
+      margin-bottom: 1rem;
+    }
+
+    .section {
+      margin-top: 1rem;
+      flex: 1;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .box {
+      margin-top: 0.5rem;
+      padding: 1rem;
+      border: 1px solid #ccc;
+      border-radius: 8px;
+      background: #fefefe;
+      font-size: 1rem;
+      white-space: pre-wrap;
+      overflow-y: auto;
+      flex-shrink: 0;
+    }
+
+    #answer { max-height: 250px; flex: 1; }
+
+    .controls {
+      margin-top: 1rem;
+      display: flex;
+      gap: 1rem;
+    }
+
+    .input-area {
+      display: flex;
+      gap: 0.5rem;
+      margin-top: 1rem;
+    }
+
+    input[type="text"] {
+      flex: 1;
+      padding: 0.5rem;
+      font-size: 1rem;
+      border: 1px solid #ccc;
+      border-radius: 8px;
+    }
+
+    button {
+      padding: 0.6rem 1.2rem;
+      font-size: 1rem;
+      border: none;
+      border-radius: 8px;
+      background-color: #2575fc;
+      color: white;
+      cursor: pointer;
+    }
+
+    .audio-controls {
+      margin-top: 0.5rem;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+    }
+  </style>
+</head>
+<body>
+  <!-- 導覽列 -->
+    <nav class="navbar">
+    <div class="container">
+      <a href="home.html">🏠 首頁</a>
+      <a href="course.html">📘 課程教學</a>
+      <a href="discussion.html">💬 討論區</a>    
+      <a href="personal_account.html">個人資料📄</a>
+      <button id="logoutBtn">🔓 登出</button>
+    </div>
+  </nav>
+
+
+  <div class="main-panel">
+    <!-- LINE 教學 DiVE -->
+    <div class="embed-frame">
+      <iframe name="dive" src="https://dive.nutn.edu.tw/Experiment/kaleTestExperiment5.jsp?eid=33302&record=false"></iframe>
+    </div>
+
+    <!-- YouTube 影片 -->
+    <div class="embed-frame">
+     <video src="teach2.mp4" controls allowfullscreen></video>
+
+    </div>
+
+    <!-- 語音 AI 區 -->
+    <div class="right-panel">
+        <div class="phone-frame" role="main">
+    <h1>文字AI手機助理</h1>
+
+    <div class="section">
+      <h3>你說了：</h3>
+      <div id="result" class="box">請輸入您的問題...</div>
+    </div>
+
+    <div class="section" style="flex:2;">
+      <h3>AI 回答：</h3>
+      <div id="answer" class="box">AI 回答會顯示在這裡...</div>
+      <div class="audio-controls">
+        <button id="speakBtn" style="display:none;">▶ 播放</button>
+        <button id="pauseBtn" style="display:none;">⏸ 暫停</button>
+        <button id="resumeBtn" style="display:none;">⏯ 繼續</button>
+      </div>
+    </div>
+
+    <div class="input-area">
+      <input type="text" id="textInput" placeholder="請輸入您的問題..." />
+      <button id="submitBtn">送出</button>
+    </div>
+  </div>
+
+
+  <!-- JS 腳本：DiVE 與語音 AI -->
+  <script src="https://dive.nutn.edu.tw/Experiment/js/dive.linker.min.js"></script>
+   <script>
+    const diveLinker = new DiveLinker("dive");
+
+    window.onload = function () {
+      // 關掉浮水印 + 啟動專案
+      diveLinker.enableBlock(false);
+      diveLinker.start();
+      
+
+      // 取得完成度的屬性 ID
+      const completeId = "04b344e5adda446583d7e087a1d18026";
+
+      // 每秒檢查 DiVE 傳來的值
+      setInterval(() => {
+        const outputList = diveLinker.outputList;
+
+        if (outputList && outputList[completeId]) {
+          const value = outputList[completeId].value;
+
+          console.log("完成度:", value);
+
+          // 寫入 localStorage，供 course.html 判斷
+          if (value == 1) {
+            localStorage.setItem("course1Completed", "true");
+          } 
+        }
+      }, 1000);
+    };
+  </script>
+
+
+  </script>
+  <script>
+    const sk = "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";
+    const resultDiv = document.getElementById('result');
+    const answerDiv = document.getElementById('answer');
+    const speakBtn = document.getElementById('speakBtn');
+    const pauseBtn = document.getElementById('pauseBtn');
+    const resumeBtn = document.getElementById('resumeBtn');
+    const submitBtn = document.getElementById('submitBtn');
+    const textInput = document.getElementById('textInput');
+
+    let lastAIAnswer = '';
+    let utterance = null;
+
+    speakBtn.addEventListener('click', () => {
+      if (!lastAIAnswer) return;
+      if (speechSynthesis.speaking) speechSynthesis.cancel();
+
+      utterance = new SpeechSynthesisUtterance(lastAIAnswer);
+      utterance.lang = 'zh-TW';
+      speechSynthesis.speak(utterance);
+
+      pauseBtn.style.display = 'inline-block';
+      resumeBtn.style.display = 'inline-block';
+    });
+
+    pauseBtn.addEventListener('click', () => {
+      if (speechSynthesis.speaking && !speechSynthesis.paused) {
+        speechSynthesis.pause();
+      }
+    });
+
+    resumeBtn.addEventListener('click', () => {
+      if (speechSynthesis.paused) {
+        speechSynthesis.resume();
+      }
+    });
+
+    submitBtn.addEventListener('click', () => {
+      const userText = textInput.value.trim();
+      if (userText !== '') {
+        resultDiv.textContent = userText;
+        askOpenRouterAI(userText);
+        textInput.value = '';
+      }
+    });
+
+    async function askOpenRouterAI(userText) {
+      answerDiv.textContent = 'AI 正在思考中...';
+      speakBtn.style.display = 'none';
+      pauseBtn.style.display = 'none';
+      resumeBtn.style.display = 'none';
+
+   const intentPrompts = [
+  {
+    keywords: ["怎麼走", "導航", "路", "診所", "醫院"],
+    prompt: "你是一位親切的語音導航員，會耐心引導長輩如何用 Google 地圖找路。請從打開手機上的 Google 地圖開始，說明如何在搜尋欄輸入目的地（例如診所或醫院），接著解釋如何選擇交通方式（走路、大眾運輸或騎車），並提醒他們看箭頭指示跟著走。"
+  },
+  {
+    keywords: ["天氣", "下雨", "氣溫"],
+    prompt: "你是貼心的語音助理，會協助長輩查詢天氣狀況。請說明如何在手機主畫面找到天氣的應用程式（通常圖示是太陽或雲朵），點開後可以看到今天的氣溫、有沒有下雨，還有未來幾天的天氣。若沒有天氣 App，也可以用 Google 地圖搜尋天氣。請用簡單的說法說明每個步驟。"
+  },
+  {
+    keywords: ["打電話", "撥電話", "打給"],
+    prompt: "你是語音助理，會教長輩如何使用手機的通訊錄來打電話。請從打開手機上的電話圖示開始，說明如何點選聯絡人或撥號，輸入要打的電話號碼，並按下「通話鍵」開始通話。提醒他們掛電話要按紅色的按鈕。"
+  },
+  {
+    keywords: ["拍照", "照相", "相機"],
+    prompt: "你是手機導覽員，會教長輩如何開啟手機的照相機來拍照。請說明怎麼在主畫面找到相機的圖示（通常是像照相機的圖案），點開後請對準想拍的東西，再點一下螢幕下方的大白色圓圈來拍照。拍完的照片可以到相簿裡去看。"
+  },
+  {
+    keywords: ["聲音", "音量", "太大聲", "聽不到"],
+    prompt: "你是有耐心的客服人員，會教長輩調整手機音量。請說明手機側邊通常有兩個按鈕，按上面是變大聲，按下面是變小聲。也可以從螢幕上滑下來，找到音量控制的圖示，用手滑動音量條來調整。"
+  },
+  {
+    keywords: ["沒電", "電池", "電量", "充電"],
+    prompt: "你是一位耐心的語音助手，會提醒長輩注意手機的電量。請說明手機畫面右上角會顯示電池的圖示，如果電量很低，要插上充電線。說明如何插上手機充電線，並確認插頭有插好電源。也可以提醒他們關掉不用的應用程式來省電。"
+  },
+  {
+    keywords: ["簡訊", "傳訊息", "傳給"],
+    prompt: "你是貼心的助理，會一步步教長輩如何傳訊息。請說明如何打開 LINE 或簡訊應用程式，點選想傳訊息的聯絡人，在下方的文字框中輸入要說的話，再按下送出的按鈕。提醒他們也可以傳貼圖或照片。"
+  },
+  {
+    keywords: ["幾點", "時間", "幾號", "星期幾"],
+    prompt: "你是親切的時間助理，會教長輩如何看現在的時間。請說明可以在手機主畫面右上角看到時間，也可以點開手機的時鐘 App，查看幾點幾分、今天是幾月幾號、星期幾。如果需要查更詳細的日曆資訊，可以打開行事曆。"
+  },
+  {
+    keywords: ["鬧鐘", "叫我起床", "提醒我"],
+    prompt: "你是語音助理，會教長輩如何設定鬧鐘。請說明怎麼打開手機裡的時鐘應用程式，找到裡面的『鬧鐘』功能，按『新增』，選擇要響的時間，例如早上七點，再按『儲存』。提醒他們鬧鐘響時，按『停止』或『再睡一下』。"
+  }
+];
+
+
+      let matchedPrompt = "你是一位親切又有耐心的手機教學導師，專門幫助長輩學會使用智慧型手機功能。請用簡單易懂的說法，一步步引導操作，讓長輩照著做就能學會。每個步驟不要太快，並加入溫暖的語氣，就像真人教學一樣。";
+
+      for (const item of intentPrompts) {
+        if (item.keywords.some(k => userText.includes(k))) {
+          matchedPrompt = item.prompt;
+          break;
+        }
+      }
+
+      try {
+        const response = await fetch("https://openrouter.ai/api/v1/chat/completions", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            "Authorization": `Bearer ${sk}`
+          },
+          body: JSON.stringify({
+            model: "meta-llama/llama-3.3-70b-instruct:free",
+            messages: [
+              { role: "system", content: matchedPrompt },
+              { role: "user", content: userText }
+            ]
+          })
+        });
+
+        if (!response.ok) throw new Error(`API 錯誤，狀態碼: ${response.status}`);
+
+        const data = await response.json();
+
+        if (data.choices && data.choices.length > 0) {
+          lastAIAnswer = data.choices[0].message.content;
+          answerDiv.textContent = lastAIAnswer;
+          speakBtn.style.display = 'inline-block';
+        } else {
+          answerDiv.textContent = "AI 沒有回應，請稍後再試。";
+        }
+      } catch (error) {
+        console.error("呼叫 OpenRouter API 錯誤:", error);
+        answerDiv.textContent = "呼叫 AI 發生錯誤，請稍後再試。";
+      }
+    }
+  </script>
+
+
+</body>
+</html>
