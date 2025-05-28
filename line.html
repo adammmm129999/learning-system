@@ -258,15 +258,7 @@
 
   <!-- Firebase Auth 狀態監聽 + 登出功能 -->
   <script>
-    auth.onAuthStateChanged(user => {
-      if (!user) {
-        // 使用者未登入，跳回登入頁
-        alert("請先登入！");
-        window.location.href = "index.html"; // 改成你的登入頁面
-      } else {
-        console.log("已登入用戶:", user.email);
-      }
-    });
+  
 
     document.getElementById("logoutBtn").addEventListener("click", () => {
       auth.signOut().then(() => {
