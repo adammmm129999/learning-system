@@ -223,7 +223,7 @@
         if (outputList && outputList[completeId]) {
           const value = outputList[completeId].value;
           console.log("DiVE 完成度:", value);
-          if (value == 1) {
+          if (value === 1) {
             saveCourseProgress(uid, true);
             const level2Link = document.getElementById("level2Link");
             unlockLevel2(level2Link);
