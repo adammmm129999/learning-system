@@ -262,7 +262,7 @@
       if (!user) {
         // 使用者未登入，跳回登入頁
         alert("請先登入！");
-        window.location.href = "login.html";
+        window.location.href = "index.html"; // 改成你的登入頁面
       } else {
         console.log("已登入用戶:", user.email);
       }
@@ -271,7 +271,7 @@
     document.getElementById("logoutBtn").addEventListener("click", () => {
       auth.signOut().then(() => {
         alert("已登出");
-        window.location.href = "login.html";
+        window.location.href = "index.html"; // 改成你的登入頁面
       }).catch(error => {
         alert("登出錯誤：" + error.message);
       });
