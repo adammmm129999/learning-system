@@ -157,7 +157,9 @@
       
     </div>
   </nav>
-
+ <script>
+    let diveLinker;
+  </script>
   <div class="main-panel">
     <!-- LINE 教學 DiVE -->
     <div class="embed-frame">
@@ -285,28 +287,26 @@
    <script src="https://dive.nutn.edu.tw/Experiment/js/dive.linker.min.js"></script>
   <!-- DiVE link script -->
   <script>
-let diveLinker;
+  function startDiveListener(uid) {
+      diveLinker = new DiveLinker("dive");  // 全域變數初始化
+      diveLinker.enableBlock(false);
+      diveLinker.start();
 
-function startDiveListener(uid) {
-  diveLinker = new DiveLinker("dive");  // 改成全域的變數
-  diveLinker.enableBlock(false);
-  diveLinker.start();
+      const completeId = "af797b267579490f82a94127cc5edbb5";
 
-  const completeId = "af797b267579490f82a94127cc5edbb5";
-
-  setInterval(() => {
-    const outputList = diveLinker.outputList;
-    if (outputList && outputList[completeId]) {
-      const value = outputList[completeId].value;
-      console.log("DiVE 完成度:", value);
-      if (value === 1) {
-        saveCourseProgress(uid, true);
-        const level2Link = document.getElementById("level2Link");
-        unlockLevel2(level2Link);
-      }
+      setInterval(() => {
+        const outputList = diveLinker.outputList;
+        if (outputList && outputList[completeId]) {
+          const value = outputList[completeId].value;
+          console.log("DiVE 完成度:", value);
+          if (value === 1) {
+            saveCourseProgress(uid, true);
+            const level2Link = document.getElementById("level2Link");
+            unlockLevel2(level2Link);
+          }
+        }
+      }, 1000);
     }
-  }, 1000);
-}
 
   </script>
 </body>
