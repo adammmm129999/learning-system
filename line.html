@@ -208,6 +208,16 @@
     import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-app.js";
     import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-auth.js";
 
+
+    const auth = getAuth();
+
+onAuthStateChanged(auth, (user) => {
+  if(user){
+    localStorage.setItem(user.uid + "_course1", "true");
+    alert("課程一完成紀錄已存！");
+  }
+});
+
     const firebaseConfig = {
       apiKey: "AIzaSyC0VF7SkuXvOAJyuC-2tPl_KGris3f4gqE",
       authDomain: "final-project-fb104.firebaseapp.com",
@@ -287,17 +297,9 @@
       localStorage.setItem("course1_completed", completed ? "true" : "false");
       console.log("課程 course1 進度已更新至 localStorage");
     }
-    // 假設你在 line.html
-import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.8.1/firebase-auth.js";
+    // 假
 
-const auth = getAuth();
 
-onAuthStateChanged(auth, (user) => {
-  if(user){
-    localStorage.setItem(user.uid + "_course1", "true");
-    alert("課程一完成紀錄已存！");
-  }
-});
   </script>
   
 </body>
