@@ -143,10 +143,10 @@
       text-decoration: none;
     }
   </style>
-
+ <script src="https://dive.nutn.edu.tw/Experiment/js/dive.linker.min.js"></script>
   <!-- Firebase SDK (modular) -->
   <script type="module">
-    const diveLinker = new DiveLinker("dive");
+
     import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-app.js";
     import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-auth.js";
     import { getFirestore, doc, setDoc, getDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore.js";
@@ -213,7 +213,7 @@
     }
 
     function startDiveListener(uid) {
-      
+          const diveLinker = new DiveLinker("dive");
       diveLinker.enableBlock(false);
       diveLinker.start();
 
@@ -249,7 +249,7 @@
   </script>
 
   <!-- DiVE link script -->
-  <script src="https://dive.nutn.edu.tw/Experiment/js/dive.linker.min.js"></script>
+ 
 </head>
 <body>
   <!-- 導覽列 -->
