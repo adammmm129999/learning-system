@@ -246,6 +246,40 @@
         window.location.href = 'login.html';
       });
     });
+
+
+
+    // 徽章亮起條件調整，分開判斷
+if (completed1) {
+  btn1.classList.remove("locked");
+  btn1.href = "line.html";
+  btn1.textContent = "開始學習";
+  badge1.classList.add("unlocked");  // 第一個徽章亮起
+} else {
+  btn1.href = "line.html";
+  btn1.textContent = "開始學習";
+  badge1.classList.remove("unlocked"); // 沒完成則徽章不亮
+}
+
+if (completed2) {
+  btn2.classList.remove("locked");
+  btn2.href = "wifi.html";
+  btn2.textContent = "開始學習";
+  badge2.classList.add("unlocked");  // 第二個徽章亮起
+} else {
+  // 第二關解鎖條件是完成第一關，沒完成則鎖定
+  if (completed1) {
+    btn2.classList.remove("locked");
+    btn2.href = "wifi.html";
+    btn2.textContent = "開始學習";
+  } else {
+    btn2.classList.add("locked");
+    btn2.href = "#";
+    btn2.textContent = "尚未解鎖";
+  }
+  badge2.classList.remove("unlocked"); // 沒完成則徽章不亮
+}
+
   </script>
 </body>
 </html>
