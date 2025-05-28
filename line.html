@@ -4,7 +4,6 @@
   <meta charset="UTF-8" />
   <title>課程一：LINE 教學操作</title>
   <style>
-    /* 這裡省略 CSS 與你原本一致 */
     body {
       font-family: "Noto Sans TC", sans-serif;
       margin: 0;
@@ -21,6 +20,16 @@
       text-decoration: none;
       margin: 0 12px;
       font-size: 20px;
+    }
+    .navbar button {
+      font-size: 16px;
+      margin-left: 12px;
+      cursor: pointer;
+      background-color: #2575fc;
+      border: none;
+      color: white;
+      padding: 6px 12px;
+      border-radius: 6px;
     }
     .main-panel {
       display: flex;
@@ -120,16 +129,27 @@
       flex-wrap: wrap;
       gap: 0.5rem;
     }
+    /* 第二關初始鎖定樣式 */
+    #level2Link {
+      display: inline-block;
+      margin-top: 12px;
+      padding: 8px 16px;
+      border-radius: 8px;
+      background-color: lightgray;
+      color: gray;
+      pointer-events: none;
+      user-select: none;
+      font-weight: bold;
+      text-decoration: none;
+    }
   </style>
 
   <!-- Firebase SDK (modular) -->
   <script type="module">
-    // Firebase v9+ Modular SDK
     import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-app.js";
     import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-auth.js";
-    import { getFirestore, doc, setDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore.js";
+    import { getFirestore, doc, setDoc, getDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore.js";
 
-    // Firebase config，換成你的
     const firebaseConfig = {
       apiKey: "AIzaSyC0VF7SkuXvOAJyuC-2tPl_KGris3f4gqE",
       authDomain: "final-project-fb104.firebaseapp.com",
@@ -140,21 +160,17 @@
       measurementId: "G-XRR8QBXS35"
     };
 
-    // 初始化
     const app = initializeApp(firebaseConfig);
     const auth = getAuth(app);
     const db = getFirestore(app);
 
-    // DOM 參考
-    let logoutBtn;
-
-    // DiVE 連接與完成度監聽
     window.addEventListener('load', () => {
-      logoutBtn = document.getElementById("logoutBtn");
+      const logoutBtn = document.getElementById("logoutBtn");
+      const level2Link = document.getElementById("level2Link");
 
-      // 登出按鈕事件
       logoutBtn.addEventListener("click", () => {
         signOut(auth).then(() => {
+          localStorage.clear();
           alert("已登出");
           window.location.href = "index.html"; // 登入頁面
         }).catch(error => {
@@ -162,23 +178,41 @@
         });
       });
 
-      // 監聽登入狀態
-      onAuthStateChanged(auth, user => {
+      onAuthStateChanged(auth, async (user) => {
         if (!user) {
           alert("請先登入");
           window.location.href = "login.html";
           return;
         }
 
+        // 讀取課程進度
+        try {
+          const courseDoc = await getDoc(doc(db, "users", user.uid, "courses", "course1"));
+          if (courseDoc.exists()) {
+            const data = courseDoc.data();
+            console.log("讀取課程進度:", data);
+            if (data.completed === true) {
+              unlockLevel2(level2Link);
+            }
+          }
+        } catch (e) {
+          console.error("讀取課程進度失敗:", e);
+        }
+
         startDiveListener(user.uid);
       });
     });
 
-    function startDiveListener(uid) {
-      // 這個是你 DiVE 物件的初始化
-      const diveLinker = new DiveLinker("dive");
+    function unlockLevel2(element) {
+      element.style.pointerEvents = "auto";
+      element.style.color = "blue";
+      element.style.userSelect = "auto";
+      element.style.backgroundColor = "#d1eaff";
+      element.textContent = "第二關（已解鎖）";
+    }
 
-      // 啟動 DiVE，關閉浮水印
+    function startDiveListener(uid) {
+      const diveLinker = new DiveLinker("dive");
       diveLinker.enableBlock(false);
       diveLinker.start();
 
@@ -189,10 +223,10 @@
         if (outputList && outputList[completeId]) {
           const value = outputList[completeId].value;
           console.log("DiVE 完成度:", value);
-
-          if (value == 1) {
-            // 寫入 Firestore
+          if (value === 1) {
             saveCourseProgress(uid, true);
+            const level2Link = document.getElementById("level2Link");
+            unlockLevel2(level2Link);
           }
         }
       }, 1000);
@@ -200,15 +234,12 @@
 
     async function saveCourseProgress(uid, completed) {
       if (!uid) return;
-
       const courseDocRef = doc(db, "users", uid, "courses", "course1");
-
       try {
         await setDoc(courseDocRef, {
-          completed: completed,
+          completed,
           timestamp: serverTimestamp()
         }, { merge: true });
-
         console.log("課程 course1 進度已更新");
       } catch (error) {
         console.error("Firestore 寫入失敗：", error);
@@ -218,7 +249,6 @@
 
   <!-- DiVE link script -->
   <script src="https://dive.nutn.edu.tw/Experiment/js/dive.linker.min.js"></script>
-
 </head>
 <body>
   <!-- 導覽列 -->
@@ -264,6 +294,9 @@
         </div>
 
         <div class="audio-controls" aria-label="語音播放控制區" role="region"></div>
+
+        <!-- 第二關按鈕，預設鎖定 -->
+        <a id="level2Link" href="course2.html">第二關（鎖定）</a>
       </div>
     </div>
   </div>
