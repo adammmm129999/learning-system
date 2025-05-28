@@ -4,6 +4,7 @@
   <meta charset="UTF-8" />
   <title>討論區（長者友善版）</title>
   <style>
+    /* ...（保持你原本的 CSS）... */
     body {
       font-family: "Noto Sans TC", sans-serif;
       margin: 0;
@@ -73,6 +74,7 @@
       right: 15px;
       top: 15px;
       font-size: 14px;
+      cursor: pointer;
     }
     .instruction {
       font-size: 18px;
@@ -126,14 +128,36 @@
     }
 
     // 渲染一則回覆
-    function renderReply(replyData, replyId, container) {
+    function renderReply(replyData, replyId, container, commentId) {
       const div = document.createElement("div");
       div.className = "reply";
+
+      // 轉換時間
+      const timeStr = replyData.timestamp?.toDate ? new Date(replyData.timestamp.toDate()).toLocaleString() : '';
+
       div.innerHTML = `
         <p><b>${escapeHtml(replyData.username)}</b> 回覆：</p>
         <p>${escapeHtml(replyData.content)}</p>
-        <small>${replyData.timestamp?.toDate ? new Date(replyData.timestamp.toDate()).toLocaleString() : ''}</small>
+        <small>${timeStr}</small>
       `;
+
+      // 自己的回覆可以刪除
+      if (replyData.userId === currentUser.uid) {
+        const delBtn = document.createElement("button");
+        delBtn.className = "delete-btn";
+        delBtn.textContent = "刪除回覆";
+        delBtn.onclick = async () => {
+          if (confirm("確定要刪除這則回覆嗎？")) {
+            try {
+              await deleteDoc(doc(db, "comments", commentId, "replies", replyId));
+            } catch (error) {
+              alert("刪除失敗：" + error.message);
+            }
+          }
+        };
+        div.appendChild(delBtn);
+      }
+
       container.appendChild(div);
     }
 
@@ -143,13 +167,15 @@
       div.className = "comment";
       div.dataset.id = docId;
 
+      const timeStr = docData.timestamp?.toDate ? new Date(docData.timestamp.toDate()).toLocaleString() : '';
+
       div.innerHTML = `
         <p><b>${escapeHtml(docData.username)}</b> 說：</p>
         <p>${escapeHtml(docData.content)}</p>
-        <small>${docData.timestamp?.toDate ? new Date(docData.timestamp.toDate()).toLocaleString() : ''}</small>
+        <small>${timeStr}</small>
       `;
 
-      // 刪除留言按鈕（僅限本人）
+      // 留言擁有者可刪除留言（同時會刪除回覆）
       if (docData.userId === currentUser.uid) {
         const delBtn = document.createElement("button");
         delBtn.className = "delete-btn";
@@ -157,12 +183,12 @@
         delBtn.onclick = async () => {
           if (confirm("確定要刪除這則留言嗎？連同所有回覆將一併刪除。")) {
             try {
-              // 先刪除子集合回覆
+              // 先刪除所有回覆
               const repliesSnapshot = await getDocs(collection(db, "comments", docId, "replies"));
               for (const replyDoc of repliesSnapshot.docs) {
                 await deleteDoc(doc(db, "comments", docId, "replies", replyDoc.id));
               }
-              // 再刪除留言文件
+              // 刪除留言
               await deleteDoc(doc(db, "comments", docId));
             } catch (error) {
               alert("刪除失敗：" + error.message);
@@ -186,7 +212,7 @@
       `;
       div.appendChild(replyInputDiv);
 
-      // 監聽回覆按鈕點擊事件
+      // 回覆按鈕事件
       const replyBtn = replyInputDiv.querySelector(".reply-btn");
       const replyTextarea = replyInputDiv.querySelector("textarea");
 
@@ -211,19 +237,19 @@
         replyBtn.disabled = false;
       };
 
-      // 監聽此留言的回覆子集合，實現即時刷新
+      // 監聽該留言回覆子集合
       const repliesQuery = query(collection(db, "comments", docId, "replies"), orderBy("timestamp", "asc"));
       onSnapshot(repliesQuery, snapshot => {
         repliesContainer.innerHTML = "";
         snapshot.forEach(replyDoc => {
-          renderReply(replyDoc.data(), replyDoc.id, repliesContainer);
+          renderReply(replyDoc.data(), replyDoc.id, repliesContainer, docId);
         });
       });
 
       commentSection.appendChild(div);
     }
 
-    // 監聽並渲染留言列表（最新留言在上）
+    // 監聽並渲染留言列表
     function loadComments() {
       commentSection.innerHTML = "載入留言中...";
       const q = query(collection(db, "comments"), orderBy("timestamp", "desc"));
