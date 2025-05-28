@@ -258,5 +258,32 @@
     updateUI();
     window.completeCourse = completeCourse;
   </script>
+
+  <!-- Firebase 與功能腳本 -->
+ <script type="module">
+  import { auth, onAuthStateChanged, signOut } from './firebase-init.js';
+
+  // 監聽登入狀態，沒登入導回登入頁
+  onAuthStateChanged(auth, user => {
+    if (!user) {
+      window.location.href = 'index.html'; // 或 login.html
+    }
+  });
+
+  // 登出按鈕事件
+  document.addEventListener('DOMContentLoaded', () => {
+    document.getElementById('logoutBtn').addEventListener('click', () => {
+      signOut(auth)
+        .then(() => {
+          window.location.href = 'index.html';  // 登出後回登入頁
+        })
+        .catch(error => {
+          console.error('登出失敗:', error);
+          alert('登出失敗，請稍後再試');
+        });
+    });
+  });
+</script>
+  
 </body>
 </html>
