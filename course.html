@@ -145,13 +145,13 @@
         <img src="camera-icon.png" alt="拍照" />
         <h2>課程一：LINE教學</h2>
         <p>教你如何用LINE的視訊分享畫面。</p>
-        <a class="btn" href="#" data-course="1">開始學習</a>
+        <a class="btn" href="line.html" data-course="1" id="btn-course-1">開始學習</a>
       </div>
       <div class="course-card" data-course="2">
         <img src="video-call-icon.png" alt="視訊通話" />
         <h2>課程二：視訊通話</h2>
         <p>用 LINE 與家人視訊聯繫。</p>
-        <a class="btn locked" href="#" data-course="2">尚未解鎖</a>
+        <a class="btn locked" href="#" data-course="2" id="btn-course-2">尚未解鎖</a>
       </div>
     </div>
 
@@ -172,106 +172,138 @@
     </div>
   </div>
 
+  <!-- Firebase SDK -->
   <script type="module">
-    import { auth, onAuthStateChanged, signOut, db } from './firebase-init.js';
-    import { doc, getDoc } from "https://www.gstatic.com/firebasejs/11.8.1/firebase-firestore.js";
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/11.8.1/firebase-app.js";
+    import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/11.8.1/firebase-auth.js";
+    import { getFirestore, doc, getDoc, setDoc } from "https://www.gstatic.com/firebasejs/11.8.1/firebase-firestore.js";
 
-    const progressFill = document.getElementById("progress-fill");
-    const progressText = document.getElementById("progress-text");
-    const logoutBtn = document.getElementById("logoutBtn");
-    const courseButtons = document.querySelectorAll(".course-card a.btn");
+    const firebaseConfig = {
+      apiKey: "AIzaSyC0VF7SkuXvOAJyuC-2tPl_KGris3f4gqE",
+      authDomain: "final-project-fb104.firebaseapp.com",
+      projectId: "final-project-fb104",
+      storageBucket: "final-project-fb104.appspot.com",
+      messagingSenderId: "150740541108",
+      appId: "1:150740541108:web:1a0dba9ebb4cbb157001e1",
+      measurementId: "G-XRR8QBXS35"
+    };
 
-    // 初始化課程進度
-    const courseProgress = { 1: false, 2: false };
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const db = getFirestore(app);
 
-    function getCourseUrl(courseNum) {
-      switch (courseNum) {
-        case 1: return "line.html";
-        case 2: return "wifi.html";
-        default: return "#";
+    // 登出
+    document.getElementById("logoutBtn").addEventListener("click", () => {
+      signOut(auth).then(() => {
+        localStorage.clear();
+        window.location.href = "login.html";
+      }).catch((error) => {
+        alert("登出失敗：" + error.message);
+      });
+    });
+
+    // 登入狀態檢查與取得課程進度
+    onAuthStateChanged(auth, async (user) => {
+      if (!user) {
+        window.location.href = "login.html";
+        return;
       }
-    }
 
-    function updateUI() {
+      // 從 Firestore 讀取使用者課程進度
+      const userDocRef = doc(db, "userProgress", user.uid);
+      const userDocSnap = await getDoc(userDocRef);
+
+      // 預設沒有任何課程完成
+      let courseProgress = { course1: false, course2: false };
+
+      if (userDocSnap.exists()) {
+        courseProgress = userDocSnap.data();
+      }
+
+      updateUI(courseProgress);
+    });
+
+    // 更新 UI 函式
+    function updateUI(courseProgress) {
+      // 計算完成課程數量
       let completed = 0;
+      if (courseProgress.course1) completed++;
+      if (courseProgress.course2) completed++;
+
+      // 更新進度條
+      const percent = Math.round((completed / 2) * 100);
+      const progressFill = document.getElementById("progress-fill");
+      progressFill.style.width = percent + "%";
+      progressFill.textContent = percent + "%";
+
+      // 更新進度文字
+      const progressText = document.getElementById("progress-text");
+      progressText.textContent = `你已完成 ${completed} / 2 的課程，加油！`;
+
+      // 更新徽章狀態
       for (let i = 1; i <= 2; i++) {
-        if (courseProgress[i]) {
-          completed++;
-          document.getElementById(`badge-${i}`).classList.add("unlocked");
+        const badge = document.getElementById(`badge-${i}`);
+        if (courseProgress[`course${i}`]) {
+          badge.classList.add("unlocked");
         } else {
-          document.getElementById(`badge-${i}`).classList.remove("unlocked");
+          badge.classList.remove("unlocked");
         }
       }
 
-      const percent = Math.round((completed / 2) * 100);
-      progressFill.style.width = percent + "%";
-      progressFill.textContent = percent + "%";
-      progressText.textContent = `你已完成 ${completed} / 2 的課程，加油！`;
-
-      courseButtons.forEach(btn => {
-        const courseNum = Number(btn.getAttribute("data-course"));
-        if (courseNum === 1 || courseProgress[courseNum - 1]) {
+      // 更新按鈕狀態（第一門課永遠解鎖，其餘課程需前一課完成）
+      for (let i = 1; i <= 2; i++) {
+        const btn = document.getElementById(`btn-course-${i}`);
+        if (i === 1 || courseProgress[`course${i - 1}`]) {
           btn.classList.remove("locked");
-          btn.href = getCourseUrl(courseNum);
+          btn.href = getCourseUrl(i);
           btn.textContent = "開始學習";
         } else {
           btn.classList.add("locked");
           btn.href = "#";
           btn.textContent = "尚未解鎖";
         }
-      });
+      }
     }
 
-    // Firebase 登出
-    logoutBtn.addEventListener("click", () => {
-      signOut(auth).then(() => {
-        window.location.href = "login.html";
-      }).catch(error => {
-        alert("登出失敗：" + error.message);
-      });
-    });
+    function getCourseUrl(courseNum) {
+      switch(courseNum) {
+        case 1: return "line.html";
+        case 2: return "wifi.html";
+        default: return "#";
+      }
+    }
 
-    // 讀取課程進度 (Firestore)
-    async function loadProgress(uid) {
+    // 儲存課程進度到 Firestore
+    async function saveCourseProgress(courseNum) {
+      const user = auth.currentUser;
+      if (!user) {
+        alert("請先登入");
+        return;
+      }
+
+      const userDocRef = doc(db, "userProgress", user.uid);
+      const updateData = {};
+      updateData[`course${courseNum}`] = true;
+
       try {
-        const docRef = doc(db, "userProgress", uid);
-        const docSnap = await getDoc(docRef);
-        if (docSnap.exists()) {
-          const data = docSnap.data();
-          // 假設資料格式 { course1: true, course2: false }
-          courseProgress[1] = data.course1 || false;
-          courseProgress[2] = data.course2 || false;
-        } else {
-          // Firestore 無資料，預設不完成任何課程
-          courseProgress[1] = false;
-          courseProgress[2] = false;
-        }
-        updateUI();
+        await setDoc(userDocRef, updateData, { merge: true });
+        alert(`課程 ${courseNum} 已標記完成！`);
+        // 更新本地 UI 狀態
+        onAuthStateChanged(auth, async (user) => {
+          if (user) {
+            const snap = await getDoc(userDocRef);
+            updateUI(snap.exists() ? snap.data() : {});
+          }
+        });
       } catch (error) {
-        console.error("讀取進度失敗", error);
+        console.error("儲存課程進度失敗", error);
+        alert("儲存失敗，請稍後再試");
       }
     }
 
-    // 監聽登入狀態
-    onAuthStateChanged(auth, user => {
-      if (user) {
-        loadProgress(user.uid);
-      } else {
-        // 未登入導回登入頁
-        window.location.href = "login.html";
-      }
-    });
+    // 將儲存功能掛載到全域，方便從課程頁面呼叫
+    window.saveCourseProgress = saveCourseProgress;
 
-    // 按鈕事件：點擊已解鎖課程跳轉
-    courseButtons.forEach(btn => {
-      btn.addEventListener("click", e => {
-        if (btn.classList.contains("locked")) {
-          e.preventDefault();
-          alert("請先完成上一課程才能解鎖喔！");
-        }
-      });
-    });
   </script>
-
 </body>
 </html>
