@@ -2,7 +2,7 @@
 <html lang="zh-Hant">
 <head>
   <meta charset="UTF-8" />
-  <title>個人帳戶資料修改</title>
+  <title>個人帳戶資料修改 (Firebase版)</title>
   <style>
     body {
       font-family: "Noto Sans TC", sans-serif;
@@ -69,7 +69,7 @@
 <body>
   <h1>修改個人資料</h1>
 
-  <form id="accountForm" enctype="multipart/form-data" method="post" action="update_profile.php">
+  <form id="accountForm">
     <label for="name">姓名</label>
     <input type="text" id="name" name="name" placeholder="請輸入您的姓名" required />
 
@@ -89,27 +89,158 @@
     <button type="submit">儲存修改</button>
   </form>
 
-  <script>
-    const avatarInput = document.getElementById('avatar');
-    const avatarPreview = document.getElementById('avatarPreview');
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/11.8.1/firebase-app.js";
+    import { getAuth, onAuthStateChanged, updateEmail } from "https://www.gstatic.com/firebasejs/11.8.1/firebase-auth.js";
+    import { getFirestore, doc, getDoc, setDoc } from "https://www.gstatic.com/firebasejs/11.8.1/firebase-firestore.js";
+    import { getStorage, ref, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/11.8.1/firebase-storage.js";
 
-    avatarInput.addEventListener('change', function() {
-      const file = this.files[0];
+    // TODO: 把以下換成你自己的 Firebase 專案設定
+    const firebaseConfig = {
+      apiKey: "YOUR_API_KEY",
+      authDomain: "YOUR_AUTH_DOMAIN",
+      projectId: "YOUR_PROJECT_ID",
+      storageBucket: "YOUR_STORAGE_BUCKET",
+      messagingSenderId: "YOUR_SENDER_ID",
+      appId: "YOUR_APP_ID"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const db = getFirestore(app);
+    const storage = getStorage(app);
+
+    const accountForm = document.getElementById("accountForm");
+    const avatarInput = document.getElementById("avatar");
+    const avatarPreview = document.getElementById("avatarPreview");
+    const nameInput = document.getElementById("name");
+    const emailInput = document.getElementById("email");
+    const phoneInput = document.getElementById("phone");
+
+    let currentUser = null;
+    let currentAvatarFile = null;
+    let currentAvatarUrl = null;
+
+    // 頭像改變即時預覽
+    avatarInput.addEventListener('change', e => {
+      const file = e.target.files[0];
       if (!file) {
         avatarPreview.innerHTML = '';
+        currentAvatarFile = null;
         return;
       }
       if (!file.type.startsWith('image/')) {
         alert('請選擇圖片檔案');
         avatarInput.value = '';
         avatarPreview.innerHTML = '';
+        currentAvatarFile = null;
         return;
       }
+      currentAvatarFile = file;
       const reader = new FileReader();
-      reader.onload = function(e) {
+      reader.onload = e => {
         avatarPreview.innerHTML = `<img src="${e.target.result}" alt="頭像預覽">`;
-      }
+      };
       reader.readAsDataURL(file);
+    });
+
+    // 讀取用戶資料，填入表單
+    async function loadUserProfile(uid) {
+      try {
+        const docRef = doc(db, "users", uid);
+        const docSnap = await getDoc(docRef);
+        if (docSnap.exists()) {
+          const data = docSnap.data();
+          nameInput.value = data.name || "";
+          phoneInput.value = data.phone || "";
+          // Email 從 Firebase Auth 取
+          emailInput.value = auth.currentUser.email || "";
+
+          if (data.avatarPath) {
+            // 讀取 Storage 取得下載 URL
+            const avatarRef = ref(storage, data.avatarPath);
+            const url = await getDownloadURL(avatarRef);
+            currentAvatarUrl = url;
+            avatarPreview.innerHTML = `<img src="${url}" alt="頭像">`;
+          }
+        } else {
+          // 新用戶無資料，只填 Email
+          emailInput.value = auth.currentUser.email || "";
+        }
+      } catch (error) {
+        alert("讀取個人資料失敗：" + error.message);
+      }
+    }
+
+    // 儲存用戶資料
+    accountForm.addEventListener("submit", async e => {
+      e.preventDefault();
+      if (!currentUser) return alert("使用者尚未登入");
+
+      const newName = nameInput.value.trim();
+      const newEmail = emailInput.value.trim();
+      const newPhone = phoneInput.value.trim();
+
+      if (!newName || !newEmail) {
+        alert("姓名與電子郵件為必填");
+        return;
+      }
+
+      try {
+        // 先更新 Email (Firebase Auth)
+        if (newEmail !== currentUser.email) {
+          await updateEmail(currentUser, newEmail);
+        }
+      } catch (error) {
+        alert("更新 Email 失敗：" + error.message);
+        return;
+      }
+
+      let avatarPath = null;
+
+      if (currentAvatarFile) {
+        // 上傳頭像圖片到 Storage
+        const avatarStorageRef = ref(storage, `avatars/${currentUser.uid}/${currentAvatarFile.name}`);
+        try {
+          await uploadBytes(avatarStorageRef, currentAvatarFile);
+          avatarPath = avatarStorageRef.fullPath;
+          // 取得上傳後下載 URL（更新預覽用）
+          const downloadUrl = await getDownloadURL(avatarStorageRef);
+          avatarPreview.innerHTML = `<img src="${downloadUrl}" alt="頭像">`;
+          currentAvatarUrl = downloadUrl;
+        } catch (error) {
+          alert("頭像上傳失敗：" + error.message);
+          return;
+        }
+      } else if (currentAvatarUrl) {
+        // 沒換頭像，保留舊路徑
+        avatarPath = `avatars/${currentUser.uid}/avatar.jpg`; // 假設頭像路徑
+      }
+
+      try {
+        // 更新 Firestore 用戶文件
+        await setDoc(doc(db, "users", currentUser.uid), {
+          name: newName,
+          phone: newPhone,
+          avatarPath: avatarPath || null,
+          updatedAt: new Date()
+        }, { merge: true });
+
+        alert("資料更新成功！");
+      } catch (error) {
+        alert("更新資料失敗：" + error.message);
+      }
+    });
+
+    // 監聽登入狀態
+    onAuthStateChanged(auth, user => {
+      if (user) {
+        currentUser = user;
+        loadUserProfile(user.uid);
+      } else {
+        alert("請先登入！");
+        window.location.href = "index.html";
+      }
     });
   </script>
 </body>
