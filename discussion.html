@@ -34,10 +34,7 @@
       border-left: 4px solid #aaccee;
       padding-left: 15px;
       margin-top: 10px;
-      background-color: #f9f9f9;
-      border-radius: 10px;
       position: relative;
-      padding-bottom: 40px;
     }
     .comment b, .reply b {
       color: #006699;
@@ -63,7 +60,6 @@
       border-radius: 10px;
       cursor: pointer;
       transition: background-color 0.3s ease;
-      margin-right: 10px;
     }
     button:hover {
       background-color: #0056b3;
@@ -83,17 +79,11 @@
       color: #555;
       text-align: center;
     }
-    .reply-btn {
-      background-color: #28a745;
-      padding: 6px 12px;
-      font-size: 14px;
-      position: absolute;
-      right: 100px;
-      top: 15px;
-      border-radius: 6px;
-    }
-    .reply-input-container {
+    .reply-input {
       margin-top: 10px;
+    }
+    .reply-textarea {
+      height: 70px;
     }
   </style>
 </head>
@@ -117,7 +107,7 @@
   <script type="module">
     import { auth, onAuthStateChanged } from './firebase-init.js';
     import {
-      getFirestore, collection, addDoc, deleteDoc, doc, query, orderBy, onSnapshot, getDocs
+      getFirestore, collection, addDoc, deleteDoc, doc, query, orderBy, onSnapshot, serverTimestamp
     } from "https://www.gstatic.com/firebasejs/11.8.1/firebase-firestore.js";
 
     const db = getFirestore();
@@ -135,45 +125,23 @@
                  .replace(/'/g, "&#039;");
     }
 
-    // 渲染單一回覆
-    function renderReply(replyData, replyId, commentDiv) {
-      const replyDiv = document.createElement("div");
-      replyDiv.className = "reply";
-      replyDiv.innerHTML = `
+    // 渲染一則回覆
+    function renderReply(replyData, replyId, container) {
+      const div = document.createElement("div");
+      div.className = "reply";
+      div.innerHTML = `
         <p><b>${escapeHtml(replyData.username)}</b> 回覆：</p>
         <p>${escapeHtml(replyData.content)}</p>
         <small>${replyData.timestamp?.toDate ? new Date(replyData.timestamp.toDate()).toLocaleString() : ''}</small>
       `;
-
-      // 回覆刪除按鈕（只能刪自己的回覆）
-      if (replyData.userId === currentUser.uid) {
-        const delBtn = document.createElement("button");
-        delBtn.className = "delete-btn";
-        delBtn.style.position = "absolute";
-        delBtn.style.top = "15px";
-        delBtn.style.right = "15px";
-        delBtn.style.fontSize = "12px";
-        delBtn.textContent = "刪除回覆";
-        delBtn.onclick = async () => {
-          if (confirm("確定要刪除這則回覆嗎？")) {
-            try {
-              await deleteDoc(doc(db, "comments", commentDiv.dataset.id, "replies", replyId));
-            } catch (error) {
-              alert("刪除失敗：" + error.message);
-            }
-          }
-        };
-        replyDiv.appendChild(delBtn);
-      }
-
-      commentDiv.appendChild(replyDiv);
+      container.appendChild(div);
     }
 
-    // 渲染單一留言（含回覆按鈕與回覆區）
-    async function renderComment(docData, docId) {
+    // 渲染一則留言，並監聽回覆變化
+    function renderComment(docData, docId) {
       const div = document.createElement("div");
       div.className = "comment";
-      div.dataset.id = docId; // 儲存留言 ID
+      div.dataset.id = docId;
 
       div.innerHTML = `
         <p><b>${escapeHtml(docData.username)}</b> 說：</p>
@@ -181,14 +149,19 @@
         <small>${docData.timestamp?.toDate ? new Date(docData.timestamp.toDate()).toLocaleString() : ''}</small>
       `;
 
-      // 刪除留言按鈕（只能刪自己的留言）
+      // 刪除留言按鈕（僅限本人）
       if (docData.userId === currentUser.uid) {
         const delBtn = document.createElement("button");
         delBtn.className = "delete-btn";
         delBtn.textContent = "刪除留言";
         delBtn.onclick = async () => {
-          if (confirm("確定要刪除這則留言嗎？")) {
+          if (confirm("確定要刪除這則留言嗎？連同所有回覆將一併刪除。")) {
             try {
+              // 刪除子集合回覆（Firestore不支援一次刪除，需自行循環刪除）
+              const repliesSnapshot = await getDocs(collection(db, "comments", docId, "replies"));
+              for (const replyDoc of repliesSnapshot.docs) {
+                await deleteDoc(doc(db, "comments", docId, "replies", replyDoc.id));
+              }
               await deleteDoc(doc(db, "comments", docId));
             } catch (error) {
               alert("刪除失敗：" + error.message);
@@ -198,65 +171,58 @@
         div.appendChild(delBtn);
       }
 
-      // 回覆按鈕
-      const replyBtn = document.createElement("button");
-      replyBtn.className = "reply-btn";
-      replyBtn.textContent = "回覆";
-      div.appendChild(replyBtn);
+      // 回覆容器
+      const repliesContainer = document.createElement("div");
+      repliesContainer.className = "replies-container";
+      div.appendChild(repliesContainer);
 
-      // 回覆輸入區（預設隱藏）
-      const replyInputContainer = document.createElement("div");
-      replyInputContainer.className = "reply-input-container";
-      replyInputContainer.style.display = "none";
-      replyInputContainer.innerHTML = `
-        <textarea placeholder="輸入回覆內容..."></textarea>
-        <button class="send-reply-btn">送出回覆</button>
-        <button class="cancel-reply-btn">取消</button>
+      // 回覆輸入區
+      const replyInputDiv = document.createElement("div");
+      replyInputDiv.className = "reply-input";
+      replyInputDiv.innerHTML = `
+        <textarea class="reply-textarea" placeholder="輸入回覆內容..."></textarea><br>
+        <button class="reply-btn">送出回覆</button>
       `;
-      div.appendChild(replyInputContainer);
+      div.appendChild(replyInputDiv);
 
-      // 點擊回覆按鈕切換輸入框顯示
-      replyBtn.onclick = () => {
-        replyInputContainer.style.display = replyInputContainer.style.display === "none" ? "block" : "none";
-      };
+      // 監聽回覆按鈕點擊事件
+      const replyBtn = replyInputDiv.querySelector(".reply-btn");
+      const replyTextarea = replyInputDiv.querySelector("textarea");
 
-      // 送出回覆事件
-      replyInputContainer.querySelector(".send-reply-btn").onclick = async () => {
-        const textarea = replyInputContainer.querySelector("textarea");
-        const content = textarea.value.trim();
-        if (!content) {
+      replyBtn.onclick = async () => {
+        const replyContent = replyTextarea.value.trim();
+        if (!replyContent) {
           alert("請輸入回覆內容");
           return;
         }
+        replyBtn.disabled = true;
         try {
           await addDoc(collection(db, "comments", docId, "replies"), {
-            content,
+            content: replyContent,
             userId: currentUser.uid,
             username: currentUser.email,
-            timestamp: new Date()
+            timestamp: serverTimestamp()
           });
-          textarea.value = "";
-          replyInputContainer.style.display = "none";
+          replyTextarea.value = "";
         } catch (error) {
           alert("回覆失敗：" + error.message);
         }
+        replyBtn.disabled = false;
       };
 
-      // 取消回覆
-      replyInputContainer.querySelector(".cancel-reply-btn").onclick = () => {
-        replyInputContainer.style.display = "none";
-      };
+      // 監聽此留言的回覆子集合，實現即時刷新
+      const repliesQuery = query(collection(db, "comments", docId, "replies"), orderBy("timestamp", "asc"));
+      onSnapshot(repliesQuery, snapshot => {
+        repliesContainer.innerHTML = "";
+        snapshot.forEach(replyDoc => {
+          renderReply(replyDoc.data(), replyDoc.id, repliesContainer);
+        });
+      });
 
       commentSection.appendChild(div);
-
-      // 載入此留言的回覆
-      const repliesSnapshot = await getDocs(collection(db, "comments", docId, "replies"));
-      repliesSnapshot.forEach(replyDoc => {
-        renderReply(replyDoc.data(), replyDoc.id, div);
-      });
     }
 
-    // 載入所有留言及回覆
+    // 監聽並渲染留言列表（最新留言在上）
     function loadComments() {
       commentSection.innerHTML = "載入留言中...";
       const q = query(collection(db, "comments"), orderBy("timestamp", "desc"));
@@ -266,13 +232,9 @@
           commentSection.innerHTML = "<p>目前還沒有留言，歡迎搶先留言！</p>";
           return;
         }
-        // async 函式要搭配 Promise.all 等待全部留言+回覆渲染完成
-        const renderAll = async () => {
-          for (const docSnap of snapshot.docs) {
-            await renderComment(docSnap.data(), docSnap.id);
-          }
-        };
-        renderAll();
+        snapshot.forEach(doc => {
+          renderComment(doc.data(), doc.id);
+        });
       }, error => {
         commentSection.innerHTML = "<p>留言載入失敗，請稍後再試。</p>";
         console.error("Firestore 監聽錯誤:", error);
@@ -291,7 +253,7 @@
           content,
           userId: currentUser.uid,
           username: currentUser.email,
-          timestamp: new Date()
+          timestamp: serverTimestamp()
         });
         newComment.value = "";
       } catch (error) {
