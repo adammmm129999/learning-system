@@ -16,14 +16,11 @@
       padding: 16px;
       text-align: center;
     }
-    .navbar a, .navbar button {
+    .navbar a {
       color: white;
       text-decoration: none;
       margin: 0 12px;
       font-size: 20px;
-      background: none;
-      border: none;
-      cursor: pointer;
     }
     h1 {
       text-align: center;
@@ -37,7 +34,8 @@
       padding: 20px;
       box-sizing: border-box;
     }
-    .left, .right {
+    .left,
+    .right {
       box-sizing: border-box;
       padding: 20px;
     }
@@ -121,7 +119,8 @@
       filter: none;
     }
     @media (max-width: 900px) {
-      .left, .right {
+      .left,
+      .right {
         flex: 1 1 100%;
       }
     }
@@ -130,11 +129,13 @@
 <body>
 
   <nav class="navbar">
-    <a href="home.html">🏠 首頁</a>
-    <a href="course.html">📘 課程教學</a>
-    <a href="discussion.html">💬 討論區</a>    
-    <a href="personal_account.html">個人資料📄</a>
-    <button id="logoutBtn">🔓 登出</button>
+    <div class="container">
+      <a href="home.html">🏠 首頁</a>
+      <a href="course.html">📘 課程教學</a>
+      <a href="discussion.html">💬 討論區</a>    
+      <a href="personal_account.html">個人資料📄</a>
+      <button id="logoutBtn">🔓 登出</button>
+    </div>
   </nav>
 
   <h1>📱 手機教學課程</h1>
@@ -142,16 +143,16 @@
   <div class="main">
     <div class="left">
       <div class="course-card" data-course="1">
-        <img src="camera-icon.png" alt="拍照" />
+        <img src="camera-icon.png" alt="拍照">
         <h2>課程一：LINE教學</h2>
         <p>教你如何用LINE的視訊分享畫面。</p>
-        <a class="btn" href="line.html" data-course="1" id="btn-course-1">開始學習</a>
+        <a class="btn" id="btn-course1" href="#">讀取中...</a>
       </div>
       <div class="course-card" data-course="2">
-        <img src="video-call-icon.png" alt="視訊通話" />
+        <img src="video-call-icon.png" alt="視訊通話">
         <h2>課程二：視訊通話</h2>
         <p>用 LINE 與家人視訊聯繫。</p>
-        <a class="btn locked" href="#" data-course="2" id="btn-course-2">尚未解鎖</a>
+        <a class="btn locked" id="btn-course2" href="#">尚未解鎖</a>
       </div>
     </div>
 
@@ -172,138 +173,83 @@
     </div>
   </div>
 
-  <!-- Firebase SDK -->
   <script type="module">
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/11.8.1/firebase-app.js";
-    import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/11.8.1/firebase-auth.js";
-    import { getFirestore, doc, getDoc, setDoc } from "https://www.gstatic.com/firebasejs/11.8.1/firebase-firestore.js";
+    import { auth, db } from './firebase-init.js';
+    import { onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/11.8.1/firebase-auth.js";
+    import { doc, getDoc } from "https://www.gstatic.com/firebasejs/11.8.1/firebase-firestore.js";
 
-    const firebaseConfig = {
-      apiKey: "AIzaSyC0VF7SkuXvOAJyuC-2tPl_KGris3f4gqE",
-      authDomain: "final-project-fb104.firebaseapp.com",
-      projectId: "final-project-fb104",
-      storageBucket: "final-project-fb104.appspot.com",
-      messagingSenderId: "150740541108",
-      appId: "1:150740541108:web:1a0dba9ebb4cbb157001e1",
-      measurementId: "G-XRR8QBXS35"
-    };
+    const btn1 = document.getElementById('btn-course1');
+    const btn2 = document.getElementById('btn-course2');
+    const badge1 = document.getElementById('badge-1');
+    const badge2 = document.getElementById('badge-2');
+    const fill = document.getElementById('progress-fill');
+    const progressText = document.getElementById('progress-text');
 
-    const app = initializeApp(firebaseConfig);
-    const auth = getAuth(app);
-    const db = getFirestore(app);
-
-    // 登出
-    document.getElementById("logoutBtn").addEventListener("click", () => {
-      signOut(auth).then(() => {
-        localStorage.clear();
-        window.location.href = "index.html";
-      }).catch((error) => {
-        alert("登出失敗：" + error.message);
-      });
-    });
-
-    // 登入狀態檢查與取得課程進度
     onAuthStateChanged(auth, async (user) => {
       if (!user) {
-        window.location.href = "index.html";
+        window.location.href = 'login.html';
         return;
       }
+      rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    match /userProgress/{userId} {
+      allow read, write: if request.auth != null && request.auth.uid == userId;
+    }
+    match /courses/{courseId} {
+      allow read: if true;
+    }
+  }
+}
 
-      // 從 Firestore 讀取使用者課程進度
-      const userDocRef = doc(db, "userProgress", user.uid);
-      const userDocSnap = await getDoc(userDocRef);
 
-      // 預設沒有任何課程完成
-      let courseProgress = { course1: false, course2: false };
+      const userRef = doc(db, "userProgress", user.uid);
+      const docSnap = await getDoc(userRef);
+      const progress = docSnap.exists() ? docSnap.data() : {};
 
-      if (userDocSnap.exists()) {
-        courseProgress = userDocSnap.data();
+      console.log("讀取進度資料:", progress);
+
+      const completed1 = !!progress.course1Completed;
+      const completed2 = !!progress.course2Completed;
+
+      let completedCount = 0;
+
+      if (completed1) {
+        btn1.classList.remove("locked");
+        btn1.href = "line.html";
+        btn1.textContent = "開始學習";
+        badge1.classList.add("unlocked");
+        completedCount++;
+      } else {
+        btn1.href = "line.html";
+        btn1.textContent = "開始學習";
       }
 
-      updateUI(courseProgress);
+      if (completed1) {
+        btn2.classList.remove("locked");
+        btn2.href = "wifi.html";
+        btn2.textContent = "開始學習";
+        if (completed2) {
+          badge2.classList.add("unlocked");
+          completedCount++;
+        }
+      } else {
+        btn2.classList.add("locked");
+        btn2.href = "#";
+        btn2.textContent = "尚未解鎖";
+      }
+
+      const percent = Math.round((completedCount / 2) * 100);
+      fill.style.width = percent + "%";
+      fill.textContent = percent + "%";
+      progressText.textContent = `你已完成 ${completedCount} / 2 的課程，加油！`;
     });
 
-    // 更新 UI 函式
-    function updateUI(courseProgress) {
-      // 計算完成課程數量
-      let completed = 0;
-      if (courseProgress.course1) completed++;
-      if (courseProgress.course2) completed++;
-
-      // 更新進度條
-      const percent = Math.round((completed / 2) * 100);
-      const progressFill = document.getElementById("progress-fill");
-      progressFill.style.width = percent + "%";
-      progressFill.textContent = percent + "%";
-
-      // 更新進度文字
-      const progressText = document.getElementById("progress-text");
-      progressText.textContent = `你已完成 ${completed} / 2 的課程，加油！`;
-
-      // 更新徽章狀態
-      for (let i = 1; i <= 2; i++) {
-        const badge = document.getElementById(`badge-${i}`);
-        if (courseProgress[`course${i}`]) {
-          badge.classList.add("unlocked");
-        } else {
-          badge.classList.remove("unlocked");
-        }
-      }
-
-      // 更新按鈕狀態（第一門課永遠解鎖，其餘課程需前一課完成）
-      for (let i = 1; i <= 2; i++) {
-        const btn = document.getElementById(`btn-course-${i}`);
-        if (i === 1 || courseProgress[`course${i - 1}`]) {
-          btn.classList.remove("locked");
-          btn.href = getCourseUrl(i);
-          btn.textContent = "開始學習";
-        } else {
-          btn.classList.add("locked");
-          btn.href = "#";
-          btn.textContent = "尚未解鎖";
-        }
-      }
-    }
-
-    function getCourseUrl(courseNum) {
-      switch(courseNum) {
-        case 1: return "line.html";
-        case 2: return "wifi.html";
-        default: return "#";
-      }
-    }
-
-    // 儲存課程進度到 Firestore
-    async function saveCourseProgress(courseNum) {
-      const user = auth.currentUser;
-      if (!user) {
-        alert("請先登入");
-        return;
-      }
-
-      const userDocRef = doc(db, "userProgress", user.uid);
-      const updateData = {};
-      updateData[`course${courseNum}`] = true;
-
-      try {
-        await setDoc(userDocRef, updateData, { merge: true });
-        alert(`課程 ${courseNum} 已標記完成！`);
-        // 更新本地 UI 狀態
-        onAuthStateChanged(auth, async (user) => {
-          if (user) {
-            const snap = await getDoc(userDocRef);
-            updateUI(snap.exists() ? snap.data() : {});
-          }
-        });
-      } catch (error) {
-        console.error("儲存課程進度失敗", error);
-        alert("儲存失敗，請稍後再試");
-      }
-    }
-
-    // 將儲存功能掛載到全域，方便從課程頁面呼叫
-    window.saveCourseProgress = saveCourseProgress;
-
+    document.getElementById('logoutBtn').addEventListener('click', () => {
+      signOut(auth).then(() => {
+        window.location.href = 'login.html';
+      });
+    });
   </script>
 </body>
 </html>
