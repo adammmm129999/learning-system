@@ -33,7 +33,7 @@
     }
     .main-panel {
       display: flex;
-      gap: 1rem; /* 這行是新增的，讓兩個 embed 有間距 */
+      gap: 1rem;
       width: 110%;
       max-width: 1920px;
       margin: 0 auto;
@@ -186,18 +186,26 @@
           return;
         }
 
-        // 讀取第二關課程進度
-        try {
-          const courseDoc = await getDoc(doc(db, "users", user.uid, "courses", "course2"));
-          if (courseDoc.exists()) {
-            const data = courseDoc.data();
-            console.log("讀取第二關課程進度:", data);
-            if (data.completed === true) {
-              unlockLevel2(level2Link);
+        // 先嘗試從 localStorage 讀取進度
+        if(localStorage.getItem(user.uid + "_course2") === "true") {
+          unlockLevel2(level2Link);
+          console.log("從 localStorage 讀取第二關進度：已完成");
+        } else {
+          // 沒有本地紀錄才去 Firestore 查詢
+          try {
+            const courseDoc = await getDoc(doc(db, "users", user.uid, "courses", "course2"));
+            if (courseDoc.exists()) {
+              const data = courseDoc.data();
+              console.log("讀取第二關課程進度:", data);
+              if (data.completed === true) {
+                unlockLevel2(level2Link);
+                // 把進度寫入 localStorage
+                localStorage.setItem(user.uid + "_course2", "true");
+              }
             }
+          } catch (e) {
+            console.error("讀取第二關課程進度失敗:", e);
           }
-        } catch (e) {
-          console.error("讀取第二關課程進度失敗:", e);
         }
 
         startDiveListener(user.uid);
@@ -205,8 +213,7 @@
     });
 
     // 第二關完成 ID，要換成你第二關實際的 ID
-   const secondLevelCompleteId = "04b344e5adda446583d7e087a1d18026";
-
+    const secondLevelCompleteId = "04b344e5adda446583d7e087a1d18026";
 
     function unlockLevel2(element) {
       element.style.pointerEvents = "auto";
@@ -228,6 +235,8 @@
           console.log("DiVE 第二關完成度:", value);
           if (value === 2) {
             saveCourseProgress(uid, true);
+            // 同時存到 localStorage
+            localStorage.setItem(uid + "_course2", "true");
             const level2Link = document.getElementById("level2Link");
             unlockLevel2(level2Link);
           }
@@ -237,7 +246,7 @@
 
     async function saveCourseProgress(uid, completed) {
       if (!uid) return;
-      const courseDocRef = doc(db, "users", uid, "courses", "course2");  // 注意這裡改成 course2
+      const courseDocRef = doc(db, "users", uid, "courses", "course2");
       try {
         await setDoc(courseDocRef, {
           completed,
@@ -268,7 +277,6 @@
     <!-- 第二關 DiVE iframe，URL 改成第二關實驗連結 -->
     <div class="embed-frame">
      <iframe name="dive" src="https://dive.nutn.edu.tw/Experiment/kaleTestExperiment5.jsp?eid=33302&record=false"></iframe>
-
     </div>
 
     <!-- 第二關對應的 YouTube / 影片 -->
@@ -299,7 +307,7 @@
         <div class="audio-controls" aria-label="語音播放控制區" role="region"></div>
 
         <!-- 第二關按鈕，預設鎖定 -->
-     
+        <a id="level2Link" href="nextlevel.html">第二關（鎖定）</a>
       </div>
     </div>
   </div>
