@@ -97,6 +97,33 @@
     #chat-button:hover {
       background-color: #45a049;
     }
+    .main-header {
+  position: relative;
+  text-align: center;
+  padding: 40px 20px;
+  background-color: #e8f0fe;
+  color: #1a237e;
+  overflow: hidden; /* 確保背景圖不溢出 */
+}
+
+.main-header::after {
+  content: "";
+  position: absolute;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background-image: url('背景.png');
+  background-size: cover;
+  background-position: center;
+  opacity: 0.3; /* 調整透明度，0.0~1.0 */
+  z-index: 0;
+}
+
+.main-header h1 {
+  position: relative; /* 讓文字在背景圖上面 */
+  font-size: 32px;
+  margin: 0;
+  z-index: 1;
+}
+
   </style>
 </head>
 <body>
