@@ -5,14 +5,14 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>手機教學課程</title>
   <style>
-    /* 這裡省略你的 CSS 保持不變 */
+    /* 你的 CSS 保持不變 */
     body {
       font-family: "Noto Sans TC", sans-serif;
       margin: 0;
       background-color: #fefefe;
       color: #333;
     }
-     .navbar {
+    .navbar {
       background-color: #4a90e2;
       padding: 16px;
       text-align: center;
@@ -125,64 +125,52 @@
         flex: 1 1 100%;
       }
     }
-   .background-section {
-  background-image: url('背景.png'); /* 你的背景圖片路徑 */
-  background-size: cover;
-  background-position: center;
-  background-repeat: no-repeat;
-  min-height: 100vh;
-  padding: 40px 20px;
-  box-sizing: border-box;
-  color: white;
-  position: relative;
-  z-index: 0;
-}
-
-.background-section::before {
-  content: "";
-  position: absolute;
-  top: 0; left: 0; right: 0; bottom: 0;
-  /* 遮罩加深，改成半透明黑 */
-  background-color: rgba(0, 0, 0, 0.5);
-  z-index: -1;
-}
-
-.background-section h1 {
-  color: white;
-  font-size: 36px;
-  text-align: center;
-  margin-bottom: 40px;
-  /* 加文字陰影讓文字更清楚 */
-  text-shadow: 0 0 6px rgba(0, 0, 0, 0.8);
-}
-
-/* 主要文字區塊的文字也加陰影 */
-/* 假設你想加在 .main 內文字 */
-.background-section .main {
-  color: white;
-  text-shadow: 0 0 4px rgba(0, 0, 0, 0.7);
-}
-
-
+    .background-section {
+      background-image: url('背景.png'); /* 你的背景圖片路徑 */
+      background-size: cover;
+      background-position: center;
+      background-repeat: no-repeat;
+      min-height: 100vh;
+      padding: 40px 20px;
+      box-sizing: border-box;
+      color: white;
+      position: relative;
+      z-index: 0;
+    }
+    .background-section::before {
+      content: "";
+      position: absolute;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background-color: rgba(0, 0, 0, 0.5);
+      z-index: -1;
+    }
+    .background-section h1 {
+      color: white;
+      font-size: 36px;
+      text-align: center;
+      margin-bottom: 40px;
+      text-shadow: 0 0 6px rgba(0, 0, 0, 0.8);
+    }
+    .background-section .main {
+      color: white;
+      text-shadow: 0 0 4px rgba(0, 0, 0, 0.7);
+    }
   </style>
 </head>
 <body>
-
   <nav class="navbar">
     <div class="container">
       <a href="home.html">🏠 首頁</a>
       <a href="course.html">📘 課程教學</a>
       <a href="discussion.html">💬 討論區</a>    
-      <a href="personal_account.html">個人資料📄</a>     
+      <a href="personal_account.html">個人資料📄</a>
+      <button id="logoutBtn" style="font-size:18px; margin-left:15px;">登出</button>
     </div>
   </nav>
 
-  <!-- 加入背景區塊包裹 h1 與 main -->
   <section class="background-section">
-   
-
+    <h1>手機教學課程</h1>
     <div class="main">
-      <!-- 原本內容保持不動 -->
       <div class="left">
         <div class="course-card" data-course="1">
           <img src="line.png" alt="LINE" />
@@ -217,9 +205,21 @@
   </section>
 
   <script type="module">
-    import { auth, db } from './firebase-init.js';
-    import { onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/11.8.1/firebase-auth.js";
-    import { collection, doc, getDoc } from "https://www.gstatic.com/firebasejs/11.8.1/firebase-firestore.js";
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/11.8.1/firebase-app.js";
+    import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/11.8.1/firebase-auth.js";
+
+    // TODO: 用你自己的 Firebase config
+    const firebaseConfig = {
+      apiKey: "你的APIKEY",
+      authDomain: "你的專案ID.firebaseapp.com",
+      projectId: "你的專案ID",
+      storageBucket: "你的專案ID.appspot.com",
+      messagingSenderId: "你的發送者ID",
+      appId: "你的AppID"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
 
     const btn1 = document.getElementById('btn-course1');
     const btn2 = document.getElementById('btn-course2');
@@ -227,37 +227,28 @@
     const badge2 = document.getElementById('badge-2');
     const fill = document.getElementById('progress-fill');
     const progressText = document.getElementById('progress-text');
+    const logoutBtn = document.getElementById('logoutBtn');
 
-    onAuthStateChanged(auth, async (user) => {
-      if (!user) {
-        window.location.href = 'login.html';
-        return;
-      }
+    // 用 localStorage key 格式，userId_course1、userId_course2
+    function getCourseProgress(userId, course) {
+      return localStorage.getItem(userId + "_course" + course) === "true";
+    }
 
-      // 取得子集合路徑
-      const coursesCol = collection(db, "users", user.uid, "courses");
+    function updateUI(userId) {
+      const completed1 = getCourseProgress(userId, 1);
+      const completed2 = getCourseProgress(userId, 2);
 
-      const course1Doc = doc(coursesCol, "course1");
-      const course2Doc = doc(coursesCol, "course2");
-
-      const [course1Snap, course2Snap] = await Promise.all([
-        getDoc(course1Doc),
-        getDoc(course2Doc)
-      ]);
-
-      // 判斷是否完成
-      const completed1 = course1Snap.exists() && course1Snap.data().completed === true;
-      const completed2 = course2Snap.exists() && course2Snap.data().completed === true;
-
-      // 更新課程一按鈕
+      // 課程一按鈕狀態
       if (completed1) {
         btn1.classList.remove("locked");
         btn1.href = "line.html";
         btn1.textContent = "開始學習";
         badge1.classList.add("unlocked");
       } else {
+        btn1.classList.remove("locked");
         btn1.href = "line.html";
         btn1.textContent = "開始學習";
+        badge1.classList.remove("unlocked");
       }
 
       // 課程二解鎖條件：完成課程一
@@ -267,61 +258,36 @@
         btn2.textContent = "開始學習";
         if (completed2) {
           badge2.classList.add("unlocked");
+        } else {
+          badge2.classList.remove("unlocked");
         }
       } else {
         btn2.classList.add("locked");
         btn2.href = "#";
         btn2.textContent = "尚未解鎖";
+        badge2.classList.remove("unlocked");
       }
 
-      // 計算進度百分比
       const completedCount = (completed1 ? 1 : 0) + (completed2 ? 1 : 0);
       const percent = Math.round((completedCount / 2) * 100);
       fill.style.width = percent + "%";
       fill.textContent = percent + "%";
       progressText.textContent = `你已完成 ${completedCount} / 2 的課程，加油！`;
+    }
+
+    onAuthStateChanged(auth, (user) => {
+      if (!user) {
+        window.location.href = 'login.html';
+        return;
+      }
+      updateUI(user.uid);
     });
 
-    // 登出功能
-    document.getElementById('logoutBtn').addEventListener('click', () => {
+    logoutBtn.addEventListener('click', () => {
       signOut(auth).then(() => {
         window.location.href = 'index.html';
       });
     });
-
-
-
-    // 徽章亮起條件調整，分開判斷
-if (completed1) {
-  btn1.classList.remove("locked");
-  btn1.href = "line.html";
-  btn1.textContent = "開始學習";
-  badge1.classList.add("unlocked");  // 第一個徽章亮起
-} else {
-  btn1.href = "line.html";
-  btn1.textContent = "開始學習";
-  badge1.classList.remove("unlocked"); // 沒完成則徽章不亮
-}
-
-if (completed2) {
-  btn2.classList.remove("locked");
-  btn2.href = "wifi.html";
-  btn2.textContent = "開始學習";
-  badge2.classList.add("unlocked");  // 第二個徽章亮起
-} else {
-  // 第二關解鎖條件是完成第一關，沒完成則鎖定
-  if (completed1) {
-    btn2.classList.remove("locked");
-    btn2.href = "wifi.html";
-    btn2.textContent = "開始學習";
-  } else {
-    btn2.classList.add("locked");
-    btn2.href = "#";
-    btn2.textContent = "尚未解鎖";
-  }
-  badge2.classList.remove("unlocked"); // 沒完成則徽章不亮
-}
-
   </script>
 </body>
 </html>
