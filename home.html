@@ -97,32 +97,17 @@
     #chat-button:hover {
       background-color: #45a049;
     }
-    .main-header {
-  position: relative;
-  text-align: center;
-  padding: 40px 20px;
-  background-color: #e8f0fe;
-  color: #1a237e;
-  overflow: hidden; /* 確保背景圖不溢出 */
-}
-
-.main-header::after {
-  content: "";
-  position: absolute;
-  top: 0; left: 0; right: 0; bottom: 0;
+.background-image-section {
+  height: 300px; /* 你可調整高度 */
   background-image: url('背景.png');
   background-size: cover;
   background-position: center;
-  opacity: 0.3; /* 調整透明度，0.0~1.0 */
-  z-index: 0;
+  background-repeat: no-repeat;
+  opacity: 0.5; /* 透明度，可調整 */
+  margin: 20px;
+  border-radius: 12px;
 }
 
-.main-header h1 {
-  position: relative; /* 讓文字在背景圖上面 */
-  font-size: 32px;
-  margin: 0;
-  z-index: 1;
-}
 
   </style>
 </head>
@@ -143,35 +128,8 @@
   <header class="main-header">
     <h1>歡迎來到 <br>銀髮E學院</h1>
   </header>
-
-  <!-- Icon 區塊 -->
-  <section class="icon-grid">
-    <div class="icon-item">
-      <img src="line.png" alt="手機教學" />
-      <p>手機教學</p>
-    </div>
-    <div class="icon-item">
-      <img src="googlemap.png" alt="通訊軟體" />
-      <p>通訊軟體</p>
-    </div>
-    <div class="icon-item">
-      <img src="icons/internet.png" alt="上網技巧" />
-      <p>上網技巧</p>
-    </div>
-    <div class="icon-item">
-      <img src="icons/security.png" alt="資安常識" />
-      <p>資安常識</p>
-    </div>
-    <div class="icon-item">
-      <img src="icons/health.png" alt="健康App" />
-      <p>健康App</p>
-    </div>
-    <div class="icon-item">
-      <img src="icons/camera.png" alt="拍照分享" />
-      <p>拍照分享</p>
-    </div>
-  </section>
-
+<section class="background-image-section"></section>
+ 
   <!-- AI 助理按鈕 -->
   <button id="chat-button" title="點我問問題">💬</button>
 
