@@ -186,39 +186,35 @@
     </div>
   </div>
 
-  <!-- JS 腳本：DiVE 與語音 AI -->
-  <script src="https://dive.nutn.edu.tw/Experiment/js/dive.linker.min.js"></script>
-   <script>
-    const diveLinker = new DiveLinker("dive");
+  <!-- 匯入 Firebase 與 Firestore -->
+<script type="module">
+  import { getFirestore, doc, setDoc } from "https://www.gstatic.com/firebasejs/11.8.1/firebase-firestore.js";
+  import { auth, onAuthStateChanged } from './firebase-init.js';
 
-    window.onload = function () {
-      // 關掉浮水印 + 啟動專案
-      diveLinker.enableBlock(false);
-      diveLinker.start();
+  const db = getFirestore();
 
-      // 取得完成度的屬性 ID
-      const completeId = "af797b267579490f82a94127cc5edbb5";
+  const completeId = "af797b267579490f82a94127cc5edbb5";
+  const diveLinker = new DiveLinker("dive");
 
-      // 每秒檢查 DiVE 傳來的值
-      setInterval(() => {
-        const outputList = diveLinker.outputList;
+  window.onload = () => {
+    diveLinker.enableBlock(false);
+    diveLinker.start();
 
-        if (outputList && outputList[completeId]) {
-          const value = outputList[completeId].value;
+    setInterval(() => {
+      const outputList = diveLinker.outputList;
+      if (outputList && outputList[completeId]?.value === 1) {
+        onAuthStateChanged(auth, async (user) => {
+          if (!user) return;
 
-          console.log("完成度:", value);
+          const userRef = doc(db, "userProgress", user.uid);
+          await setDoc(userRef, { course1Completed: true }, { merge: true });
+          console.log("✅ 完成度已寫入 Firestore");
+        });
+      }
+    }, 1000);
+  };
+</script>
 
-          // 寫入 localStorage，供 course.html 判斷
-          if (value == 1) {
-            localStorage.setItem("course1Completed", "true");
-          } 
-        }
-      }, 1000);
-    };
-  </script>
-
-
-  </script>
   <script>
     const sk = "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";
 
