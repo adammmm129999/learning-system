@@ -125,16 +125,15 @@
         flex: 1 1 100%;
       }
     }
-    .background-section {
+   .background-section {
   background-image: url('背景.png'); /* 你的背景圖片路徑 */
   background-size: cover;
   background-position: center;
   background-repeat: no-repeat;
-  min-height: 100vh;  /* 視窗高度 */
+  min-height: 100vh;
   padding: 40px 20px;
   box-sizing: border-box;
-  color: white; /* 讓標題顏色可改，或者可另外指定 */
-  /* 可選：加一層半透明遮罩更清晰 */
+  color: white;
   position: relative;
   z-index: 0;
 }
@@ -143,16 +142,27 @@
   content: "";
   position: absolute;
   top: 0; left: 0; right: 0; bottom: 0;
-  background-color: rgba(0, 0, 0, 0.3);
+  /* 遮罩加深，改成半透明黑 */
+  background-color: rgba(0, 0, 0, 0.5);
   z-index: -1;
 }
 
 .background-section h1 {
-  color: white; /* 文字白色 */
+  color: white;
   font-size: 36px;
   text-align: center;
   margin-bottom: 40px;
+  /* 加文字陰影讓文字更清楚 */
+  text-shadow: 0 0 6px rgba(0, 0, 0, 0.8);
 }
+
+/* 主要文字區塊的文字也加陰影 */
+/* 假設你想加在 .main 內文字 */
+.background-section .main {
+  color: white;
+  text-shadow: 0 0 4px rgba(0, 0, 0, 0.7);
+}
+
 
   </style>
 </head>
