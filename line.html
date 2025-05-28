@@ -2,210 +2,66 @@
 <html lang="zh-Hant">
 <head>
   <meta charset="UTF-8" />
-  <title>課程一：LINE 教學操作</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>手機教學課程總覽</title>
   <style>
-    body {
-      font-family: "Noto Sans TC", sans-serif;
-      margin: 0;
-      background-color: #fefefe;
-      color: #333;
-    }
-    .navbar {
-      background-color: #4a90e2;
-      padding: 16px;
-      text-align: center;
-    }
-    .navbar a {
-      color: white;
-      text-decoration: none;
-      margin: 0 12px;
-      font-size: 20px;
-    }
-    .navbar button {
-      font-size: 16px;
-      margin-left: 12px;
-      cursor: pointer;
-      background-color: #2575fc;
-      border: none;
-      color: white;
-      padding: 6px 12px;
-      border-radius: 6px;
-    }
-    .main-panel {
-      display: flex;
-      width: 100%;
-      max-width: 1920px;
-      margin: 0 auto;
-      height: calc(100vh - 100px);
-      box-sizing: border-box;
-      overflow: hidden;
-    }
-    .embed-frame:nth-child(1) { flex: 2; }
-    .embed-frame:nth-child(2) { flex: 1; }
-    .embed-frame iframe,
-    .embed-frame video {
-      height: 100%;
-      width: 100%;
-      border: none;
-      border-radius: 16px;
-      box-shadow: 0 0 10px rgba(0,0,0,0.1);
-      object-fit: contain;
-      display: block;
-    }
-    .right-panel {
-      flex: 1;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      padding: 2rem 1rem;
-      box-sizing: border-box;
-    }
-    .phone-frame {
-      width: 360px;
-      height: 720px;
-      background: #ffffff;
-      border: 16px solid #000;
-      border-radius: 40px;
-      padding: 1.5rem;
-      box-shadow: 0 0 20px rgba(0,0,0,0.2);
-      display: flex;
-      flex-direction: column;
-      box-sizing: border-box;
-      overflow: hidden;
-    }
-    h1 {
-      font-size: 1.4rem;
-      text-align: center;
-      margin-bottom: 1rem;
-    }
-    .section {
-      margin-top: 1rem;
-      flex: 1;
-      overflow: hidden;
-      display: flex;
-      flex-direction: column;
-    }
-    .box {
-      margin-top: 0.5rem;
-      padding: 1rem;
-      border: 1px solid #ccc;
-      border-radius: 8px;
-      background: #fefefe;
-      font-size: 1rem;
-      white-space: pre-wrap;
-      overflow-y: auto;
-      flex-shrink: 0;
-    }
-    #answer { max-height: 250px; flex: 1; }
-    .controls {
-      margin-top: 1rem;
-      display: flex;
-      gap: 1rem;
-    }
-    .input-area {
-      display: flex;
-      gap: 0.5rem;
-      margin-top: 1rem;
-    }
-    input[type="text"] {
-      flex: 1;
-      padding: 0.5rem;
-      font-size: 1rem;
-      border: 1px solid #ccc;
-      border-radius: 8px;
-    }
-    button {
-      padding: 0.6rem 1.2rem;
-      font-size: 1rem;
-      border: none;
-      border-radius: 8px;
-      background-color: #2575fc;
-      color: white;
-      cursor: pointer;
-    }
-    .audio-controls {
-      margin-top: 0.5rem;
-      display: flex;
-      flex-wrap: wrap;
-      gap: 0.5rem;
-    }
-    /* 第二關初始鎖定樣式 */
-    #level2Link {
-      display: inline-block;
-      margin-top: 12px;
-      padding: 8px 16px;
-      border-radius: 8px;
-      background-color: lightgray;
-      color: gray;
-      pointer-events: none;
-      user-select: none;
-      font-weight: bold;
-      text-decoration: none;
-    }
+    body { font-family: "Noto Sans TC", sans-serif; margin: 0; background-color: #fefefe; color: #333; }
+    .navbar { background-color: #4a90e2; padding: 16px; text-align: center; }
+    .navbar a { color: white; text-decoration: none; margin: 0 12px; font-size: 20px; }
+    .main { display: flex; flex-wrap: wrap; padding: 20px; }
+    .left, .right { box-sizing: border-box; padding: 20px; }
+    .left { flex: 1 1 50%; }
+    .right { flex: 1 1 50%; background-color: #f0f4ff; border-radius: 12px; }
+    .course-card { background-color: #f9f9f9; border: 1px solid #ddd; border-radius: 12px; margin-bottom: 20px; padding: 20px; text-align: center; }
+    .course-card img { width: 120px; height: 120px; object-fit: contain; margin-bottom: 10px; }
+    .btn { display: inline-block; padding: 10px 20px; background-color: #4a90e2; color: white; border-radius: 8px; font-size: 18px; text-decoration: none; }
+    .btn.locked { background-color: #ccc; pointer-events: none; cursor: not-allowed; }
+    .progress-bar { width: 100%; background-color: #ddd; border-radius: 20px; height: 30px; margin-bottom: 10px; }
+    .progress-bar-fill { height: 100%; width: 0%; background-color: #4a90e2; text-align: center; color: white; line-height: 30px; font-weight: bold; }
+    .badges img { margin: 10px; width: 80px; filter: grayscale(100%); transition: filter 0.5s ease; }
+    .badges img.unlocked { filter: none; }
   </style>
-
- 
 </head>
 <body>
-  <!-- 導覽列 -->
   <nav class="navbar">
-    <div class="container">
-      <a href="home.html">🏠 首頁</a>
-      <a href="course.html">📘 課程教學</a>
-      <a href="discussion.html">💬 討論區</a>    
-      <a href="personal_account.html">個人資料📄</a>
-      
-    </div>
+    <a href="home.html">🏠 首頁</a>
+    <a href="course.html">📘 課程教學</a>
+    <a href="discussion.html">💬 討論區</a>
+    <a href="personal_account.html">個人資料📄</a>
   </nav>
- <script>
-    let diveLinker;
-  </script>
-  <div class="main-panel">
-    <!-- LINE 教學 DiVE -->
-    <div class="embed-frame">
-      <iframe name="dive" src="https://dive.nutn.edu.tw/Experiment/kaleTestExperiment5.jsp?eid=33300&record=false"></iframe>
+
+  <div class="main">
+    <div class="left">
+      <div class="course-card">
+        <img src="line.png" alt="LINE">
+        <h2>課程一：LINE教學</h2>
+        <p>教你如何用LINE的視訊分享畫面。</p>
+        <a class="btn" id="btn-course1" href="#">讀取中...</a>
+      </div>
+      <div class="course-card">
+        <img src="wifi.png" alt="WIFI">
+        <h2>課程二：WIFI教學</h2>
+        <p>教你如何連接WIFI與使用行動網路。</p>
+        <a class="btn locked" id="btn-course2" href="#">尚未解鎖</a>
+      </div>
     </div>
-
-    <!-- YouTube 影片 -->
-    <div class="embed-frame">
-      <video src="teach1.mp4" controls allowfullscreen></video>
-    </div>
-
-    <!-- 語音 AI 區 -->
-    <div class="right-panel">
-      <div class="phone-frame" role="main">
-        <h1>文字AI手機助理</h1>
-
-        <div class="section">
-          <h3>你說了：</h3>
-          <div id="result" class="box">請輸入您的問題...</div>
-        </div>
-
-        <div class="section">
-          <h3>AI 回答：</h3>
-          <div id="answer" class="box"></div>
-        </div>
-
-        <div class="input-area">
-          <input type="text" id="inputText" placeholder="請輸入問題" />
-          <button id="askBtn">提問</button>
-        </div>
-
-        <div class="audio-controls" aria-label="語音播放控制區" role="region"></div>
-
-        <!-- 第二關按鈕，預設鎖定 -->
-        <a id="level2Link" href="wifi.html">第二關（鎖定）</a>
+    <div class="right">
+      <h2>📈 學習進度</h2>
+      <div class="progress-bar">
+        <div class="progress-bar-fill" id="progress-fill">0%</div>
+      </div>
+      <p id="progress-text">你已完成 0 / 2 的課程</p>
+      <div class="badges">
+        <h3>🎖️ 成就徽章</h3>
+        <img src="徽章1.PNG" id="badge-1" alt="徽章1">
+        <img src="徽章3.PNG" id="badge-2" alt="徽章2">
       </div>
     </div>
   </div>
-  
-  <!-- Firebase SDK (modular) -->
-  <script type="module">
-    
 
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-app.js";
-    import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-auth.js";
-    import { getFirestore, doc, setDoc, getDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore.js";
+  <script type="module">
+    import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.8.1/firebase-auth.js";
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/11.8.1/firebase-app.js";
 
     const firebaseConfig = {
       apiKey: "AIzaSyC0VF7SkuXvOAJyuC-2tPl_KGris3f4gqE",
@@ -219,95 +75,44 @@
 
     const app = initializeApp(firebaseConfig);
     const auth = getAuth(app);
-    const db = getFirestore(app);
 
-    window.addEventListener('load', () => {
-      const logoutBtn = document.getElementById("logoutBtn");
-      const level2Link = document.getElementById("level2Link");
+    const btn1 = document.getElementById('btn-course1');
+    const btn2 = document.getElementById('btn-course2');
+    const badge1 = document.getElementById('badge-1');
+    const badge2 = document.getElementById('badge-2');
+    const fill = document.getElementById('progress-fill');
+    const progressText = document.getElementById('progress-text');
 
-      logoutBtn.addEventListener("click", () => {
-        signOut(auth).then(() => {
-          localStorage.clear();
-          alert("已登出");
-          window.location.href = "index.html"; // 登入頁面
-        }).catch(error => {
-          alert("登出錯誤：" + error.message);
-        });
-      });
-
-      onAuthStateChanged(auth, async (user) => {
-        if (!user) {
-          alert("請先登入");
-          window.location.href = "login.html";
-          return;
-        }
-
-        // 讀取課程進度
-        try {
-          const courseDoc = await getDoc(doc(db, "users", user.uid, "courses", "course1"));
-          if (courseDoc.exists()) {
-            const data = courseDoc.data();
-            console.log("讀取課程進度:", data);
-            if (data.completed === true) {
-              unlockLevel2(level2Link);
-            }
-          }
-        } catch (e) {
-          console.error("讀取課程進度失敗:", e);
-        }
-
-        startDiveListener(user.uid);
-      });
-    });
-
-    function unlockLevel2(element) {
-      element.style.pointerEvents = "auto";
-      element.style.color = "blue";
-      element.style.userSelect = "auto";
-      element.style.backgroundColor = "#d1eaff";
-      element.textContent = "第二關（已解鎖）";
-    }
-  
-    
-
-    async function saveCourseProgress(uid, completed) {
-      if (!uid) return;
-      const courseDocRef = doc(db, "users", uid, "courses", "course1");
-      try {
-        await setDoc(courseDocRef, {
-          completed,
-          timestamp: serverTimestamp()
-        }, { merge: true });
-        console.log("課程 course1 進度已更新");
-      } catch (error) {
-        console.error("Firestore 寫入失敗：", error);
+    onAuthStateChanged(auth, (user) => {
+      if (!user) {
+        window.location.href = 'login.html';
+        return;
       }
-    }
-  </script>
-   <script src="https://dive.nutn.edu.tw/Experiment/js/dive.linker.min.js"></script>
-  <!-- DiVE link script -->
-  <script>
-  function startDiveListener(uid) {
-      diveLinker = new DiveLinker("dive");  // 全域變數初始化
-      diveLinker.enableBlock(false);
-      diveLinker.start();
 
-      const completeId = "af797b267579490f82a94127cc5edbb5";
+      const uid = user.uid;
 
-      setInterval(() => {
-        const outputList = diveLinker.outputList;
-        if (outputList && outputList[completeId]) {
-          const value = outputList[completeId].value;
-          console.log("DiVE 完成度:", value);
-          if (value === 1) {
-            saveCourseProgress(uid, true);
-            const level2Link = document.getElementById("level2Link");
-            unlockLevel2(level2Link);
-          }
-        }
-      }, 1000);
-    }
+      const completed1 = localStorage.getItem(`${uid}_course1Completed`) === "true";
+      const completed2 = localStorage.getItem(`${uid}_course2Completed`) === "true";
 
+      // 課程一
+      btn1.href = "line.html";
+      btn1.textContent = "開始學習";
+      if (completed1) badge1.classList.add("unlocked");
+
+      // 課程二（解鎖條件）
+      if (completed1) {
+        btn2.classList.remove("locked");
+        btn2.href = "wifi.html";
+        btn2.textContent = "開始學習";
+      }
+      if (completed2) badge2.classList.add("unlocked");
+
+      const completedCount = (completed1 ? 1 : 0) + (completed2 ? 1 : 0);
+      const percent = Math.round((completedCount / 2) * 100);
+      fill.style.width = percent + "%";
+      fill.textContent = percent + "%";
+      progressText.textContent = `你已完成 ${completedCount} / 2 的課程`;
+    });
   </script>
 </body>
 </html>
