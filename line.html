@@ -144,7 +144,66 @@
     }
   </style>
 
-  <!-- Firebase SDK (modular) -->
+
+
+  <!-- DiVE link script -->
+
+</head>
+<body>
+  <!-- 導覽列 -->
+  <nav class="navbar">
+    <div class="container">
+      <a href="home.html">🏠 首頁</a>
+      <a href="course.html">📘 課程教學</a>
+      <a href="discussion.html">💬 討論區</a>    
+      <a href="personal_account.html">個人資料📄</a>
+      <button id="logoutBtn">登出</button>
+    </div>
+  </nav>
+  
+
+  <div class="main-panel">
+    <!-- LINE 教學 DiVE -->
+    <div class="embed-frame">
+      <iframe name="dive" src="https://dive.nutn.edu.tw/Experiment/kaleTestExperiment5.jsp?eid=33300&record=false"></iframe>
+    </div>
+
+    <!-- YouTube 影片 -->
+    <div class="embed-frame">
+      <video src="teach1.mp4" controls allowfullscreen></video>
+    </div>
+
+    <!-- 語音 AI 區 -->
+    <div class="right-panel">
+      <div class="phone-frame" role="main">
+        <h1>文字AI手機助理</h1>
+
+        <div class="section">
+          <h3>你說了：</h3>
+          <div id="result" class="box">請輸入您的問題...</div>
+        </div>
+
+        <div class="section">
+          <h3>AI 回答：</h3>
+          <div id="answer" class="box"></div>
+        </div>
+
+        <div class="input-area">
+          <input type="text" id="inputText" placeholder="請輸入問題" />
+          <button id="askBtn">提問</button>
+        </div>
+
+        <div class="audio-controls" aria-label="語音播放控制區" role="region"></div>
+
+        <!-- 第二關按鈕，預設鎖定 -->
+        <a id="level2Link" href="wifi.html">第二關（鎖定）</a>
+      </div>
+    </div>
+  </div>
+    <script src="https://dive.nutn.edu.tw/Experiment/js/dive.linker.min.js"></script>
+
+
+    <!-- Firebase SDK (modular) -->
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-app.js";
     import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-auth.js";
@@ -229,59 +288,5 @@
       console.log("課程 course1 進度已更新至 localStorage");
     }
   </script>
-
-  <!-- DiVE link script -->
-  <script src="https://dive.nutn.edu.tw/Experiment/js/dive.linker.min.js"></script>
-</head>
-<body>
-  <!-- 導覽列 -->
-  <nav class="navbar">
-    <div class="container">
-      <a href="home.html">🏠 首頁</a>
-      <a href="course.html">📘 課程教學</a>
-      <a href="discussion.html">💬 討論區</a>    
-      <a href="personal_account.html">個人資料📄</a>
-      <button id="logoutBtn">登出</button>
-    </div>
-  </nav>
-
-  <div class="main-panel">
-    <!-- LINE 教學 DiVE -->
-    <div class="embed-frame">
-      <iframe name="dive" src="https://dive.nutn.edu.tw/Experiment/kaleTestExperiment5.jsp?eid=33300&record=false"></iframe>
-    </div>
-
-    <!-- YouTube 影片 -->
-    <div class="embed-frame">
-      <video src="teach1.mp4" controls allowfullscreen></video>
-    </div>
-
-    <!-- 語音 AI 區 -->
-    <div class="right-panel">
-      <div class="phone-frame" role="main">
-        <h1>文字AI手機助理</h1>
-
-        <div class="section">
-          <h3>你說了：</h3>
-          <div id="result" class="box">請輸入您的問題...</div>
-        </div>
-
-        <div class="section">
-          <h3>AI 回答：</h3>
-          <div id="answer" class="box"></div>
-        </div>
-
-        <div class="input-area">
-          <input type="text" id="inputText" placeholder="請輸入問題" />
-          <button id="askBtn">提問</button>
-        </div>
-
-        <div class="audio-controls" aria-label="語音播放控制區" role="region"></div>
-
-        <!-- 第二關按鈕，預設鎖定 -->
-        <a id="level2Link" href="wifi.html">第二關（鎖定）</a>
-      </div>
-    </div>
-  </div>
 </body>
 </html>
