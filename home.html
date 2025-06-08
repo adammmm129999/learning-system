@@ -6,77 +6,93 @@
   <title>首頁 - 長者數位素養學習系統</title>
   <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;700&display=swap" rel="stylesheet" />
   <style>
-    /* === 全域設定 === */
- body {
+    body {
       font-family: "Noto Sans TC", sans-serif;
       margin: 0;
       background-color: #fefefe;
       color: #333;
     }
 
-    /* 導覽列維持原本設定 */
-.navbar {
-  background-color: #4a90e2;
-  padding: 24px 16px;  /* 上下更高 */
-  text-align: center;
-  z-index: 10;
-  font-size: 40px;  /* 加大整體字體 */
-}
+    .navbar {
+      background-color: #4a90e2;
+      padding: 24px 16px;
+      text-align: center;
+      font-size: 40px;
+    }
 
-/* 導覽列文字調整：字體加大、間距更大 */
-.navbar a {
-  color: white;
-  text-decoration: none;
-  margin: 0 24px;  /* 左右間距加大 */
-  font-size: 40px;  /* 字體加大，方便老人閱讀 */
-}
+    .navbar a {
+      color: white;
+      text-decoration: none;
+      margin: 0 24px;
+      font-size: 40px;
+    }
 
+    .background-section {
+      background-image: url('背景.png');
+      background-size: cover;
+      background-position: center;
+      background-repeat: no-repeat;
+      min-height: 50vh;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      text-align: center;
+      color: white;
+      position: relative;
+      padding: 40px 20px;
+    }
 
-/* 標題區 + 下面背景區 */
-.background-section {
-  position: relative;
-  background-image: url('背景.png');
-  background-size: cover;
-  background-position: center;
-  background-repeat: no-repeat;
-  color: white;
-  min-height: 90vh;  /* 可調整高度 */
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
-  padding: 60px 20px;
-  box-sizing: border-box;
-}
+    .background-section::before {
+      content: "";
+      position: absolute;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background-color: rgba(0,0,0,0.3);
+      z-index: 1;
+    }
 
-/* 半透明遮罩，讓文字更清楚 */
-.background-section::before {
-  content: "";
-  position: absolute;
-  top: 0; left: 0; right: 0; bottom: 0;
-  background-color: rgba(0,0,0,0.3);  /* 透明度可調 */
-  z-index: 1;
-}
+    .background-section > * {
+      position: relative;
+      z-index: 2;
+    }
 
-/* 文字層覆蓋遮罩 */
-.background-section > * {
-  position: relative;
-  z-index: 2;
-  text-align: center;
-}
+    .background-section h1 {
+      font-size: 48px;
+      margin: 0;
+    }
 
-/* 標題文字大小 */
-.background-section h1 {
-  font-size: 40px;
-  margin: 0;
-}
+    /* 學習主題卡片區 */
+    .card-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+      gap: 24px;
+      padding: 40px;
+      max-width: 1200px;
+      margin: auto;
+    }
 
-/* 隱藏 icon-grid */
-.icon-grid {
-  display: none;
-}
+    .card {
+      background-color: #e0f7fa;
+      border-radius: 20px;
+      padding: 30px;
+      text-align: center;
+      font-size: 36px;
+      cursor: pointer;
+      box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+      transition: transform 0.2s;
+    }
 
-    /* === AI 助理按鈕 === */
+    .card:hover {
+      transform: scale(1.05);
+      background-color: #b2ebf2;
+    }
+
+    .card-description {
+      font-size: 20px;
+      margin-top: 12px;
+      color: #333;
+    }
+
     #chat-button {
       position: fixed;
       bottom: 30px;
@@ -96,82 +112,93 @@
     #chat-button:hover {
       background-color: #45a049;
     }
-.background-image-section {
-  height: 300px; /* 你可調整高度 */
-  background-image: url('背景.png');
-  background-size: cover;
-  background-position: center;
-  background-repeat: no-repeat;
-  opacity: 0.5; /* 透明度，可調整 */
-  margin: 20px;
-  border-radius: 12px;
-}
-    /* 登出按鈕也一起放大 */
-#logoutBtn {
-  font-size: 24px;
-  padding: 8px 16px;
-  background-color: #f44336;
-  color: white;
-  border: none;
-  border-radius: 8px;
-  margin-left: 20px;
-  cursor: pointer;
-}
 
-#logoutBtn:hover {
-  background-color: #d32f2f;
-}
+    #logoutBtn {
+      font-size: 24px;
+      padding: 8px 16px;
+      background-color: #f44336;
+      color: white;
+      border: none;
+      border-radius: 8px;
+      margin-left: 20px;
+      cursor: pointer;
+    }
 
-
+    #logoutBtn:hover {
+      background-color: #d32f2f;
+    }
   </style>
 </head>
 <body>
 
   <!-- 導覽列 -->
-   <nav class="navbar">
+  <nav class="navbar">
     <div class="container">
       <a href="home.html">🏠 首頁</a>
       <a href="course.html">📘 課程教學</a>
-      <a href="discussion.html">💬 討論區</a>    
+      <a href="discussion.html">💬 討論區</a>
       <a href="personal_account.html">個人資料📄</a>
       <button id="logoutBtn">🔓 登出</button>
     </div>
   </nav>
 
-  <!-- 標題區 -->
-<section class="background-section">
-  <header class="main-header">
-   
-  </header>
- 
+  <!-- 標語區 -->
+  <section class="background-section">
+    <h1>👋 歡迎來到手機學習園地！</h1>
+    <p style="font-size: 28px;">一步一步，您也能輕鬆學會使用智慧型手機！</p>
+  </section>
+
+  <!-- 學習主題卡片 -->
+  <section class="card-grid">
+    <div class="card" onclick="location.href='course_call.html'">
+      📞<br>如何打電話
+      <div class="card-description">撥打、接聽、查通訊錄</div>
+    </div>
+    <div class="card" onclick="location.href='course_line.html'">
+      💬<br>傳LINE訊息
+      <div class="card-description">打字、語音、傳貼圖、傳照片</div>
+    </div>
+    <div class="card" onclick="location.href='course_camera.html'">
+      📷<br>拍照與看照片
+      <div class="card-description">開啟相機、拍照、查看相簿</div>
+    </div>
+    <div class="card" onclick="location.href='course_internet.html'">
+      🌐<br>上網找資訊
+      <div class="card-description">開Google、看新聞、查天氣</div>
+    </div>
+    <div class="card" onclick="location.href='course_settings.html'">
+      🛠️<br>手機設定教學
+      <div class="card-description">設定鬧鐘、調亮度、連Wi-Fi</div>
+    </div>
+  </section>
+
   <!-- AI 助理按鈕 -->
   <button id="chat-button" title="點我問問題">💬</button>
 
   <!-- Firebase 與功能腳本 -->
- <script type="module">
-  import { auth, onAuthStateChanged, signOut } from './firebase-init.js';
+  <script type="module">
+    import { auth, onAuthStateChanged, signOut } from './firebase-init.js';
 
-  // 監聽登入狀態，沒登入導回登入頁
-  onAuthStateChanged(auth, user => {
-    if (!user) {
-      window.location.href = 'index.html'; // 或 login.html
-    }
-  });
-
-  // 登出按鈕事件
-  document.addEventListener('DOMContentLoaded', () => {
-    document.getElementById('logoutBtn').addEventListener('click', () => {
-      signOut(auth)
-        .then(() => {
-          window.location.href = 'index.html';  // 登出後回登入頁
-        })
-        .catch(error => {
-          console.error('登出失敗:', error);
-          alert('登出失敗，請稍後再試');
-        });
+    // 監聽登入狀態
+    onAuthStateChanged(auth, user => {
+      if (!user) {
+        window.location.href = 'index.html';
+      }
     });
-  });
-</script>
 
+    // 登出功能
+    document.addEventListener('DOMContentLoaded', () => {
+      document.getElementById('logoutBtn').addEventListener('click', () => {
+        signOut(auth)
+          .then(() => {
+            window.location.href = 'index.html';
+          })
+          .catch(error => {
+            console.error('登出失敗:', error);
+            alert('登出失敗，請稍後再試');
+          });
+      });
+    });
+  </script>
 </body>
 </html>
