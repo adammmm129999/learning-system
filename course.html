@@ -138,16 +138,14 @@
     }
 
 .video-area {
-  flex: 1 1 48%;
   display: flex;
   flex-wrap: wrap;
-  flex-direction: column;
   gap: 20px;
-  padding: 20px;
-  box-sizing: border-box;
+  margin-top: 20px;
 }
 
 .video-card {
+  flex: 1 1 45%;
   background-color: #fff;
   border: 1px solid #ccc;
   border-radius: 12px;
@@ -158,6 +156,11 @@
   align-items: center;
 }
 
+.video-card iframe {
+  width: 100%;
+  aspect-ratio: 9 / 16;
+  border-radius: 8px;
+}
 
 .video-card h3 {
   font-size: 20px;
@@ -165,15 +168,10 @@
   color: #1a237e;
 }
 
-.video-card iframe {
-  width: 270px;
-  height: 480px; /* 直式影片比例：大約 9:16 */
-  border-radius: 8px;
-}
 
 
 
-    }
+    
   </style>
 </head>
 <body>
@@ -189,6 +187,7 @@
 
 <div class="main">
   <div class="left">
+    <!-- 課程卡片 -->
     <div class="course-card" data-course="1">
       <img src="line.png" alt="LINE" />
       <h2>課程一：LINE教學</h2>
@@ -201,34 +200,39 @@
       <p>教你如何連接WIFI與利用行動網路上網。</p>
       <a class="btn locked" id="btn-course2" href="#">尚未解鎖</a>
     </div>
+
+    <!-- 課程影片區：與課程卡片並排 -->
+    <div class="video-area">
+      <div class="video-card">
+        <h3>📹 課程一影片：LINE教學</h3>
+        <iframe src="https://www.youtube.com/embed/FEB5YaRjEYQ" frameborder="0" allowfullscreen></iframe>
+      </div>
+      <div class="video-card">
+        <h3>📹 課程二影片：WIFI與行網教學</h3>
+        <iframe src="https://www.youtube.com/embed/W1PSzXpkl-I" frameborder="0" allowfullscreen></iframe>
+      </div>
+    </div>
   </div>
 
-  <div class="video-area">
-    <div class="video-card">
-      <h3>📹 課程一影片：LINE教學</h3>
-      <iframe width="100%" height="480" src="https://www.youtube.com/embed/FEB5YaRjEYQ" frameborder="0" allowfullscreen></iframe>
+  <!-- 進度區放到底部 -->
+</div>
+
+<!-- 學習進度區從 .main 中抽出，放到底部 -->
+<div class="right">
+  <div class="progress-area">
+    <h2>📈 你的學習進度</h2>
+    <div class="progress-bar">
+      <div class="progress-bar-fill" id="progress-fill">0%</div>
     </div>
-    <div class="video-card">
-      <h3>📹 課程二影片：WIFI與行網教學</h3>
-      <iframe width="100%" height="480" src="https://www.youtube.com/embed/W1PSzXpkl-I" frameborder="0" allowfullscreen></iframe>
+    <p id="progress-text">你已完成 0 / 2 的課程，加油！</p>
+    <div class="badges">
+      <h3>🎖️ 成就徽章</h3>
+      <img src="徽章1.PNG" alt="徽章1" id="badge-1" />
+      <img src="徽章3.PNG" alt="徽章2" id="badge-2" />
     </div>
   </div>
 </div>
 
-<!-- 學習進度移到最下方 -->
-<div class="progress-area" style="padding: 40px 20px; max-width: 1200px; margin: auto;">
-  <h2>📈 你的學習進度</h2>
-  <div class="progress-bar">
-    <div class="progress-bar-fill" id="progress-fill">0%</div>
-  </div>
-  <p id="progress-text">你已完成 0 / 2 的課程，加油！</p>
-
-  <div class="badges">
-    <h3>🎖️ 成就徽章</h3>
-    <img src="徽章1.PNG" alt="徽章1" id="badge-1" />
-    <img src="徽章3.PNG" alt="徽章2" id="badge-2" />
-  </div>
-</div>
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/11.8.1/firebase-app.js";
     import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/11.8.1/firebase-auth.js";
