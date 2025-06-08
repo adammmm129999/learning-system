@@ -28,32 +28,15 @@
     }
 
     .background-section {
-      background-image: url('背景.png');
-      background-size: cover;
-      background-position: center;
-      background-repeat: no-repeat;
-      min-height: 50vh;
+      background-color: #e3f2fd;
+      min-height: 40vh;
       display: flex;
       flex-direction: column;
       justify-content: center;
       align-items: center;
       text-align: center;
-      color: white;
-      position: relative;
+      color: #333;
       padding: 40px 20px;
-    }
-
-    .background-section::before {
-      content: "";
-      position: absolute;
-      top: 0; left: 0; right: 0; bottom: 0;
-      background-color: rgba(0,0,0,0.3);
-      z-index: 1;
-    }
-
-    .background-section > * {
-      position: relative;
-      z-index: 2;
     }
 
     .background-section h1 {
@@ -156,7 +139,7 @@
     </div>
     <div class="card" onclick="location.href='course_line.html'">
       💬<br>傳LINE訊息
-      <div class="card-description">視訊畫面分享教學</div>
+      <div class="card-description">打字、語音、傳貼圖、傳照片</div>
     </div>
     <div class="card" onclick="location.href='course_camera.html'">
       📷<br>拍照與看照片
@@ -167,8 +150,8 @@
       <div class="card-description">開Google、看新聞、查天氣</div>
     </div>
     <div class="card" onclick="location.href='course_settings.html'">
-      🛠️<br>網路設定教學
-      <div class="card-description">開啟行動網路、連Wi-Fi</div>
+      🛠️<br>手機設定教學
+      <div class="card-description">設定鬧鐘、調亮度、連Wi-Fi</div>
     </div>
   </section>
 
@@ -179,14 +162,12 @@
   <script type="module">
     import { auth, onAuthStateChanged, signOut } from './firebase-init.js';
 
-    // 監聽登入狀態
     onAuthStateChanged(auth, user => {
       if (!user) {
         window.location.href = 'index.html';
       }
     });
 
-    // 登出功能
     document.addEventListener('DOMContentLoaded', () => {
       document.getElementById('logoutBtn').addEventListener('click', () => {
         signOut(auth)
