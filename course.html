@@ -155,6 +155,33 @@
       color: white;
       text-shadow: 0 0 4px rgba(0, 0, 0, 0.7);
     }
+    .video-area {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 20px;
+  margin-top: 20px;
+}
+
+.video-card {
+  flex: 1 1 100%;
+  background-color: #fff;
+  border: 1px solid #ccc;
+  border-radius: 12px;
+  padding: 15px;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+}
+
+.video-card h3 {
+  font-size: 20px;
+  margin-bottom: 10px;
+  color: #1a237e;
+}
+
+@media (min-width: 900px) {
+  .video-card {
+    flex: 1 1 48%;
+  }
+}
   </style>
 </head>
 <body>
@@ -185,6 +212,16 @@
           <a class="btn locked" id="btn-course2" href="#">尚未解鎖</a>
         </div>
       </div>
+      <div class="video-area">
+  <div class="video-card">
+    <h3>📹 課程一影片：LINE教學</h3>
+    <iframe width="100%" height="315"   src="https://www.youtube.com/embed/W1PSzXpkl-I"  frameborder="0" allowfullscreen></iframe>
+  </div>
+  <div class="video-card">
+    <h3>📹 課程二影片：WIFI與行網教學</h3>
+    <iframe width="100%" height="315"   src="https://www.youtube.com/embed/W1PSzXpkl-I" frameborder="0" allowfullscreen></iframe>
+  </div>
+</div>
 
       <div class="right">
         <div class="progress-area">
