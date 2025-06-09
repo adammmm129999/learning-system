@@ -31,6 +31,13 @@
       color: #999;
       font-weight: normal;
     }
+    ul {
+      margin: 0;
+      padding-left: 20px;
+    }
+    li {
+      margin-bottom: 5px;
+    }
     button {
       display: block;
       margin: 30px auto 0;
@@ -59,7 +66,7 @@
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-app.js";
     import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-auth.js";
-    import { getFirestore, doc, getDoc } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore.js";
+    import { getFirestore, collection, getDocs } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore.js";
 
     const firebaseConfig = {
       apiKey: "AIzaSyC0VF7SkuXvOAJyuC-2tPl_KGris3f4gqE",
@@ -92,35 +99,27 @@
         return;
       }
 
-      // 讀取課程1狀態
-      const course1DocRef = doc(db, "users", user.uid, "courseProgress", "course1");
-      const course1Snap = await getDoc(course1DocRef);
-      if (course1Snap.exists()) {
-        const data = course1Snap.data();
-        if (data.completed) {
-          const time = data.completedAt?.toDate ? data.completedAt.toDate() : new Date(data.completedAt);
-          course1Div.innerHTML = `<span class="completed">✔ 課程一已完成，完成時間：${time.toLocaleString()}</span>`;
+      // 讀取課程紀錄的函式
+      async function loadCourseRecords(courseId, targetDiv) {
+        const recordsRef = collection(db, "users", user.uid, "courseProgress", courseId, "records");
+        const snapshot = await getDocs(recordsRef);
+
+        if (snapshot.empty) {
+          targetDiv.innerHTML = `<span class="not-completed">✘ ${courseId} 尚未完成任何紀錄</span>`;
         } else {
-          course1Div.innerHTML = `<span class="not-completed">✘ 課程一尚未完成</span>`;
+          let html = `<span class="completed">✔ ${courseId} 完成紀錄：</span><ul>`;
+          snapshot.forEach(doc => {
+            const data = doc.data();
+            const time = data.completedAt?.toDate ? data.completedAt.toDate() : new Date(data.completedAt);
+            html += `<li>${time.toLocaleString()}</li>`;
+          });
+          html += `</ul>`;
+          targetDiv.innerHTML = html;
         }
-      } else {
-        course1Div.innerHTML = `<span class="not-completed">✘ 課程一尚未完成</span>`;
       }
 
-      // 讀取課程2狀態
-      const course2DocRef = doc(db, "users", user.uid, "courseProgress", "course2");
-      const course2Snap = await getDoc(course2DocRef);
-      if (course2Snap.exists()) {
-        const data = course2Snap.data();
-        if (data.completed) {
-          const time = data.completedAt?.toDate ? data.completedAt.toDate() : new Date(data.completedAt);
-          course2Div.innerHTML = `<span class="completed">✔ 課程二已完成，完成時間：${time.toLocaleString()}</span>`;
-        } else {
-          course2Div.innerHTML = `<span class="not-completed">✘ 課程二尚未完成</span>`;
-        }
-      } else {
-        course2Div.innerHTML = `<span class="not-completed">✘ 課程二尚未完成</span>`;
-      }
+      await loadCourseRecords("course1", course1Div);
+      await loadCourseRecords("course2", course2Div);
     });
   </script>
 
