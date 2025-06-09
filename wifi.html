@@ -82,7 +82,7 @@
     <div class="embed-frame">
       <iframe
         name="dive"
-        src="https://dive.nutn.edu.tw/Experiment/kaleTestExperiment5.jsp?eid=33302&record=false"
+        src="https://dive.nutn.edu.tw/Experiment/kaleTestExperiment5.jsp?eid=33302&record=false"  <!-- 【自行替換】第二關的 eid -->
         title="DiVE 第二關實驗"
         allowfullscreen
       ></iframe>
@@ -137,45 +137,51 @@
     });
   });
 
-  // 監聽 DiVE 完成度並更新 Firestore
+  // 監聽 DiVE 完成度並更新 localStorage 和 Firestore
   function startDiveListener(user) {
     const diveLinker = new DiveLinker("dive");
     diveLinker.enableBlock(false);
     diveLinker.start();
 
-    const completeId = "04b344e5adda446583d7e087a1d18026"; // 第二關完成 ID
+    // 【自行替換】這裡要改成第二關的完成度 ID，從 Dive 平台抓出來的字串
+    const completeId = "04b344e5adda446583d7e087a1d18026";
+
     let hasLogged = false; // 防止重複寫入
 
     setInterval(async () => {
       const outputList = diveLinker.outputList;
       if (outputList && outputList[completeId]) {
         const value = outputList[completeId].value;
-        console.log("DiVE 第二關完成度:", value);
+        console.log("DiVE 完成度:", value);
 
         if (value === 2 && !hasLogged) {
-          hasLogged = true;
+          hasLogged = true; // 避免重複觸發
 
           const timestamp = new Date();
 
+          // ✅ 更新進度
           try {
-            // 更新進度
+            // 【自行替換】這裡的 "course2" 改成第二關的課程識別字串，確保資料分開管理
             await setDoc(doc(db, "users", user.uid, "courseProgress", "course2"), {
               completed: true,
               completedAt: timestamp
             }, { merge: true });
+
             console.log("課程 course2 進度已同步至 Firestore");
           } catch (error) {
             console.error("更新 Firestore 課程進度失敗:", error);
           }
 
+          // ✅ 紀錄歷程
           try {
-            // 紀錄歷程
             const logRef = doc(db, "users", user.uid, "courseLogs", "course2", "logs", crypto.randomUUID());
             await setDoc(logRef, {
               timestamp: timestamp,
               status: "completed",
+              // 【自行替換】這裡是你想要記錄的完成內容描述
               detail: "使用者完成 WiFi 教學操作"
             });
+
             console.log("課程歷程已寫入 logs");
           } catch (error) {
             console.error("寫入 logs 失敗:", error);
