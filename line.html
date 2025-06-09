@@ -138,36 +138,55 @@
   });
 
   // 監聽 DiVE 完成度並更新 localStorage 和 Firestore
-  function startDiveListener(user) {
-    const diveLinker = new DiveLinker("dive");
-    diveLinker.enableBlock(false);
-    diveLinker.start();
+ function startDiveListener(user) {
+  const diveLinker = new DiveLinker("dive");
+  diveLinker.enableBlock(false);
+  diveLinker.start();
 
-    const completeId = "af797b267579490f82a94127cc5edbb5";
+  const completeId = "af797b267579490f82a94127cc5edbb5";
+  let hasLogged = false; // 防止重複寫入
 
-    setInterval(async () => {
-      const outputList = diveLinker.outputList;
-      if (outputList && outputList[completeId]) {
-        const value = outputList[completeId].value;
-        console.log("DiVE 完成度:", value);
-        if (value === 1) {
-          // 更新 localStorage
-        
+  setInterval(async () => {
+    const outputList = diveLinker.outputList;
+    if (outputList && outputList[completeId]) {
+      const value = outputList[completeId].value;
+      console.log("DiVE 完成度:", value);
 
-          // 更新 Firestore
-          try {
-            await setDoc(doc(db, "users", user.uid, "courseProgress", "course1"), {
-              completed: true,
-              completedAt: new Date()
-            }, { merge: true });
-            console.log("課程 course1 進度已同步至 Firestore");
-          } catch (error) {
-            console.error("更新 Firestore 課程進度失敗:", error);
-          }
+      if (value === 1 && !hasLogged) {
+        hasLogged = true; // 避免重複觸發
+
+        const timestamp = new Date();
+
+        // ✅ 更新進度
+        try {
+          await setDoc(doc(db, "users", user.uid, "courseProgress", "course1"), {
+            completed: true,
+            completedAt: timestamp
+          }, { merge: true });
+
+          console.log("課程 course1 進度已同步至 Firestore");
+        } catch (error) {
+          console.error("更新 Firestore 課程進度失敗:", error);
+        }
+
+        // ✅ 紀錄歷程
+        try {
+          const logRef = doc(db, "users", user.uid, "courseLogs", "course1", "logs", crypto.randomUUID());
+          await setDoc(logRef, {
+            timestamp: timestamp,
+            status: "completed",
+            detail: "使用者完成 LINE 教學操作"
+          });
+
+          console.log("課程歷程已寫入 logs");
+        } catch (error) {
+          console.error("寫入 logs 失敗:", error);
         }
       }
-    }, 1000);
-  }
+    }
+  }, 1000);
+}
+
 </script>
 
 </body>
