@@ -166,7 +166,7 @@
         if (logsSnap.empty) {
           targetDiv.innerHTML = `<span class="not-completed">✘ 尚無 ${courseId} 的學習紀錄</span>`;
         } else {
-          let html = `<span class="completed">✔ ${courseId} 歷史紀錄：</span><ul>`;
+          let html = `<span class="completed">✔ ${courseId} 學習紀錄：</span><ul>`;
           logsSnap.forEach(doc => {
             const data = doc.data();
             const time = data.timestamp?.toDate ? data.timestamp.toDate().toLocaleString() : "未記錄時間";
