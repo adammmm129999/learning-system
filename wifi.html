@@ -92,16 +92,13 @@
     </div>
   </div>
 
-
-    
-
   <script src="https://dive.nutn.edu.tw/Experiment/js/dive.linker.min.js"></script>
 
   <!-- Firebase 與主要邏輯 -->
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-app.js";
     import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-auth.js";
-    import { getFirestore, doc, setDoc, getDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore.js";
+    import { getFirestore, doc, setDoc, getDoc, serverTimestamp, collection, addDoc } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore.js";
 
     // Firebase 設定
     const firebaseConfig = {
@@ -118,43 +115,55 @@
     const auth = getAuth(app);
     const db = getFirestore(app);
 
-    
-
     // 第二關完成 ID
     const secondLevelCompleteId = "04b344e5adda446583d7e087a1d18026";
 
-    // 登出功能示範（假如你有 logout 按鈕，這裡可加入）
-    // const logoutBtn = document.getElementById("logoutBtn");
-    // if (logoutBtn) {
-    //   logoutBtn.addEventListener("click", () => {
-    //     signOut(auth).then(() => {
-    //       localStorage.clear();
-    //       alert("已登出");
-    //       window.location.href = "index.html";
-    //     }).catch(error => alert("登出錯誤：" + error.message));
-    //   });
-    // }
+    // 登出功能示範（如果你想啟用）
+    const logoutBtn = document.getElementById("logoutBtn");
+    if (logoutBtn) {
+      logoutBtn.addEventListener("click", () => {
+        signOut(auth).then(() => {
+          localStorage.clear();
+          alert("已登出");
+          window.location.href = "index.html";
+        }).catch(error => alert("登出錯誤：" + error.message));
+      });
+    }
 
     // 解鎖第二關按鈕
     function unlockLevel2() {
-      level2Link.style.pointerEvents = "auto";
-      level2Link.style.color = "blue";
-      level2Link.style.userSelect = "auto";
-      level2Link.style.backgroundColor = "#d1eaff";
-      level2Link.textContent = "第二關（已解鎖）";
-      level2Link.tabIndex = 0;
+      // 你原本頁面沒看到 level2Link 元素，若有就可啟用這段
+      // level2Link.style.pointerEvents = "auto";
+      // level2Link.style.color = "blue";
+      // level2Link.style.userSelect = "auto";
+      // level2Link.style.backgroundColor = "#d1eaff";
+      // level2Link.textContent = "第二關（已解鎖）";
+      // level2Link.tabIndex = 0;
+      console.log("第二關已解鎖");
     }
 
-    // 儲存課程進度到 Firestore
+    // 儲存課程進度並新增歷史紀錄到 Firestore
     async function saveCourseProgress(uid, completed) {
       if (!uid) return;
+
       const courseDocRef = doc(db, "users", uid, "courses", "course2");
+      const logsCollectionRef = collection(db, "users", uid, "courseLogs", "course2", "logs");
+
       try {
+        // 1. 更新最新狀態
         await setDoc(courseDocRef, {
           completed,
           timestamp: serverTimestamp()
         }, { merge: true });
-        console.log("課程 course2 進度已更新");
+
+        // 2. 新增一筆歷史學習紀錄
+        await addDoc(logsCollectionRef, {
+          completedAt: serverTimestamp(),
+          note: "完成第二關實驗",
+          duration: 30  // 示範學習時長（分鐘），你可換成實際值
+        });
+
+        console.log("課程 course2 進度與歷史紀錄已更新");
       } catch (error) {
         console.error("Firestore 寫入失敗：", error);
       }
@@ -179,8 +188,6 @@
         }
       }, 1000);
     }
-
-
 
     // 監測登入狀態並處理進度
     onAuthStateChanged(auth, async (user) => {
@@ -213,9 +220,6 @@
 
       startDiveListener(user.uid);
     });
-      
-   
-  
   </script>
 </body>
 </html>
