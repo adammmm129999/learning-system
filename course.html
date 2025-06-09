@@ -4,7 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>手機教學課程</title>
-    <style>
+  <style>
     body {
       font-family: "Noto Sans TC", sans-serif;
       margin: 0;
@@ -33,42 +33,75 @@
       color: #1a237e;
     }
 
-.course-layout {
-  display: flex;
-  justify-content: space-between;
-  gap: 40px;
-  max-width: 1400px;
-  margin: 40px auto;
-  padding: 0 20px;
-  flex-wrap: wrap;
-  align-items: stretch; /* 確保左右欄高度一致 */
-}
+    .course-layout {
+      display: flex;
+      justify-content: space-between;
+      gap: 40px;
+      max-width: 1400px;
+      margin: 40px auto;
+      padding: 0 20px;
+      flex-wrap: wrap;
+      align-items: stretch; /* 確保左右欄高度一致 */
+    }
 
-.left-column, .right-column {
-  flex: 1 1 48%;
-  display: flex;
-  flex-direction: column;
-  gap: 40px;
-}
+    .left-column, .right-column {
+      flex: 1 1 48%;
+      display: flex;
+      flex-direction: column;
+      gap: 40px;
+    }
 
-.course-card, .video-card {
-  background-color: #f0f4ff;
-  border-radius: 12px;
-  padding: 30px;
-  min-height: 320px; /* 更高一點 */
-  height: 100%;       /* 滿高以配合容器 */
-  box-shadow: 0 3px 10px rgba(0,0,0,0.1);
-  display: flex;
-  flex-direction: column;
-  justify-content: space-between; /* 拉開標題與按鈕距離 */
-}
+    /* 影片區調整，讓標題在上，影片在下 */
+    .right-column {
+      justify-content: flex-start;
+    }
 
-.video-card iframe {
-  width: 100%;
-  height: 240px; /* 比例調整一致性 */
-  border-radius: 10px;
-  border: none;
-}
+    .video-titles {
+      display: flex;
+      justify-content: space-between;
+      gap: 40px;
+      margin-bottom: 20px;
+    }
+
+    .video-titles h3 {
+      font-size: 22px;
+      color: #1a237e;
+      margin: 0;
+      flex: 1 1 48%;
+      text-align: center;
+    }
+
+    .video-card {
+      background-color: #f0f4ff;
+      border-radius: 12px;
+      padding: 30px;
+      min-height: 480px; /* 高度 */
+      height: 100%;
+      box-shadow: 0 3px 10px rgba(0,0,0,0.1);
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+    }
+
+    .video-card iframe {
+      width: 100%;
+      height: 420px; /* 高度 */
+      border-radius: 10px;
+      border: none;
+    }
+
+    .course-card {
+      background-color: #f0f4ff;
+      border-radius: 12px;
+      padding: 30px;
+      min-height: 480px;
+      height: 100%;
+      box-shadow: 0 3px 10px rgba(0,0,0,0.1);
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+    }
 
     .course-card img {
       width: 160px;
@@ -99,6 +132,8 @@
       font-size: 20px;
       text-decoration: none;
       transition: background-color 0.3s ease;
+      cursor: pointer;
+      text-align: center;
     }
 
     .btn:hover {
@@ -111,14 +146,7 @@
       cursor: not-allowed;
     }
 
-    .video-card h3 {
-      font-size: 22px;
-      color: #1a237e;
-      margin-bottom: 10px;
-    }
-
-
-
+    /* 進度條與徽章區域保留 */
     .progress-area {
       max-width: 900px;
       margin: 80px auto;
@@ -214,13 +242,16 @@
 
     <!-- 影片區 -->
     <div class="right-column">
-      <div class="video-card">
+      <div class="video-titles">
         <h3>📹 課程一影片</h3>
+        <h3>📹 課程二影片</h3>
+      </div>
+
+      <div class="video-card">
         <iframe src="https://www.youtube.com/embed/FEB5YaRjEYQ" allowfullscreen></iframe>
       </div>
 
       <div class="video-card">
-        <h3>📹 課程二影片</h3>
         <iframe src="https://www.youtube.com/embed/W1PSzXpkl-I" allowfullscreen></iframe>
       </div>
     </div>
