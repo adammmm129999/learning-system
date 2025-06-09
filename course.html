@@ -167,6 +167,14 @@
   margin-bottom: 10px;
   color: #1a237e;
 }
+    .course-area {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 20px;
+}
+.course-area .course-card {
+  flex: 1 1 48%;
+}
 
 
 
@@ -185,36 +193,36 @@
     </div>
   </nav>
 
-<div class="main">
-  <div class="left">
-    <!-- 課程卡片 -->
-    <div class="course-card" data-course="1">
+<!-- 課程卡片與影片卡片包在 .left 裡 -->
+<div class="left">
+
+  <!-- 🆕 課程卡片左右並排 -->
+  <div class="course-area" style="display: flex; flex-wrap: wrap; gap: 20px;">
+    <div class="course-card" style="flex: 1 1 48%;" data-course="1">
       <img src="line.png" alt="LINE" />
       <h2>課程一：LINE教學</h2>
       <p>教你如何用LINE的視訊分享畫面。</p>
       <a class="btn" id="btn-course1" href="#">讀取中...</a>
     </div>
-    <div class="course-card" data-course="2">
+    <div class="course-card" style="flex: 1 1 48%;" data-course="2">
       <img src="wifi.png" alt="WIFI" />
       <h2>課程二：WIFI與行網教學</h2>
       <p>教你如何連接WIFI與利用行動網路上網。</p>
       <a class="btn locked" id="btn-course2" href="#">尚未解鎖</a>
     </div>
-
-    <!-- 課程影片區：與課程卡片並排 -->
-    <div class="video-area">
-      <div class="video-card">
-        <h3>📹 課程一影片：LINE教學</h3>
-        <iframe src="https://www.youtube.com/embed/FEB5YaRjEYQ" frameborder="0" allowfullscreen></iframe>
-      </div>
-      <div class="video-card">
-        <h3>📹 課程二影片：WIFI與行網教學</h3>
-        <iframe src="https://www.youtube.com/embed/W1PSzXpkl-I" frameborder="0" allowfullscreen></iframe>
-      </div>
-    </div>
   </div>
 
-  <!-- 進度區放到底部 -->
+  <!-- 🎬 影片卡片區，放在課程卡片下方，左右並排 -->
+  <div class="video-area">
+    <div class="video-card">
+      <h3>📹 課程一影片：LINE教學</h3>
+      <iframe src="https://www.youtube.com/embed/FEB5YaRjEYQ" frameborder="0" allowfullscreen></iframe>
+    </div>
+    <div class="video-card">
+      <h3>📹 課程二影片：WIFI與行網教學</h3>
+      <iframe src="https://www.youtube.com/embed/W1PSzXpkl-I" frameborder="0" allowfullscreen></iframe>
+    </div>
+  </div>
 </div>
 
 <!-- 學習進度區從 .main 中抽出，放到底部 -->
