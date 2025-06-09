@@ -140,27 +140,23 @@ h1 {
 }
 
 .video-area {
-  /* 移除 gap */
-  gap: 0;
-  margin-top: 30px;
-  margin-left: -14px;  /* 負 margin 補償左右間距 */
-  margin-right: -14px;
+  /* 不使用，避免影響排版 */
+  /* 可刪除或保留空白 */
 }
 
 .video-card {
   flex: 1 1 48%;
-  margin: 14px;   /* 左右間距 14px */
-  /* 其他保持不動 */
+  margin: 0;   /* 取消多餘間距 */
+  position: relative;
+  padding-top: 177.78%; /* 16:9比例 */
 }
 
 .video-card iframe {
   position: absolute;
-  top: 28px;    /* 跟padding的上邊距配合 */
-  left: 28px;
-  right: 28px;
-  bottom: 28px;
-  width: calc(100% - 56px);
-  height: calc(100% - 56px);
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
   border-radius: 10px;
   border: none;
 }
@@ -182,21 +178,21 @@ h1 {
   justify-content: center;
   flex-wrap: wrap;
   margin-bottom: 50px;
-  max-width: 1920px;
+  max-width: 100%;
   margin-left: auto;
   margin-right: auto;
   padding: 0 30px;
   box-sizing: border-box;
 }
 
-/* 每一組課程＋影片上下排列 */
+/* 每一組課程＋影片左右排列 */
 .course-group {
   display: flex;
-  flex-direction: column;
+  flex-direction: row;   /* 左右排列 */
   gap: 28px;
-  width: 720px;          /* 更寬卡片 */
+  width: 720px;
+  box-sizing: border-box;
 }
-
 
 </style>
 
@@ -243,7 +239,7 @@ h1 {
 </div>
 
 
-<!-- 學習進度區從 .main 中抽出，放到底部 -->
+
 <div class="right">
   <div class="progress-area">
     <h2>📈 你的學習進度</h2>
