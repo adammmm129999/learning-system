@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>首頁 - 長者數位素養學習系統</title>
   <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;700&display=swap" rel="stylesheet" />
-  <style>
+    <style>
     body {
       font-family: "Noto Sans TC", sans-serif;
       margin: 0;
@@ -44,13 +44,13 @@
       margin: 0;
     }
 
-    /* 學習主題卡片區 */
+    /* 學習主題卡片區：橫向排列 */
     .card-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+      display: flex;
+      flex-wrap: nowrap; /* 不換行 */
+      overflow-x: auto;   /* 超出螢幕可以滾動 */
       gap: 24px;
       padding: 40px;
-      max-width: 1200px;
       margin: auto;
     }
 
@@ -63,6 +63,8 @@
       cursor: pointer;
       box-shadow: 0 4px 8px rgba(0,0,0,0.1);
       transition: transform 0.2s;
+      width: 260px;
+      flex-shrink: 0;
     }
 
     .card:hover {
@@ -110,6 +112,20 @@
     #logoutBtn:hover {
       background-color: #d32f2f;
     }
+
+    /* 為卡片容器加上滾動條樣式美化（可選） */
+    .card-grid::-webkit-scrollbar {
+      height: 10px;
+    }
+
+    .card-grid::-webkit-scrollbar-thumb {
+      background-color: #90caf9;
+      border-radius: 6px;
+    }
+
+    .card-grid::-webkit-scrollbar-track {
+      background-color: #e3f2fd;
+    }
   </style>
 </head>
 <body>
@@ -131,7 +147,7 @@
     <p style="font-size: 35px;">請點擊上方的課程教學進行學習！</p>
   </section>
 
-  <!-- 學習主題卡片 -->
+  <!-- 學習主題卡片（橫向滑動） -->
   <section class="card-grid">
     <div class="card" onclick="location.href='course_call.html'">
       📞<br>如何打電話
