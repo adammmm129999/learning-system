@@ -4,7 +4,7 @@
   <meta charset="UTF-8" />
   <title>個人學習紀錄</title>
   <style>
-body {
+    body {
       font-family: "Noto Sans TC", sans-serif;
       margin: 0;
       background-color: #fefefe;
@@ -41,32 +41,52 @@ body {
       font-size: 48px;
       margin: 0;
     }
+
+    h1 {
+      font-size: 56px; /* 把「我的學習紀錄」標題字體放大 */
+      text-align: center;
+      margin: 32px 0;
+      color: #333;
+    }
+
     .course-status {
       background: #eef6fc;
-      padding: 20px;
-      margin-bottom: 15px;
-      border-radius: 8px;
-      box-shadow: 1px 1px 5px rgba(0,0,0,0.1);
+      padding: 30px 40px; /* 內距加大 */
+      margin: 24px auto;  /* 上下間距加大，左右置中 */
+      border-radius: 12px;
+      box-shadow: 1px 1px 8px rgba(0,0,0,0.15);
+      max-width: 900px;   /* 版面加寬 */
+      font-size: 24px;    /* 文字放大，讓長者易讀 */
+      line-height: 1.6;
+      color: #333;
+      word-break: break-word;
     }
+
     .completed {
       color: green;
       font-weight: bold;
+      font-size: 26px; /* 勾選狀態字體也稍微放大 */
     }
+
     .not-completed {
       color: #999;
       font-weight: normal;
+      font-size: 24px;
     }
+
     ul {
-      margin: 0;
-      padding-left: 20px;
+      margin: 12px 0 0 20px;
+      padding: 0;
+      list-style-type: disc;
     }
+
     li {
-      margin-bottom: 5px;
+      margin-bottom: 12px;
+      font-size: 22px; /* 每筆紀錄字體加大 */
     }
 
     #logoutBtn:hover {
       background-color: #d32f2f;
-    }
     }
   </style>
 </head>
@@ -86,8 +106,6 @@ body {
 
   <div id="course1" class="course-status">載入課程一紀錄中...</div>
   <div id="course2" class="course-status">載入課程二紀錄中...</div>
-
- 
 
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-app.js";
@@ -126,26 +144,25 @@ body {
       }
 
       // ✅ 從 logs 子集合載入歷史紀錄
-    async function loadCourseLogs(courseId, targetDiv) {
-  const logsRef = collection(db, "users", user.uid, "courseLogs", courseId, "logs");
-  const logsQuery = query(logsRef, orderBy("timestamp", "desc"));
-  const logsSnap = await getDocs(logsQuery);
+      async function loadCourseLogs(courseId, targetDiv) {
+        const logsRef = collection(db, "users", user.uid, "courseLogs", courseId, "logs");
+        const logsQuery = query(logsRef, orderBy("timestamp", "desc"));
+        const logsSnap = await getDocs(logsQuery);
 
-  if (logsSnap.empty) {
-    targetDiv.innerHTML = `<span class="not-completed">✘ 尚無 ${courseId} 的學習紀錄</span>`;
-  } else {
-    let html = `<span class="completed">✔ ${courseId} 歷史紀錄：</span><ul>`;
-    logsSnap.forEach(doc => {
-      const data = doc.data();
-      const time = data.timestamp?.toDate ? data.timestamp.toDate().toLocaleString() : "未記錄時間";
-      const note = data.detail || "未填寫備註";
-      html += `<li>${time}（${note}）</li>`;
-    });
-    html += `</ul>`;
-    targetDiv.innerHTML = html;
-  }
-}
-
+        if (logsSnap.empty) {
+          targetDiv.innerHTML = `<span class="not-completed">✘ 尚無 ${courseId} 的學習紀錄</span>`;
+        } else {
+          let html = `<span class="completed">✔ ${courseId} 歷史紀錄：</span><ul>`;
+          logsSnap.forEach(doc => {
+            const data = doc.data();
+            const time = data.timestamp?.toDate ? data.timestamp.toDate().toLocaleString() : "未記錄時間";
+            const note = data.detail || "未填寫備註";
+            html += `<li>${time}（${note}）</li>`;
+          });
+          html += `</ul>`;
+          targetDiv.innerHTML = html;
+        }
+      }
 
       await loadCourseLogs("course1", course1Div);
       await loadCourseLogs("course2", course2Div);
