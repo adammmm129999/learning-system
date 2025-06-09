@@ -58,15 +58,15 @@
 
   <h1>我的學習紀錄</h1>
 
-  <div id="course1" class="course-status">載入課程一狀態中...</div>
-  <div id="course2" class="course-status">載入課程二狀態中...</div>
+  <div id="course1" class="course-status">載入課程一紀錄中...</div>
+  <div id="course2" class="course-status">載入課程二紀錄中...</div>
 
   <button id="logoutBtn">登出</button>
 
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-app.js";
     import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-auth.js";
-    import { getFirestore, collection, getDocs } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore.js";
+    import { getFirestore, collection, getDocs, query, orderBy } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore.js";
 
     const firebaseConfig = {
       apiKey: "AIzaSyC0VF7SkuXvOAJyuC-2tPl_KGris3f4gqE",
@@ -99,27 +99,30 @@
         return;
       }
 
-      // 讀取課程紀錄的函式
-      async function loadCourseRecords(courseId, targetDiv) {
-        const recordsRef = collection(db, "users", user.uid, "courseProgress", courseId, "records");
-        const snapshot = await getDocs(recordsRef);
+      // ✅ 從 logs 子集合載入歷史紀錄
+      async function loadCourseLogs(courseId, targetDiv) {
+        const logsRef = collection(db, "users", user.uid, "courseLogs", courseId, "logs");
+        const logsQuery = query(logsRef, orderBy("completedAt", "desc"));
+        const logsSnap = await getDocs(logsQuery);
 
-        if (snapshot.empty) {
-          targetDiv.innerHTML = `<span class="not-completed">✘ ${courseId} 尚未完成任何紀錄</span>`;
+        if (logsSnap.empty) {
+          targetDiv.innerHTML = `<span class="not-completed">✘ 尚無 ${courseId} 的學習紀錄</span>`;
         } else {
-          let html = `<span class="completed">✔ ${courseId} 完成紀錄：</span><ul>`;
-          snapshot.forEach(doc => {
+          let html = `<span class="completed">✔ ${courseId} 歷史紀錄：</span><ul>`;
+          logsSnap.forEach(doc => {
             const data = doc.data();
-            const time = data.completedAt?.toDate ? data.completedAt.toDate() : new Date(data.completedAt);
-            html += `<li>${time.toLocaleString()}</li>`;
+            const time = data.completedAt?.toDate ? data.completedAt.toDate().toLocaleString() : "未記錄時間";
+            const note = data.note || "未填寫備註";
+            const duration = data.duration || 0;
+            html += `<li>${time}（${note}，${duration} 分鐘）</li>`;
           });
           html += `</ul>`;
           targetDiv.innerHTML = html;
         }
       }
 
-      await loadCourseRecords("course1", course1Div);
-      await loadCourseRecords("course2", course2Div);
+      await loadCourseLogs("course1", course1Div);
+      await loadCourseLogs("course2", course2Div);
     });
   </script>
 
