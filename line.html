@@ -151,6 +151,7 @@
     if (outputList && outputList[completeId]) {
       const value = outputList[completeId].value;
       console.log("DiVE 完成度:", value);
+      console.log("outputList =", outputList);
 
       if (value === 1 && !hasLogged) {
         hasLogged = true; // 避免重複觸發
