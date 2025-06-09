@@ -4,6 +4,8 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>手機教學課程</title>
+  
+
   <style>
     body {
       font-family: "Noto Sans TC", sans-serif;
@@ -41,7 +43,7 @@
       margin: 40px auto;
       padding: 0 20px;
       flex-wrap: wrap;
-      align-items: stretch; /* 確保左右欄高度一致 */
+      align-items: flex-start;
     }
 
     .left-column, .right-column {
@@ -51,42 +53,29 @@
       gap: 40px;
     }
 
-    /* 影片區調整，讓標題在上，影片在下 */
-    .right-column {
-      justify-content: flex-start;
-    }
-
-    .video-titles {
+    .section {
       display: flex;
-      justify-content: space-between;
-      gap: 40px;
-      margin-bottom: 20px;
+      flex-direction: column;
+      gap: 20px;
     }
 
-    .video-titles h3 {
+    .video-title {
       font-size: 22px;
       color: #1a237e;
-      margin: 0;
-      flex: 1 1 48%;
       text-align: center;
+      margin-bottom: -10px;
     }
 
     .video-card {
       background-color: #f0f4ff;
       border-radius: 12px;
       padding: 30px;
-      min-height: 480px; /* 高度 */
-      height: 100%;
       box-shadow: 0 3px 10px rgba(0,0,0,0.1);
-      display: flex;
-      flex-direction: column;
-      justify-content: center;
-      align-items: center;
     }
 
     .video-card iframe {
       width: 100%;
-      height: 420px; /* 高度 */
+      height: 420px;
       border-radius: 10px;
       border: none;
     }
@@ -95,12 +84,7 @@
       background-color: #f0f4ff;
       border-radius: 12px;
       padding: 30px;
-      min-height: 480px;
-      height: 100%;
       box-shadow: 0 3px 10px rgba(0,0,0,0.1);
-      display: flex;
-      flex-direction: column;
-      justify-content: space-between;
     }
 
     .course-card img {
@@ -146,7 +130,6 @@
       cursor: not-allowed;
     }
 
-    /* 進度條與徽章區域保留 */
     .progress-area {
       max-width: 900px;
       margin: 80px auto;
@@ -223,36 +206,35 @@
   </nav>
 
   <div class="course-layout">
-    <!-- 課程卡片區 -->
+    <!-- 課程一 -->
     <div class="left-column">
-      <div class="course-card">
-        <img src="line.png" alt="LINE" />
-        <h2>課程一：LINE教學</h2>
-        <p>教你如何用LINE的視訊分享畫面。</p>
-        <a class="btn" id="btn-course1" href="#">讀取中...</a>
-      </div>
-
-      <div class="course-card">
-        <img src="wifi.png" alt="WIFI" />
-        <h2>課程二：WIFI與行網教學</h2>
-        <p>教你如何連接WIFI與利用行動網路上網。</p>
-        <a class="btn locked" id="btn-course2" href="#">尚未解鎖</a>
+      <div class="section">
+        <div class="course-card">
+          <img src="line.png" alt="LINE" />
+          <h2>課程一：LINE教學</h2>
+          <p>教你如何用LINE的視訊分享畫面。</p>
+          <a class="btn" id="btn-course1" href="#">讀取中...</a>
+        </div>
+        <h3 class="video-title">📹 課程一影片</h3>
+        <div class="video-card">
+          <iframe src="https://www.youtube.com/embed/FEB5YaRjEYQ" allowfullscreen></iframe>
+        </div>
       </div>
     </div>
 
-    <!-- 影片區 -->
+    <!-- 課程二 -->
     <div class="right-column">
-      <div class="video-titles">
-        <h3>📹 課程一影片</h3>
-        <h3>📹 課程二影片</h3>
-      </div>
-
-      <div class="video-card">
-        <iframe src="https://www.youtube.com/embed/FEB5YaRjEYQ" allowfullscreen></iframe>
-      </div>
-
-      <div class="video-card">
-        <iframe src="https://www.youtube.com/embed/W1PSzXpkl-I" allowfullscreen></iframe>
+      <div class="section">
+        <div class="course-card">
+          <img src="wifi.png" alt="WIFI" />
+          <h2>課程二：WIFI與行網教學</h2>
+          <p>教你如何連接WIFI與利用行動網路上網。</p>
+          <a class="btn locked" id="btn-course2" href="#">尚未解鎖</a>
+        </div>
+        <h3 class="video-title">📹 課程二影片</h3>
+        <div class="video-card">
+          <iframe src="https://www.youtube.com/embed/W1PSzXpkl-I" allowfullscreen></iframe>
+        </div>
       </div>
     </div>
   </div>
