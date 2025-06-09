@@ -100,26 +100,26 @@
       }
 
       // ✅ 從 logs 子集合載入歷史紀錄
-      async function loadCourseLogs(courseId, targetDiv) {
-        const logsRef = collection(db, "users", user.uid, "courseLogs", courseId, "logs");
-        const logsQuery = query(logsRef, orderBy("completedAt", "desc"));
-        const logsSnap = await getDocs(logsQuery);
+    async function loadCourseLogs(courseId, targetDiv) {
+  const logsRef = collection(db, "users", user.uid, "courseLogs", courseId, "logs");
+  const logsQuery = query(logsRef, orderBy("timestamp", "desc"));
+  const logsSnap = await getDocs(logsQuery);
 
-        if (logsSnap.empty) {
-          targetDiv.innerHTML = `<span class="not-completed">✘ 尚無 ${courseId} 的學習紀錄</span>`;
-        } else {
-          let html = `<span class="completed">✔ ${courseId} 歷史紀錄：</span><ul>`;
-          logsSnap.forEach(doc => {
-            const data = doc.data();
-            const time = data.completedAt?.toDate ? data.completedAt.toDate().toLocaleString() : "未記錄時間";
-            const note = data.note || "未填寫備註";
-            const duration = data.duration || 0;
-            html += `<li>${time}（${note}，${duration} 分鐘）</li>`;
-          });
-          html += `</ul>`;
-          targetDiv.innerHTML = html;
-        }
-      }
+  if (logsSnap.empty) {
+    targetDiv.innerHTML = `<span class="not-completed">✘ 尚無 ${courseId} 的學習紀錄</span>`;
+  } else {
+    let html = `<span class="completed">✔ ${courseId} 歷史紀錄：</span><ul>`;
+    logsSnap.forEach(doc => {
+      const data = doc.data();
+      const time = data.timestamp?.toDate ? data.timestamp.toDate().toLocaleString() : "未記錄時間";
+      const note = data.detail || "未填寫備註";
+      html += `<li>${time}（${note}）</li>`;
+    });
+    html += `</ul>`;
+    targetDiv.innerHTML = html;
+  }
+}
+
 
       await loadCourseLogs("course1", course1Div);
       await loadCourseLogs("course2", course2Div);
