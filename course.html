@@ -206,40 +206,35 @@
     <a href="personal_account.html">個人資料📄</a>
     <button id="logoutBtn" style="font-size:18px; margin-left:15px;">登出</button>
   </nav>
-
-  <div class="course-layout">
-    <!-- 課程一 -->
-    <div class="left-column">
-      <div class="section">
-        <div class="course-card">
-          <img src="line.png" alt="LINE" />
-          <h2>課程一：LINE教學</h2>
-          <p>教你如何用LINE的視訊分享畫面。</p>
-          <a class="btn" id="btn-course1" href="#">讀取中...</a>
-        </div>
-        <h3 class="video-title">📹 課程一影片</h3>
-        <div class="video-card">
-          <iframe src="https://www.youtube.com/embed/FEB5YaRjEYQ" allowfullscreen></iframe>
-        </div>
-      </div>
+<div class="course-layout">
+  <!-- 課程一 + 影片一 -->
+  <div class="left-column">
+    <div class="course-card">
+      <img src="line.png" alt="LINE" />
+      <h2>課程一：LINE教學</h2>
+      <p>教你如何用LINE的視訊分享畫面。</p>
+      <a class="btn" id="btn-course1" href="#">讀取中...</a>
     </div>
-
-    <!-- 課程二 -->
-    <div class="right-column">
-      <div class="section">
-        <div class="course-card">
-          <img src="wifi.png" alt="WIFI" />
-          <h2>課程二：WIFI與行網教學</h2>
-          <p>教你如何連接WIFI與利用行動網路上網。</p>
-          <a class="btn locked" id="btn-course2" href="#">尚未解鎖</a>
-        </div>
-        <h3 class="video-title">📹 課程二影片</h3>
-        <div class="video-card">
-          <iframe src="https://www.youtube.com/embed/W1PSzXpkl-I" allowfullscreen></iframe>
-        </div>
-      </div>
+    <div class="video-card">
+      <h3 class="video-title">📹 課程一影片</h3>
+      <iframe src="https://www.youtube.com/embed/FEB5YaRjEYQ" allowfullscreen></iframe>
     </div>
   </div>
+
+  <!-- 課程二 + 影片二 -->
+  <div class="right-column">
+    <div class="course-card">
+      <img src="wifi.png" alt="WIFI" />
+      <h2>課程二：WIFI與行網教學</h2>
+      <p>教你如何連接WIFI與利用行動網路上網。</p>
+      <a class="btn locked" id="btn-course2" href="#">尚未解鎖</a>
+    </div>
+    <div class="video-card">
+      <h3 class="video-title">📹 課程二影片</h3>
+      <iframe src="https://www.youtube.com/embed/W1PSzXpkl-I" allowfullscreen></iframe>
+    </div>
+  </div>
+</div>
 
   <!-- 進度與徽章 -->
   <div class="progress-area">
