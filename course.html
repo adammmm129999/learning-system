@@ -140,27 +140,17 @@ h1 {
 }
 
 .video-area {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 28px;
+  /* 移除 gap */
+  gap: 0;
   margin-top: 30px;
+  margin-left: -14px;  /* 負 margin 補償左右間距 */
+  margin-right: -14px;
 }
 
-/* 新增比例容器，讓直立影片比例正常 */
 .video-card {
   flex: 1 1 48%;
-  background-color: #fff;
-  border: 1px solid #ccc;
-  border-radius: 12px;
-  padding: 28px;
-  box-shadow: 0 3px 8px rgba(0,0,0,0.15);
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  position: relative;
-  width: 100%;
-  padding-top: 177.78%; /* 16:9的反轉比例，適合直立影片 */
-  overflow: hidden;
+  margin: 14px;   /* 左右間距 14px */
+  /* 其他保持不動 */
 }
 
 .video-card iframe {
