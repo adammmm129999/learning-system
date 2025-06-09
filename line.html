@@ -2,8 +2,8 @@
 <html lang="zh-Hant">
 <head>
   <meta charset="UTF-8" />
-  <title>課程一：LINE 教學操作</title>
-    <style>
+  <title>課程二：WiFi 教學操作</title>
+  <style>
     body {
       font-family: "Noto Sans TC", sans-serif;
       margin: 0;
@@ -25,7 +25,7 @@
       font-size: 40px;
     }
 
-    #logoutBtn {
+   #logoutBtn {
       font-size: 24px;
       padding: 8px 16px;
       background-color: #f44336;
@@ -82,7 +82,7 @@
     <div class="embed-frame">
       <iframe
         name="dive"
-        src="https://dive.nutn.edu.tw/Experiment/kaleTestExperiment5.jsp?eid=33300&record=false"
+        src="https://dive.nutn.edu.tw/Experiment/kaleTestExperiment5.jsp?eid=33300&record=false"  <!-- 【自行替換】第二關的 eid -->
         title="DiVE 第二關實驗"
         allowfullscreen
       ></iframe>
@@ -138,57 +138,59 @@
   });
 
   // 監聽 DiVE 完成度並更新 localStorage 和 Firestore
- function startDiveListener(user) {
-  const diveLinker = new DiveLinker("dive");
-  diveLinker.enableBlock(false);
-  diveLinker.start();
+  function startDiveListener(user) {
+    const diveLinker = new DiveLinker("dive");
+    diveLinker.enableBlock(false);
+    diveLinker.start();
 
-  const completeId = "af797b267579490f82a94127cc5edbb5";
-  let hasLogged = false; // 防止重複寫入
+    // 【自行替換】這裡要改成第二關的完成度 ID，從 Dive 平台抓出來的字串
+    const completeId = "9576724f9e7a4665bdcaa055ee15e656";
 
-  setInterval(async () => {
-    const outputList = diveLinker.outputList;
-    if (outputList && outputList[completeId]) {
-      const value = outputList[completeId].value;
-      console.log("DiVE 完成度:", value);
-      console.log("outputList =", outputList);
+    let hasLogged = false; // 防止重複寫入
 
-      if (value === 1 && !hasLogged) {
-        hasLogged = true; // 避免重複觸發
+    setInterval(async () => {
+      const outputList = diveLinker.outputList;
+      if (outputList && outputList[completeId]) {
+        const value = outputList[completeId].value;
+        console.log("DiVE 完成度:", value);
 
-        const timestamp = new Date();
+        if (value === 1 && !hasLogged) {
+          hasLogged = true; // 避免重複觸發
 
-        // ✅ 更新進度
-        try {
-          await setDoc(doc(db, "users", user.uid, "courseProgress", "course1"), {
-            completed: true,
-            completedAt: timestamp
-          }, { merge: true });
+          const timestamp = new Date();
 
-          console.log("課程 course1 進度已同步至 Firestore");
-        } catch (error) {
-          console.error("更新 Firestore 課程進度失敗:", error);
-        }
+          // ✅ 更新進度
+          try {
+            // 【自行替換】這裡的 "course1" 改成第一關的課程識別字串，確保資料分開管理
+            await setDoc(doc(db, "users", user.uid, "courseProgress", "course1"), {
+              completed: true,
+              completedAt: timestamp
+            }, { merge: true });
 
-        // ✅ 紀錄歷程
-        try {
-          const logRef = doc(db, "users", user.uid, "courseLogs", "course1", "logs", crypto.randomUUID());
-          await setDoc(logRef, {
-            timestamp: timestamp,
-            status: "completed",
-            detail: "使用者完成 LINE 教學操作"
-          });
+            console.log("課程 course1 進度已同步至 Firestore");
+          } catch (error) {
+            console.error("更新 Firestore 課程進度失敗:", error);
+          }
 
-          console.log("課程歷程已寫入 logs");
-        } catch (error) {
-          console.error("寫入 logs 失敗:", error);
+          // ✅ 紀錄歷程
+          try {
+            const logRef = doc(db, "users", user.uid, "courseLogs", "course1", "logs", crypto.randomUUID());
+            await setDoc(logRef, {
+              timestamp: timestamp,
+              status: "completed",
+              // 【自行替換】這裡是你想要記錄的完成內容描述
+              detail: "使用者完成 WiFi 教學操作"
+            });
+
+            console.log("課程歷程已寫入 logs");
+          } catch (error) {
+            console.error("寫入 logs 失敗:", error);
+          }
         }
       }
-    }
-  }, 1000);
-}
-
-</script>
+    }, 1000);
+  }
+  </script>
 
 </body>
 </html>
