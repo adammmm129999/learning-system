@@ -33,26 +33,25 @@
       color: #1a237e;
     }
 
-    .course-block {
+    .course-section {
       max-width: 1200px;
-      margin: 60px auto;
+      margin: 40px auto;
       padding: 0 20px;
     }
 
-    .course-column {
+    .row {
       display: flex;
-      gap: 20px;
       justify-content: space-between;
+      gap: 20px;
+      margin-bottom: 40px;
       flex-wrap: wrap;
     }
 
-    .course-item {
+    .course-card, .video-card {
       flex: 1 1 48%;
-      display: flex;
-      flex-direction: column;
       background-color: #f0f4ff;
       border-radius: 12px;
-      padding: 24px;
+      padding: 20px;
       box-shadow: 0 3px 10px rgba(0,0,0,0.1);
     }
 
@@ -60,17 +59,19 @@
       width: 160px;
       height: 160px;
       object-fit: contain;
+      display: block;
       margin-bottom: 16px;
     }
 
     .course-card h2 {
       font-size: 28px;
       color: #1a237e;
-      margin: 20px 0 10px;
+      margin-bottom: 12px;
     }
 
     .course-card p {
       font-size: 20px;
+      margin-bottom: 16px;
     }
 
     .btn {
@@ -81,7 +82,6 @@
       border: none;
       border-radius: 8px;
       font-size: 20px;
-      margin-top: 18px;
       text-decoration: none;
       transition: background-color 0.3s ease;
     }
@@ -96,12 +96,8 @@
       cursor: not-allowed;
     }
 
-    .video-card {
-      margin-top: 20px;
-    }
-
     .video-card h3 {
-      font-size: 20px;
+      font-size: 22px;
       color: #1a237e;
       margin-bottom: 10px;
     }
@@ -181,50 +177,46 @@
 <body>
 
   <nav class="navbar">
-    <div class="container">
-      <a href="home.html">🏠 首頁</a>
-      <a href="course.html">📘 課程教學</a>
-      <a href="discussion.html">💬 討論區</a>
-      <a href="personal_account.html">個人資料📄</a>
-      <button id="logoutBtn" style="font-size:18px; margin-left:15px;">登出</button>
-    </div>
+    <a href="home.html">🏠 首頁</a>
+    <a href="course.html">📘 課程教學</a>
+    <a href="discussion.html">💬 討論區</a>
+    <a href="personal_account.html">個人資料📄</a>
+    <button id="logoutBtn" style="font-size:18px; margin-left:15px;">登出</button>
   </nav>
 
-  <div class="course-block">
-
-    <div class="course-column">
-      <!-- 課程一 -->
-      <div class="course-item">
-        <div class="course-card">
-          <img src="line.png" alt="LINE" />
-          <h2>課程一：LINE教學</h2>
-          <p>教你如何用LINE的視訊分享畫面。</p>
-          <a class="btn" id="btn-course1" href="#">讀取中...</a>
-        </div>
-        <div class="video-card">
-          <h3>📹 課程一影片</h3>
-          <iframe src="https://www.youtube.com/embed/FEB5YaRjEYQ" allowfullscreen></iframe>
-        </div>
+  <div class="course-section">
+    <!-- 卡片區 -->
+    <div class="row">
+      <div class="course-card">
+        <img src="line.png" alt="LINE" />
+        <h2>課程一：LINE教學</h2>
+        <p>教你如何用LINE的視訊分享畫面。</p>
+        <a class="btn" id="btn-course1" href="#">讀取中...</a>
       </div>
 
-      <!-- 課程二 -->
-      <div class="course-item">
-        <div class="course-card">
-          <img src="wifi.png" alt="WIFI" />
-          <h2>課程二：WIFI與行網教學</h2>
-          <p>教你如何連接WIFI與利用行動網路上網。</p>
-          <a class="btn locked" id="btn-course2" href="#">尚未解鎖</a>
-        </div>
-        <div class="video-card">
-          <h3>📹 課程二影片</h3>
-          <iframe src="https://www.youtube.com/embed/W1PSzXpkl-I" allowfullscreen></iframe>
-        </div>
+      <div class="course-card">
+        <img src="wifi.png" alt="WIFI" />
+        <h2>課程二：WIFI與行網教學</h2>
+        <p>教你如何連接WIFI與利用行動網路上網。</p>
+        <a class="btn locked" id="btn-course2" href="#">尚未解鎖</a>
       </div>
     </div>
 
+    <!-- 影片區 -->
+    <div class="row">
+      <div class="video-card">
+        <h3>📹 課程一影片</h3>
+        <iframe src="https://www.youtube.com/embed/FEB5YaRjEYQ" allowfullscreen></iframe>
+      </div>
+
+      <div class="video-card">
+        <h3>📹 課程二影片</h3>
+        <iframe src="https://www.youtube.com/embed/W1PSzXpkl-I" allowfullscreen></iframe>
+      </div>
+    </div>
   </div>
 
-  <!-- 學習進度區 -->
+  <!-- 進度與徽章 -->
   <div class="progress-area">
     <h2>📈 你的學習進度</h2>
     <div class="progress-bar">
@@ -236,7 +228,7 @@
       <img src="徽章1.PNG" alt="徽章1" id="badge-1" />
       <img src="徽章3.PNG" alt="徽章2" id="badge-2" />
     </div>
-  </div> 
+  </div>
 
 
 
