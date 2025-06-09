@@ -167,15 +167,18 @@
   margin-bottom: 10px;
   color: #1a237e;
 }
-    .course-area {
+.course-block {
   display: flex;
   flex-wrap: wrap;
   gap: 20px;
-}
-.course-area .course-card {
-  flex: 1 1 48%;
+  margin-bottom: 40px;
+  justify-content: space-between;
 }
 
+.course-block .course-card,
+.course-block .video-card {
+  flex: 1 1 48%;
+}
 
 
 
@@ -193,35 +196,31 @@
     </div>
   </nav>
 
-<!-- 課程卡片與影片卡片包在 .left 裡 -->
-<div class="left">
-
-  <!-- 🆕 課程卡片左右並排 -->
-  <div class="course-area" style="display: flex; flex-wrap: wrap; gap: 20px;">
-    <div class="course-card" style="flex: 1 1 48%;" data-course="1">
-      <img src="line.png" alt="LINE" />
-      <h2>課程一：LINE教學</h2>
-      <p>教你如何用LINE的視訊分享畫面。</p>
-      <a class="btn" id="btn-course1" href="#">讀取中...</a>
-    </div>
-    <div class="course-card" style="flex: 1 1 48%;" data-course="2">
-      <img src="wifi.png" alt="WIFI" />
-      <h2>課程二：WIFI與行網教學</h2>
-      <p>教你如何連接WIFI與利用行動網路上網。</p>
-      <a class="btn locked" id="btn-course2" href="#">尚未解鎖</a>
-    </div>
+<!-- 課程一 -->
+<div class="course-block">
+  <div class="course-card" data-course="1">
+    <img src="line.png" alt="LINE" />
+    <h2>課程一：LINE教學</h2>
+    <p>教你如何用LINE的視訊分享畫面。</p>
+    <a class="btn" id="btn-course1" href="#">讀取中...</a>
   </div>
+  <div class="video-card">
+    <h3>📹 課程一影片：LINE教學</h3>
+    <iframe src="https://www.youtube.com/embed/FEB5YaRjEYQ" frameborder="0" allowfullscreen></iframe>
+  </div>
+</div>
 
-  <!-- 🎬 影片卡片區，放在課程卡片下方，左右並排 -->
-  <div class="video-area">
-    <div class="video-card">
-      <h3>📹 課程一影片：LINE教學</h3>
-      <iframe src="https://www.youtube.com/embed/FEB5YaRjEYQ" frameborder="0" allowfullscreen></iframe>
-    </div>
-    <div class="video-card">
-      <h3>📹 課程二影片：WIFI與行網教學</h3>
-      <iframe src="https://www.youtube.com/embed/W1PSzXpkl-I" frameborder="0" allowfullscreen></iframe>
-    </div>
+<!-- 課程二 -->
+<div class="course-block">
+  <div class="course-card" data-course="2">
+    <img src="wifi.png" alt="WIFI" />
+    <h2>課程二：WIFI與行網教學</h2>
+    <p>教你如何連接WIFI與利用行動網路上網。</p>
+    <a class="btn locked" id="btn-course2" href="#">尚未解鎖</a>
+  </div>
+  <div class="video-card">
+    <h3>📹 課程二影片：WIFI與行網教學</h3>
+    <iframe src="https://www.youtube.com/embed/W1PSzXpkl-I" frameborder="0" allowfullscreen></iframe>
   </div>
 </div>
 
