@@ -132,96 +132,100 @@
   ">🗑️ 清除所有學習紀錄</button>
 </div>
 
-  <script type="module">
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-app.js";
-    import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-auth.js";
-    import { getFirestore, collection, getDocs, query, orderBy } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore.js";
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-app.js";
+  import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-auth.js";
+  import { getFirestore, collection, getDocs, query, orderBy, deleteDoc, doc } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore.js";
 
-    const firebaseConfig = {
-      apiKey: "AIzaSyC0VF7SkuXvOAJyuC-2tPl_KGris3f4gqE",
-      authDomain: "final-project-fb104.firebaseapp.com",
-      projectId: "final-project-fb104",
-      appId: "1:150740541108:web:1a0dba9ebb4cbb157001e1",
-    };
+  const firebaseConfig = {
+    apiKey: "AIzaSyC0VF7SkuXvOAJyuC-2tPl_KGris3f4gqE",
+    authDomain: "final-project-fb104.firebaseapp.com",
+    projectId: "final-project-fb104",
+    appId: "1:150740541108:web:1a0dba9ebb4cbb157001e1",
+  };
 
-    const app = initializeApp(firebaseConfig);
-    const auth = getAuth(app);
-    const db = getFirestore(app);
+  const app = initializeApp(firebaseConfig);
+  const auth = getAuth(app);
+  const db = getFirestore(app);
 
-    const course1Div = document.getElementById("course1");
-    const course2Div = document.getElementById("course2");
-    const logoutBtn = document.getElementById("logoutBtn");
+  const course1Div = document.getElementById("course1");
+  const course2Div = document.getElementById("course2");
+  const logoutBtn = document.getElementById("logoutBtn");
+  const clearLogsBtn = document.getElementById("clearLogsBtn");
 
-    logoutBtn.addEventListener("click", () => {
-      signOut(auth)
-        .then(() => {
-          alert("已登出");
-          window.location.href = "index.html";
-        })
-        .catch(error => alert("登出失敗：" + error.message));
-    });
+  let currentUser = null; // ✅ 宣告 user 為全域變數
 
-    onAuthStateChanged(auth, async (user) => {
-      if (!user) {
-        alert("請先登入");
-        window.location.href = "login.html";
-        return;
+  logoutBtn.addEventListener("click", () => {
+    signOut(auth)
+      .then(() => {
+        alert("已登出");
+        window.location.href = "index.html";
+      })
+      .catch(error => alert("登出失敗：" + error.message));
+  });
+
+  // ✅ 讀取課程紀錄函式（定義在外部可重複使用）
+  async function loadCourseLogs(courseId, targetDiv) {
+    const logsRef = collection(db, "users", currentUser.uid, "courseLogs", courseId, "logs");
+    const logsQuery = query(logsRef, orderBy("timestamp", "desc"));
+    const logsSnap = await getDocs(logsQuery);
+
+    if (logsSnap.empty) {
+      targetDiv.innerHTML = `<span class="not-completed">✘ 尚無 ${courseId} 的學習紀錄</span>`;
+    } else {
+      let html = `<span class="completed">✔ ${courseId} 學習紀錄：</span><ul>`;
+      logsSnap.forEach(doc => {
+        const data = doc.data();
+        const time = data.timestamp?.toDate ? data.timestamp.toDate().toLocaleString() : "未記錄時間";
+        const note = data.detail || "未填寫備註";
+        html += `<li>${time}（${note}）</li>`;
+      });
+      html += `</ul>`;
+      targetDiv.innerHTML = html;
+    }
+  }
+
+  // ✅ Firebase 登入狀態監聽
+  onAuthStateChanged(auth, async (user) => {
+    if (!user) {
+      alert("請先登入");
+      window.location.href = "login.html";
+      return;
+    }
+
+    currentUser = user; // ✅ 儲存 user 以便其他地方使用
+
+    await loadCourseLogs("course1", course1Div);
+    await loadCourseLogs("course2", course2Div);
+  });
+
+  // ✅ 清除所有課程紀錄按鈕
+  clearLogsBtn.addEventListener("click", async () => {
+    if (!confirm("確定要刪除所有課程紀錄嗎？此動作無法還原。")) return;
+
+    try {
+      async function deleteLogs(courseId) {
+        const logsRef = collection(db, "users", currentUser.uid, "courseLogs", courseId, "logs");
+        const logsSnap = await getDocs(logsRef);
+        const deletions = logsSnap.docs.map(docSnap =>
+          deleteDoc(doc(db, "users", currentUser.uid, "courseLogs", courseId, "logs", docSnap.id))
+        );
+        await Promise.all(deletions);
       }
 
-      // ✅ 從 logs 子集合載入歷史紀錄
-      async function loadCourseLogs(courseId, targetDiv) {
-        const logsRef = collection(db, "users", user.uid, "courseLogs", courseId, "logs");
-        const logsQuery = query(logsRef, orderBy("timestamp", "desc"));
-        const logsSnap = await getDocs(logsQuery);
-
-        if (logsSnap.empty) {
-          targetDiv.innerHTML = `<span class="not-completed">✘ 尚無 ${courseId} 的學習紀錄</span>`;
-        } else {
-          let html = `<span class="completed">✔ ${courseId} 學習紀錄：</span><ul>`;
-          logsSnap.forEach(doc => {
-            const data = doc.data();
-            const time = data.timestamp?.toDate ? data.timestamp.toDate().toLocaleString() : "未記錄時間";
-            const note = data.detail || "未填寫備註";
-            html += `<li>${time}（${note}）</li>`;
-          });
-          html += `</ul>`;
-          targetDiv.innerHTML = html;
-        }
-      }
+      await deleteLogs("course1");
+      await deleteLogs("course2");
 
       await loadCourseLogs("course1", course1Div);
       await loadCourseLogs("course2", course2Div);
-    });
 
-    const clearLogsBtn = document.getElementById("clearLogsBtn");
-
-clearLogsBtn.addEventListener("click", async () => {
-  if (!confirm("確定要刪除所有課程紀錄嗎？此動作無法還原。")) return;
-
-  try {
-    async function deleteLogs(courseId) {
-      const logsRef = collection(db, "users", user.uid, "courseLogs", courseId, "logs");
-      const logsSnap = await getDocs(logsRef);
-      const deletions = logsSnap.docs.map(docSnap =>
-        deleteDoc(doc(db, "users", user.uid, "courseLogs", courseId, "logs", docSnap.id))
-      );
-      await Promise.all(deletions);
+      alert("已成功刪除所有學習紀錄");
+    } catch (error) {
+      alert("刪除失敗：" + error.message);
     }
+  });
+</script>
 
-    await deleteLogs("course1");
-    await deleteLogs("course2");
-
-    // ✅ 立即更新畫面，不需重新整理
-    await loadCourseLogs("course1", course1Div);
-    await loadCourseLogs("course2", course2Div);
-
-    alert("已成功刪除所有學習紀錄");
-  } catch (error) {
-    alert("刪除失敗：" + error.message);
-  }
-});
-
-  </script>
 
 </body>
 </html>
