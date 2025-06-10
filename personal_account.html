@@ -120,6 +120,17 @@
 
   <div id="course1" class="course-status">載入課程一紀錄中...</div>
   <div id="course2" class="course-status">載入課程二紀錄中...</div>
+  <div style="text-align: center; margin-top: 24px;">
+  <button id="clearLogsBtn" style="
+    font-size: 24px;
+    padding: 10px 20px;
+    background-color: #e53935;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+  ">🗑️ 清除所有學習紀錄</button>
+</div>
 
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-app.js";
@@ -181,6 +192,35 @@
       await loadCourseLogs("course1", course1Div);
       await loadCourseLogs("course2", course2Div);
     });
+
+    const clearLogsBtn = document.getElementById("clearLogsBtn");
+
+clearLogsBtn.addEventListener("click", async () => {
+  if (!confirm("確定要刪除所有課程紀錄嗎？此動作無法還原。")) return;
+
+  try {
+    async function deleteLogs(courseId) {
+      const logsRef = collection(db, "users", user.uid, "courseLogs", courseId, "logs");
+      const logsSnap = await getDocs(logsRef);
+      const deletions = logsSnap.docs.map(docSnap =>
+        deleteDoc(doc(db, "users", user.uid, "courseLogs", courseId, "logs", docSnap.id))
+      );
+      await Promise.all(deletions);
+    }
+
+    await deleteLogs("course1");
+    await deleteLogs("course2");
+
+    // ✅ 立即更新畫面，不需重新整理
+    await loadCourseLogs("course1", course1Div);
+    await loadCourseLogs("course2", course2Div);
+
+    alert("已成功刪除所有學習紀錄");
+  } catch (error) {
+    alert("刪除失敗：" + error.message);
+  }
+});
+
   </script>
 
 </body>
