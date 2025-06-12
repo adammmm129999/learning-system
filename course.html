@@ -277,10 +277,6 @@
   // UI 元素
   const btn1 = document.getElementById('btn-course1');
   const btn2 = document.getElementById('btn-course2');
-  const badge1 = document.getElementById('badge-1');
-  const badge2 = document.getElementById('badge-2');
-  const fill = document.getElementById('progress-fill');
-  const progressText = document.getElementById('progress-text');
   const logoutBtn = document.getElementById('logoutBtn');
   const resetBtn = document.getElementById('resetBtn'); // 清除進度按鈕（需在 HTML 加入）
 
@@ -332,7 +328,7 @@
       if (completed2) totalCompleted += 1;
       const percent = Math.round((totalCompleted / 2) * 100);
       fill.style.width = percent + "%";
-      progressText.textContent = `目前完成度：${percent}%`;
+      
     } catch (e) {
       console.error("取得進度錯誤：", e);
       alert("無法讀取學習進度，請稍後再試！");
