@@ -153,8 +153,9 @@
   const logoutBtn = document.getElementById("logoutBtn");
   const clearLogsBtn = document.getElementById("clearLogsBtn");
 
-  let currentUser = null; // ✅ 宣告 user 為全域變數
+  let currentUser = null; // 全域儲存 user
 
+  // 登出事件
   logoutBtn.addEventListener("click", () => {
     signOut(auth)
       .then(() => {
@@ -164,7 +165,7 @@
       .catch(error => alert("登出失敗：" + error.message));
   });
 
-  // ✅ 讀取課程紀錄函式（定義在外部可重複使用）
+  // 載入指定課程的歷程紀錄並顯示
   async function loadCourseLogs(courseId, targetDiv) {
     const logsRef = collection(db, "users", currentUser.uid, "courseLogs", courseId, "logs");
     const logsQuery = query(logsRef, orderBy("timestamp", "desc"));
@@ -185,7 +186,7 @@
     }
   }
 
-  // ✅ Firebase 登入狀態監聽
+  // 登入狀態監聽
   onAuthStateChanged(auth, async (user) => {
     if (!user) {
       alert("請先登入");
@@ -193,38 +194,45 @@
       return;
     }
 
-    currentUser = user; // ✅ 儲存 user 以便其他地方使用
+    currentUser = user;
 
     await loadCourseLogs("course1", course1Div);
     await loadCourseLogs("course2", course2Div);
   });
 
-  // ✅ 清除所有課程紀錄按鈕
+  // 清除所有課程紀錄 + 課程進度
   clearLogsBtn.addEventListener("click", async () => {
-    if (!confirm("確定要刪除所有課程紀錄嗎？此動作無法還原。")) return;
+    if (!confirm("確定要刪除所有課程紀錄與進度嗎？此動作無法還原。")) return;
 
     try {
-      async function deleteLogs(courseId) {
+      // 刪除指定課程的 logs 跟 progress
+      async function deleteLogsAndProgress(courseId) {
+        // 刪除 logs 下所有文件
         const logsRef = collection(db, "users", currentUser.uid, "courseLogs", courseId, "logs");
         const logsSnap = await getDocs(logsRef);
         const deletions = logsSnap.docs.map(docSnap =>
           deleteDoc(doc(db, "users", currentUser.uid, "courseLogs", courseId, "logs", docSnap.id))
         );
         await Promise.all(deletions);
+
+        // 刪除 courseProgress 裡的該課程進度文件
+        await deleteDoc(doc(db, "users", currentUser.uid, "courseProgress", courseId));
       }
 
-      await deleteLogs("course1");
-      await deleteLogs("course2");
+      await deleteLogsAndProgress("course1");
+      await deleteLogsAndProgress("course2");
 
+      // 重新載入紀錄顯示
       await loadCourseLogs("course1", course1Div);
       await loadCourseLogs("course2", course2Div);
 
-      alert("已成功刪除所有學習紀錄");
+      alert("已成功刪除所有學習紀錄與進度");
     } catch (error) {
       alert("刪除失敗：" + error.message);
     }
   });
 </script>
+
 
 
 </body>
