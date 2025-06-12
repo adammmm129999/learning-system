@@ -335,7 +335,7 @@
       const percent = Math.round((completedCount / 2) * 100);
       fill.style.width = percent + "%";
       fill.textContent = percent + "%";
-      progressText.textContent = 你已完成 ${completedCount} / 2 的課程，加油！;
+      progressText.textContent = '你已完成 ${completedCount} / 2 的課程，加油！';
     }
 
     onAuthStateChanged(auth, (user) => {
