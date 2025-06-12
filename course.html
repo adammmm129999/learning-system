@@ -252,116 +252,105 @@
     </div>
   </div>
 
+  <!-- 進度與徽章 -->
+  <div class="progress-area">
+    <h2>📈 你的學習進度</h2>
+    <div class="progress-bar">
+      <div class="progress-bar-fill" id="progress-fill">0%</div>
+    </div>
+    <p id="progress-text">你已完成 0 / 2 的課程，加油！</p>
+    <div class="badges">
+      <h3>🎖️ 成就徽章</h3>
+      <img src="徽章1.PNG" alt="徽章1" id="badge-1" />
+      <img src="徽章3.PNG" alt="徽章2" id="badge-2" />
+    </div>
+  </div>
 
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/11.8.1/firebase-app.js";
+    import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/11.8.1/firebase-auth.js";
 
-<script type="module">
-  import { initializeApp } from "https://www.gstatic.com/firebasejs/11.8.1/firebase-app.js";
-  import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/11.8.1/firebase-auth.js";
-  import { getFirestore, doc, getDoc, deleteDoc, collection } from "https://www.gstatic.com/firebasejs/11.8.1/firebase-firestore.js";
-
-  // Firebase 設定
-  const firebaseConfig = {
-    apiKey: "AIzaSyC0VF7SkuXvOAJyuC-2tPl_KGris3f4gqE",
-    authDomain: "final-project-fb104.firebaseapp.com",
-    projectId: "final-project-fb104",
-    storageBucket: "final-project-fb104.appspot.com",
-    messagingSenderId: "150740541108",
-    appId: "1:150740541108:web:1a0dba9ebb4cbb157001e1",
-    measurementId: "G-XRR8QBXS35"
-  };
-
-  const app = initializeApp(firebaseConfig);
-  const auth = getAuth(app);
-  const db = getFirestore(app);
-
-  // UI 元素
-  const btn1 = document.getElementById('btn-course1');
-  const btn2 = document.getElementById('btn-course2');
-  const logoutBtn = document.getElementById('logoutBtn');
-  const resetBtn = document.getElementById('resetBtn'); // 清除進度按鈕（需在 HTML 加入）
-
-  // ✅ 改為正確從 users/{uid}/courseProgress 中抓取資料
-  async function getCourseProgress(userId) {
-    const course1Ref = doc(db, "users", userId, "courseProgress", "course1");
-    const course2Ref = doc(db, "users", userId, "courseProgress", "course2");
-
-    const [snap1, snap2] = await Promise.all([
-      getDoc(course1Ref),
-      getDoc(course2Ref)
-    ]);
-
-    return {
-      course1: snap1.exists() && snap1.data().completed === true,
-      course2: snap2.exists() && snap2.data().completed === true
+    // TODO: 用你自己的 Firebase config
+    const firebaseConfig = {
+       apiKey: "AIzaSyC0VF7SkuXvOAJyuC-2tPl_KGris3f4gqE",
+  authDomain: "final-project-fb104.firebaseapp.com",
+  projectId: "final-project-fb104",
+  storageBucket: "final-project-fb104.appspot.com",
+  messagingSenderId: "150740541108",
+  appId: "1:150740541108:web:1a0dba9ebb4cbb157001e1",
+  measurementId: "G-XRR8QBXS35"
     };
-  }
 
-  // 根據學習進度更新 UI
- async function updateUI(userId) {
-  try {
-    const completed1 = progress.course1;
-    const completed2 = progress.course2;
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
 
-    // 課程 1 UI
-    btn1.classList.remove("locked");
-    btn1.href = "line.html";
-    btn1.textContent = "開始學習";
+    const btn1 = document.getElementById('btn-course1');
+    const btn2 = document.getElementById('btn-course2');
+    const badge1 = document.getElementById('badge-1');
+    const badge2 = document.getElementById('badge-2');
+    const fill = document.getElementById('progress-fill');
+    const progressText = document.getElementById('progress-text');
+    const logoutBtn = document.getElementById('logoutBtn');
 
-    // 課程 2 解鎖邏輯
-    if (completed1) {
-      btn2.classList.remove("locked");
-      btn2.href = "wifi.html";
-      btn2.textContent = "開始學習";
-    } else {
-      btn2.classList.add("locked");
-      btn2.href = "#";
-      btn2.textContent = "尚未解鎖";
+    // 用 localStorage key 格式，userId_course1、userId_course2
+    function getCourseProgress(userId, course) {
+      return localStorage.getItem(userId + "_course" + course) === "true";
     }
 
-  } catch (e) {
-    alert("無法讀取學習進度，請稍後再試！");
-  }
-}
+    function updateUI(userId) {
+      const completed1 = getCourseProgress(userId, 1);
+      const completed2 = getCourseProgress(userId, 2);
 
-
-  // 清除使用者進度（重置）
-  async function resetProgress(userId) {
-    const course1Ref = doc(db, "users", userId, "courseProgress", "course1");
-    const course2Ref = doc(db, "users", userId, "courseProgress", "course2");
-
-    await Promise.all([
-      deleteDoc(course1Ref),
-      deleteDoc(course2Ref)
-    ]);
-
-    await updateUI(userId);
-    alert("已清除學習紀錄，請重新挑戰！");
-  }
-
-  // 登出功能
-  logoutBtn.addEventListener("click", () => {
-    signOut(auth).then(() => {
-      window.location.href = "login.html";
-    });
-  });
-
-  // 監聽登入狀態並初始化 UI
-  onAuthStateChanged(auth, (user) => {
-    if (user) {
-      updateUI(user.uid);
-
-      // 綁定重置按鈕
-      if (resetBtn) {
-        resetBtn.addEventListener("click", () => {
-          resetProgress(user.uid);
-        });
+      // 課程一按鈕狀態
+      if (completed1) {
+        btn1.classList.remove("locked");
+        btn1.href = "line.html";
+        btn1.textContent = "開始學習";
+        badge1.classList.add("unlocked");
+      } else {
+        btn1.classList.remove("locked");
+        btn1.href = "line.html";
+        btn1.textContent = "開始學習";
+        badge1.classList.remove("unlocked");
       }
-    } else {
-      window.location.href = "index.html"; // 未登入者導向登入頁
+
+      // 課程二解鎖條件：完成課程一
+      if (completed1) {
+        btn2.classList.remove("locked");
+        btn2.href = "wifi.html";
+        btn2.textContent = "開始學習";
+        if (completed2) {
+          badge2.classList.add("unlocked");
+        } else {
+          badge2.classList.remove("unlocked");
+        }
+      } else {
+        btn2.classList.add("locked");
+        btn2.href = "#";
+        btn2.textContent = "尚未解鎖";
+        badge2.classList.remove("unlocked");
+      }
+
+      const completedCount = (completed1 ? 1 : 0) + (completed2 ? 1 : 0);
+      const percent = Math.round((completedCount / 2) * 100);
+      fill.style.width = percent + "%";
+      fill.textContent = percent + "%";
+      progressText.textContent = 你已完成 ${completedCount} / 2 的課程，加油！;
     }
-  });
-</script>
 
+    onAuthStateChanged(auth, (user) => {
+      if (!user) {
+        window.location.href = 'index.html';
+        return;
+      }
+      updateUI(user.uid);
+    });
 
+    logoutBtn.addEventListener('click', () => {
+      signOut(auth).then(() => {
+        window.location.href = 'index.html';
+      });
+    });
+  </script>
 </body>
 </html>
