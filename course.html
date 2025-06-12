@@ -252,19 +252,7 @@
     </div>
   </div>
 
-  <!-- 進度與徽章 -->
-  <div class="progress-area">
-    <h2>📈 你的學習進度</h2>
-    <div class="progress-bar">
-      <div class="progress-bar-fill" id="progress-fill">0%</div>
-    </div>
-    <p id="progress-text">你已完成 0 / 2 的課程，加油！</p>
-    <div class="badges">
-      <h3>🎖️ 成就徽章</h3>
-      <img src="徽章1.PNG" alt="徽章1" id="badge-1" />
-      <img src="徽章3.PNG" alt="徽章2" id="badge-2" />
-    </div>
-  </div>
+
 
 <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/11.8.1/firebase-app.js";
@@ -338,17 +326,8 @@
 
       badge2.classList.toggle("unlocked", completed2);
 
-      // 進度條更新
-      let totalCompleted = 0;
-      if (completed1) totalCompleted += 1;
-      if (completed2) totalCompleted += 1;
-      const percent = Math.round((totalCompleted / 2) * 100);
-      fill.style.width = percent + "%";
-      progressText.textContent = `目前完成度：${percent}%`;
-    } catch (e) {
-      console.error("取得進度錯誤：", e);
-      alert("無法讀取學習進度，請稍後再試！");
-    }
+  
+    } 
   }
 
   // 清除使用者進度（重置）
