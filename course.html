@@ -266,91 +266,116 @@
     </div>
   </div>
 
-  <script type="module">
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/11.8.1/firebase-app.js";
-    import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/11.8.1/firebase-auth.js";
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/11.8.1/firebase-app.js";
+  import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/11.8.1/firebase-auth.js";
+  import { getFirestore, doc, getDoc, deleteDoc } from "https://www.gstatic.com/firebasejs/11.8.1/firebase-firestore.js";
 
-    // TODO: 用你自己的 Firebase config
-    const firebaseConfig = {
-       apiKey: "AIzaSyC0VF7SkuXvOAJyuC-2tPl_KGris3f4gqE",
-  authDomain: "final-project-fb104.firebaseapp.com",
-  projectId: "final-project-fb104",
-  storageBucket: "final-project-fb104.appspot.com",
-  messagingSenderId: "150740541108",
-  appId: "1:150740541108:web:1a0dba9ebb4cbb157001e1",
-  measurementId: "G-XRR8QBXS35"
-    };
+  // Firebase 設定
+  const firebaseConfig = {
+    apiKey: "AIzaSyC0VF7SkuXvOAJyuC-2tPl_KGris3f4gqE",
+    authDomain: "final-project-fb104.firebaseapp.com",
+    projectId: "final-project-fb104",
+    storageBucket: "final-project-fb104.appspot.com",
+    messagingSenderId: "150740541108",
+    appId: "1:150740541108:web:1a0dba9ebb4cbb157001e1",
+    measurementId: "G-XRR8QBXS35"
+  };
 
-    const app = initializeApp(firebaseConfig);
-    const auth = getAuth(app);
+  const app = initializeApp(firebaseConfig);
+  const auth = getAuth(app);
+  const db = getFirestore(app);
 
-    const btn1 = document.getElementById('btn-course1');
-    const btn2 = document.getElementById('btn-course2');
-    const badge1 = document.getElementById('badge-1');
-    const badge2 = document.getElementById('badge-2');
-    const fill = document.getElementById('progress-fill');
-    const progressText = document.getElementById('progress-text');
-    const logoutBtn = document.getElementById('logoutBtn');
+  // UI 元素
+  const btn1 = document.getElementById('btn-course1');
+  const btn2 = document.getElementById('btn-course2');
+  const badge1 = document.getElementById('badge-1');
+  const badge2 = document.getElementById('badge-2');
+  const fill = document.getElementById('progress-fill');
+  const progressText = document.getElementById('progress-text');
+  const logoutBtn = document.getElementById('logoutBtn');
+  const resetBtn = document.getElementById('resetBtn'); // 清除進度按鈕（需在 HTML 加入）
 
-    // 用 localStorage key 格式，userId_course1、userId_course2
-    function getCourseProgress(userId, course) {
-      return localStorage.getItem(userId + "_course" + course) === "true";
+  // 從 Firestore 取得學習進度
+  async function getCourseProgress(userId) {
+    const docRef = doc(db, "userProgress", userId);
+    const docSnap = await getDoc(docRef);
+
+    if (docSnap.exists()) {
+      const data = docSnap.data();
+      return {
+        course1: data.course1 === true,
+        course2: data.course2 === true
+      };
+    } else {
+      return { course1: false, course2: false };
+    }
+  }
+
+  // 根據學習進度更新 UI
+  async function updateUI(userId) {
+    const progress = await getCourseProgress(userId);
+    const completed1 = progress.course1;
+    const completed2 = progress.course2;
+
+    // 課程 1 UI
+    btn1.classList.remove("locked");
+    btn1.href = "line.html";
+    btn1.textContent = "開始學習";
+    badge1.classList.toggle("unlocked", completed1);
+
+    // 課程 2 解鎖邏輯
+    if (completed1) {
+      btn2.classList.remove("locked");
+      btn2.href = "wifi.html";
+      btn2.textContent = "開始學習";
+    } else {
+      btn2.classList.add("locked");
+      btn2.href = "#";
+      btn2.textContent = "尚未解鎖";
     }
 
-    function updateUI(userId) {
-      const completed1 = getCourseProgress(userId, 1);
-      const completed2 = getCourseProgress(userId, 2);
+    badge2.classList.toggle("unlocked", completed2);
 
-      // 課程一按鈕狀態
-      if (completed1) {
-        btn1.classList.remove("locked");
-        btn1.href = "line.html";
-        btn1.textContent = "開始學習";
-        badge1.classList.add("unlocked");
-      } else {
-        btn1.classList.remove("locked");
-        btn1.href = "line.html";
-        btn1.textContent = "開始學習";
-        badge1.classList.remove("unlocked");
-      }
+    // 進度條更新
+    let totalCompleted = 0;
+    if (completed1) totalCompleted += 1;
+    if (completed2) totalCompleted += 1;
+    const percent = Math.round((totalCompleted / 2) * 100);
+    fill.style.width = percent + "%";
+    progressText.textContent = `目前完成度：${percent}%`;
+  }
 
-      // 課程二解鎖條件：完成課程一
-      if (completed1) {
-        btn2.classList.remove("locked");
-        btn2.href = "wifi.html";
-        btn2.textContent = "開始學習";
-        if (completed2) {
-          badge2.classList.add("unlocked");
-        } else {
-          badge2.classList.remove("unlocked");
-        }
-      } else {
-        btn2.classList.add("locked");
-        btn2.href = "#";
-        btn2.textContent = "尚未解鎖";
-        badge2.classList.remove("unlocked");
-      }
+  // 清除使用者進度（重置）
+  async function resetProgress(userId) {
+    await deleteDoc(doc(db, "userProgress", userId));
+    await updateUI(userId);
+    alert("已清除學習紀錄，請重新挑戰！");
+  }
 
-      const completedCount = (completed1 ? 1 : 0) + (completed2 ? 1 : 0);
-      const percent = Math.round((completedCount / 2) * 100);
-      fill.style.width = percent + "%";
-      fill.textContent = percent + "%";
-      progressText.textContent = `你已完成 ${completedCount} / 2 的課程，加油！`;
-    }
+  // 登出功能
+  logoutBtn.addEventListener("click", () => {
+    signOut(auth).then(() => {
+      window.location.href = "login.html";
+    });
+  });
 
-    onAuthStateChanged(auth, (user) => {
-      if (!user) {
-        window.location.href = 'index.html';
-        return;
-      }
+  // 監聽登入狀態並初始化 UI
+  onAuthStateChanged(auth, (user) => {
+    if (user) {
       updateUI(user.uid);
-    });
 
-    logoutBtn.addEventListener('click', () => {
-      signOut(auth).then(() => {
-        window.location.href = 'index.html';
-      });
-    });
-  </script>
+      // 綁定重置按鈕
+      if (resetBtn) {
+        resetBtn.addEventListener("click", () => {
+          resetProgress(user.uid);
+        });
+      }
+    } else {
+      window.location.href = "login.html"; // 未登入者導向登入頁
+    }
+  });
+</script>
+
 </body>
 </html>
