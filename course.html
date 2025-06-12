@@ -344,7 +344,7 @@
       if (completed1) totalCompleted += 1;
       if (completed2) totalCompleted += 1;
       const percent = Math.round((totalCompleted / 2) * 100);
-
+      fill.style.width = percent + "%";
       progressText.textContent = `目前完成度：${percent}%`;
 
     } catch (e) {
