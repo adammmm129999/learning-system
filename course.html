@@ -344,7 +344,8 @@
       if (completed2) totalCompleted += 1;
       const percent = Math.round((totalCompleted / 2) * 100);
       fill.style.width = percent + "%";
-      progressText.textContent = 目前完成度：${percent}%;
+      progressText.textContent = `目前完成度：${percent}%`;
+
     } catch (e) {
       console.error("取得進度錯誤：", e);
       alert("無法讀取學習進度，請稍後再試！");
