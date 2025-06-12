@@ -269,7 +269,7 @@
 <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/11.8.1/firebase-app.js";
   import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/11.8.1/firebase-auth.js";
-  import { getFirestore, doc, getDoc, deleteDoc } from "https://www.gstatic.com/firebasejs/11.8.1/firebase-firestore.js";
+  import { getFirestore, doc, getDoc, deleteDoc, collection } from "https://www.gstatic.com/firebasejs/11.8.1/firebase-firestore.js";
 
   // Firebase 設定
   const firebaseConfig = {
@@ -296,59 +296,71 @@
   const logoutBtn = document.getElementById('logoutBtn');
   const resetBtn = document.getElementById('resetBtn'); // 清除進度按鈕（需在 HTML 加入）
 
-  // 從 Firestore 取得學習進度
+  // ✅ 改為正確從 users/{uid}/courseProgress 中抓取資料
   async function getCourseProgress(userId) {
-    const docRef = doc(db, "userProgress", userId);
-    const docSnap = await getDoc(docRef);
+    const course1Ref = doc(db, "users", userId, "courseProgress", "course1");
+    const course2Ref = doc(db, "users", userId, "courseProgress", "course2");
 
-    if (docSnap.exists()) {
-      const data = docSnap.data();
-      return {
-        course1: data.course1 === true,
-        course2: data.course2 === true
-      };
-    } else {
-      return { course1: false, course2: false };
-    }
+    const [snap1, snap2] = await Promise.all([
+      getDoc(course1Ref),
+      getDoc(course2Ref)
+    ]);
+
+    return {
+      course1: snap1.exists() && snap1.data().completed === true,
+      course2: snap2.exists() && snap2.data().completed === true
+    };
   }
 
   // 根據學習進度更新 UI
   async function updateUI(userId) {
-    const progress = await getCourseProgress(userId);
-    const completed1 = progress.course1;
-    const completed2 = progress.course2;
+    try {
+      const progress = await getCourseProgress(userId);
+      const completed1 = progress.course1;
+      const completed2 = progress.course2;
 
-    // 課程 1 UI
-    btn1.classList.remove("locked");
-    btn1.href = "line.html";
-    btn1.textContent = "開始學習";
-    badge1.classList.toggle("unlocked", completed1);
+      // 課程 1 UI
+      btn1.classList.remove("locked");
+      btn1.href = "line.html";
+      btn1.textContent = "開始學習";
+      badge1.classList.toggle("unlocked", completed1);
 
-    // 課程 2 解鎖邏輯
-    if (completed1) {
-      btn2.classList.remove("locked");
-      btn2.href = "wifi.html";
-      btn2.textContent = "開始學習";
-    } else {
-      btn2.classList.add("locked");
-      btn2.href = "#";
-      btn2.textContent = "尚未解鎖";
+      // 課程 2 解鎖邏輯
+      if (completed1) {
+        btn2.classList.remove("locked");
+        btn2.href = "wifi.html";
+        btn2.textContent = "開始學習";
+      } else {
+        btn2.classList.add("locked");
+        btn2.href = "#";
+        btn2.textContent = "尚未解鎖";
+      }
+
+      badge2.classList.toggle("unlocked", completed2);
+
+      // 進度條更新
+      let totalCompleted = 0;
+      if (completed1) totalCompleted += 1;
+      if (completed2) totalCompleted += 1;
+      const percent = Math.round((totalCompleted / 2) * 100);
+      fill.style.width = percent + "%";
+      progressText.textContent = `目前完成度：${percent}%`;
+    } catch (e) {
+      console.error("取得進度錯誤：", e);
+      alert("無法讀取學習進度，請稍後再試！");
     }
-
-    badge2.classList.toggle("unlocked", completed2);
-
-    // 進度條更新
-    let totalCompleted = 0;
-    if (completed1) totalCompleted += 1;
-    if (completed2) totalCompleted += 1;
-    const percent = Math.round((totalCompleted / 2) * 100);
-    fill.style.width = percent + "%";
-    progressText.textContent = `目前完成度：${percent}%`;
   }
 
   // 清除使用者進度（重置）
   async function resetProgress(userId) {
-    await deleteDoc(doc(db, "userProgress", userId));
+    const course1Ref = doc(db, "users", userId, "courseProgress", "course1");
+    const course2Ref = doc(db, "users", userId, "courseProgress", "course2");
+
+    await Promise.all([
+      deleteDoc(course1Ref),
+      deleteDoc(course2Ref)
+    ]);
+
     await updateUI(userId);
     alert("已清除學習紀錄，請重新挑戰！");
   }
@@ -376,6 +388,7 @@
     }
   });
 </script>
+
 
 </body>
 </html>
